@@ -1,5 +1,5 @@
 {
-  "name": "@siddu-lingampelli/mem",
+  "name": "mem-terminal",
   "version": "1.0.0",
   "description": "Search your terminal history instantly. Fuzzy search for PowerShell/PSReadLine history.",
   "type": "module",
@@ -12,8 +12,7 @@
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cli",
