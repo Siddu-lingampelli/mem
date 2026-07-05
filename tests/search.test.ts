@@ -34,19 +34,30 @@ describe("search", () => {
     expect(results).toHaveLength(0);
   });
 
-  it("returns empty array for whitespace-only query", () => {
+  it("returns all entries for whitespace-only query", () => {
     const results = search(entries, "   ");
-    expect(results).toHaveLength(0);
+    expect(results.length).toBe(entries.length);
   });
 
-  it("returns empty array for empty query", () => {
+  it("returns all entries for empty query", () => {
     const results = search(entries, "");
-    expect(results).toHaveLength(0);
+    expect(results.length).toBe(entries.length);
+  });
+
+  it("returns all entries for 'all' keyword", () => {
+    const results = search(entries, "all");
+    expect(results.length).toBe(entries.length);
+  });
+
+  it("dedupes identical commands", () => {
+    const dupes: HistoryEntry[] = [entry("git status"), entry("git status"), entry("git status")];
+    const results = search(dupes, "git status");
+    expect(results).toHaveLength(1);
   });
 
   it("scores better matches higher", () => {
     const results = search(entries, "git status");
-    expect(results.length).toBeGreaterThanOrEqual(2);
+    expect(results.length).toBeGreaterThanOrEqual(1);
     expect(results[0].command).toBe("git status");
   });
 });

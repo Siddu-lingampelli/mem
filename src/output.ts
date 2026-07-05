@@ -45,15 +45,19 @@ export function print(results: SearchResult[], query: string): void {
     return;
   }
 
+  const MAX = 50;
+  const shown = results.slice(0, MAX);
+
   const plural = results.length === 1 ? "command" : "commands";
-  console.log(`\nFound ${results.length} matching ${plural}\n`);
+  const more = results.length > MAX ? ` (showing first ${MAX})` : "";
+  console.log(`\nFound ${results.length} matching ${plural}${more}\n`);
 
   const regex = buildHighlightRegex(query);
   const applyDim = useColor() ? dim : (s: string) => s;
   const sep = applyDim("--------------------------------");
 
-  for (let i = 0; i < results.length; i++) {
-    const r = results[i];
+  for (let i = 0; i < shown.length; i++) {
+    const r = shown[i];
     const rank = applyDim(`${i + 1}.`);
     const hl = highlight(r.command, regex);
 
