@@ -13,7 +13,7 @@ mem "docker compose"
 ## Install
 
 ```bash
-npm install -g mem
+npm install -g @siddu-lingampelli/mem
 ```
 
 ## Usage
