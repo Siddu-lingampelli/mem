@@ -1,0 +1,39 @@
+{
+  "name": "mem",
+  "version": "1.0.0",
+  "description": "Search your terminal history in seconds.",
+  "type": "module",
+  "bin": {
+    "mem": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cli",
+    "history",
+    "powershell",
+    "search"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.0.0",
+    "fuse.js": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "vitest": "^3.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
