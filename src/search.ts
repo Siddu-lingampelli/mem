@@ -56,7 +56,7 @@ function scoreCmd(command: string, queryWords: string[]): number {
     }
 
     // Query prefix match: token is a prefix of query word  ("doc" → "docker")
-    if (best > 0.15) {
+    if (best > 0.1) {
       for (const tok of tokens) {
         if (qw.startsWith(tok) && tok.length >= 2) {
           best = Math.min(best, 0.1);
@@ -65,7 +65,7 @@ function scoreCmd(command: string, queryWords: string[]): number {
     }
 
     // Substring inside a token  ("ai" in "clAIude")
-    if (best > 0.15) {
+    if (best > 0.1) {
       for (const tok of tokens) {
         if (tok.includes(qw) && qw.length >= 2) {
           best = Math.min(best, 0.25);

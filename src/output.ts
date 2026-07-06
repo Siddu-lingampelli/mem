@@ -6,7 +6,6 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
-const CYAN = "\x1b[36m";
 
 const MAX_SHOWN = 20;
 
@@ -19,7 +18,6 @@ function applyDim(text: string) { return useColor() ? `${DIM}${text}${RESET}` : 
 function bold(text: string) { return useColor() ? `${BOLD}${text}${RESET}` : text; }
 function green(text: string) { return useColor() ? `${GREEN}${text}${RESET}` : text; }
 function yellow(text: string) { return useColor() ? `${YELLOW}${text}${RESET}` : text; }
-function cyan(text: string) { return useColor() ? `${CYAN}${text}${RESET}` : text; }
 
 const SEP = applyDim("─".repeat(40));
 
@@ -38,14 +36,14 @@ export function print(results: SearchHit[], _query: string, showAll = false): vo
 
   // Header
   const suffix = total > MAX_SHOWN && !showAll
-    ? `${applyDim(" — showing top ")}${MAX_SHOWN}${applyDim(", ")}${yellow(`${total} matches`)}${cyan("")} ${applyDim(`(use `)}${bold(`--all`)}${applyDim(` to show all)`)}}`
+    ? `${applyDim(" — showing top ")}${MAX_SHOWN}${applyDim(", ")}${yellow(`${total} matches`)} ${applyDim(`(use `)}${bold(`--all`)}${applyDim(` to show all)`)}`
     : applyDim(` (${total} matches)`);
   console.log(`\n${bold(green(`${total}`))}${applyDim(" matches")}%s`, suffix);
   console.log(SEP);
 
   for (const hit of shown) {
     const freq = hit.count > 1
-      ? applyDim(` • used ${hit.count}x${hit.recent ? "" : ""}`)
+      ? applyDim(` • used ${hit.count}x`)
       : "";
     const recency = hit.recent ? applyDim(` • recent`) : "";
 
