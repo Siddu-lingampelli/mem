@@ -10,7 +10,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.0.0";
+const VERSION = "2.0.0";
 
 function stripAnsi(text: string): string {
   return text.replace(/\x1b\[\d+m/g, "");
@@ -19,6 +19,8 @@ function stripAnsi(text: string): string {
 function paint(text: string): string {
   return useColor() ? text : stripAnsi(text);
 }
+
+let showAll = false;
 
 function runSearch(query: string): void {
   try {
@@ -32,7 +34,7 @@ function runSearch(query: string): void {
       console.log("No matching commands found.");
       return;
     }
-    print(results, query);
+    print(results, query, showAll);
   } catch (err) {
     console.error("Error reading history:", (err as Error).message);
     process.exit(1);
@@ -70,6 +72,7 @@ function customHelp(): string {
 
   const options = paint([
     `${DIM}Options${RESET}`,
+    `${BOLD}--all${RESET}            Show every match without truncation`,
     `${BOLD}-V, --version${RESET}  output the version number`,
     `${BOLD}-h, --help${RESET}     display help for command`,
   ].join("\n"));
@@ -109,11 +112,13 @@ program
   .addCommand(stub("sync"))
   .addCommand(stub("stats"))
   .argument("[query]", "Search query")
-  .action((query?: string) => {
+  .option("--all", "Show every matching command without truncation")
+  .action((query: string | undefined, opts: { all?: boolean }) => {
     if (query === undefined) {
       program.outputHelp();
       return;
     }
+    showAll = opts.all ?? false;
     runSearch(query);
   });
 

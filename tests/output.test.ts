@@ -4,8 +4,8 @@ import type { SearchResult } from "../src/types.js";
 
 describe("print", () => {
   const results: SearchResult[] = [
-    { command: "docker compose up -d", score: 0 },
-    { command: "docker compose down", score: 0.2 },
+    { command: "docker compose up -d", score: 0, count: 1, recent: true },
+    { command: "docker compose down", score: 0.2, count: 2, recent: false },
   ];
 
   it("handles empty results", () => {
@@ -20,7 +20,7 @@ describe("print", () => {
     print(results, "docker");
     expect(spy).toHaveBeenCalled();
     const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
-    expect(output).toContain("Found 2 matching commands");
+    expect(output).toContain("2 matches");
     spy.mockRestore();
   });
 });

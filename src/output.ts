@@ -1,67 +1,60 @@
-import type { SearchResult } from "./types.js";
+import type { SearchHit } from "./types.js";
+import { maskSecrets } from "./secrets.js";
 
 const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
-const MAGENTA = "\x1b[35m";
+const GREEN = "\x1b[32m";
+const YELLOW = "\x1b[33m";
+const CYAN = "\x1b[36m";
+
+const MAX_SHOWN = 20;
 
 export function useColor(): boolean {
   if (process.env.NO_COLOR !== undefined) return false;
   return process.stdout.isTTY === true;
 }
 
-function color(text: string) {
-  return `${MAGENTA}${text}${RESET}`;
-}
+function applyDim(text: string) { return useColor() ? `${DIM}${text}${RESET}` : text; }
+function bold(text: string) { return useColor() ? `${BOLD}${text}${RESET}` : text; }
+function green(text: string) { return useColor() ? `${GREEN}${text}${RESET}` : text; }
+function yellow(text: string) { return useColor() ? `${YELLOW}${text}${RESET}` : text; }
+function cyan(text: string) { return useColor() ? `${CYAN}${text}${RESET}` : text; }
 
-export function dim(text: string) {
-  return `${DIM}${text}${RESET}`;
-}
+const SEP = applyDim("─".repeat(40));
 
-function escapeRegExp(str: string) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function buildHighlightRegex(query: string): RegExp | null {
-  const trimmed = query.trim();
-  if (trimmed.length === 0) return null;
-
-  const pattern = trimmed.split(/\s+/).filter(Boolean).map(escapeRegExp).join("|");
-  if (pattern.length === 0) return null;
-
-  return new RegExp(`(${pattern})`, "gi");
-}
-
-function highlight(command: string, regex: RegExp | null): string {
-  if (!regex) return command;
-  if (useColor()) {
-    return command.replace(regex, color("$1"));
-  }
-  return command;
-}
-
-export function print(results: SearchResult[], query: string): void {
+export function print(results: SearchHit[], _query: string, showAll = false): void {
+  void _query; // kept for API compatibility
   if (results.length === 0) {
     console.log("No matching commands found.");
     return;
   }
 
-  const MAX = 50;
-  const shown = results.slice(0, MAX);
+  // Mask secrets in results
+  const masked = results.map((r) => ({ ...r, command: maskSecrets(r.command) }));
 
-  const plural = results.length === 1 ? "command" : "commands";
-  const more = results.length > MAX ? ` (showing first ${MAX})` : "";
-  console.log(`\nFound ${results.length} matching ${plural}${more}\n`);
+  const total = masked.length;
+  const shown = showAll ? masked : masked.slice(0, MAX_SHOWN);
 
-  const regex = buildHighlightRegex(query);
-  const applyDim = useColor() ? dim : (s: string) => s;
-  const sep = applyDim("--------------------------------");
+  // Header
+  const suffix = total > MAX_SHOWN && !showAll
+    ? `${applyDim(" — showing top ")}${MAX_SHOWN}${applyDim(", ")}${yellow(`${total} matches`)}${cyan("")} ${applyDim(`(use `)}${bold(`--all`)}${applyDim(` to show all)`)}}`
+    : applyDim(` (${total} matches)`);
+  console.log(`\n${bold(green(`${total}`))}${applyDim(" matches")}%s`, suffix);
+  console.log(SEP);
 
-  for (let i = 0; i < shown.length; i++) {
-    const r = shown[i];
-    const rank = applyDim(`${i + 1}.`);
-    const hl = highlight(r.command, regex);
+  for (const hit of shown) {
+    const freq = hit.count > 1
+      ? applyDim(` • used ${hit.count}x${hit.recent ? "" : ""}`)
+      : "";
+    const recency = hit.recent ? applyDim(` • recent`) : "";
 
-    console.log(`${rank}\n\n${hl}`);
-    console.log(`${sep}\n`);
+    console.log(`  ${bold(hit.command)}`);
+    if (freq || recency) {
+      console.log(`    ${freq}${freq && recency ? applyDim(` • `) : ""}${recency}`);
+    }
   }
+
+  console.log(SEP);
+  console.log(`${applyDim(`  ${total} total commands`)}`);
 }
