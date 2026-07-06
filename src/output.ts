@@ -6,6 +6,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
+const MAGENTA = "\x1b[35m";
 
 const MAX_SHOWN = 20;
 
@@ -14,45 +15,63 @@ export function useColor(): boolean {
   return process.stdout.isTTY === true;
 }
 
-function applyDim(text: string) { return useColor() ? `${DIM}${text}${RESET}` : text; }
-function bold(text: string) { return useColor() ? `${BOLD}${text}${RESET}` : text; }
-function green(text: string) { return useColor() ? `${GREEN}${text}${RESET}` : text; }
-function yellow(text: string) { return useColor() ? `${YELLOW}${text}${RESET}` : text; }
+function colorize(text: string, code: string) { return useColor() ? `${code}${text}${RESET}` : text; }
+const dim = (s: string) => colorize(s, DIM);
+const bold = (s: string) => colorize(s, BOLD);
+const green = (s: string) => colorize(s, GREEN);
+const yellow = (s: string) => colorize(s, YELLOW);
+const magenta = (s: string) => colorize(s, MAGENTA);
 
-const SEP = applyDim("─".repeat(40));
+const SEP = dim("─".repeat(40));
 
-export function print(results: SearchHit[], _query: string, showAll = false): void {
-  void _query; // kept for API compatibility
+/** Escape regex metacharacters. */
+function esc(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Build a highlighting regex from query words (case-insensitive). */
+function highlightCmd(cmd: string, query: string): string {
+  const q = query.trim().toLowerCase();
+  if (!q || q === "all" || q === "*") return cmd;
+  const words = q.split(/[^a-z0-9]+/).filter(Boolean).filter(w => w.length >= 2);
+  if (words.length === 0) return cmd;
+  const pattern = words.map(w => `(${esc(w)})`).join("|");
+  const re = new RegExp(pattern, "gi");
+  if (!useColor()) return cmd.replace(re, "$1");
+  return cmd.replace(re, `${MAGENTA}$1${RESET}`);
+}
+
+export function print(results: SearchHit[], query: string, showAll = false): void {
   if (results.length === 0) {
     console.log("No matching commands found.");
     return;
   }
 
-  // Mask secrets in results
   const masked = results.map((r) => ({ ...r, command: maskSecrets(r.command) }));
-
   const total = masked.length;
   const shown = showAll ? masked : masked.slice(0, MAX_SHOWN);
 
   // Header
   const suffix = total > MAX_SHOWN && !showAll
-    ? `${applyDim(" — showing top ")}${MAX_SHOWN}${applyDim(", ")}${yellow(`${total} matches`)} ${applyDim(`(use `)}${bold(`--all`)}${applyDim(` to show all)`)}`
-    : applyDim(` (${total} matches)`);
-  console.log(`\n${bold(green(`${total}`))}${applyDim(" matches")}%s`, suffix);
-  console.log(SEP);
+    ? dim(` — showing top ${MAX_SHOWN}`)
+    : "";
+  console.log(`\n${green(`${total}`)}${dim(" matches")}${suffix}`);
 
-  for (const hit of shown) {
-    const freq = hit.count > 1
-      ? applyDim(` • used ${hit.count}x`)
-      : "";
-    const recency = hit.recent ? applyDim(` • recent`) : "";
-
-    console.log(`  ${bold(hit.command)}`);
-    if (freq || recency) {
-      console.log(`    ${freq}${freq && recency ? applyDim(` • `) : ""}${recency}`);
-    }
+  if (total > MAX_SHOWN && !showAll) {
+    console.log(dim(`  use --all to show all`));
   }
 
   console.log(SEP);
-  console.log(`${applyDim(`  ${total} total commands`)}`);
+
+  for (const hit of shown) {
+    const hl = highlightCmd(hit.command, query);
+    console.log(`  ${bold(hl)}`);
+
+    const parts: string[] = [];
+    if (hit.count > 1) parts.push(`${hit.count}×`);
+    if (hit.recent) parts.push("recent");
+    if (parts.length) console.log(`    ${dim(parts.join(" • "))}`);
+  }
+
+  console.log(SEP);
 }
