@@ -5,7 +5,6 @@ const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
 const MAGENTA = "\x1b[35m";
 
 const MAX_SHOWN = 20;
@@ -19,8 +18,6 @@ function colorize(text: string, code: string) { return useColor() ? `${code}${te
 const dim = (s: string) => colorize(s, DIM);
 const bold = (s: string) => colorize(s, BOLD);
 const green = (s: string) => colorize(s, GREEN);
-const yellow = (s: string) => colorize(s, YELLOW);
-const magenta = (s: string) => colorize(s, MAGENTA);
 
 const SEP = dim("─".repeat(40));
 

@@ -3,7 +3,10 @@ import type { HistoryEntry, SearchHit } from "./types.js";
 const ALL_KEYWORDS = ["all", "*", "everything"];
 
 /** Commands starting with these prefixes are ignored (self-pollution). */
-const SELF_PREFIXES = ["mem ", "mem search ", "mem stats ", "mem sync ", "mem index ", "history", "clear", "cls", "exit"];
+const SELF_PREFIXES = ["mem ", "mem search ", "mem stats ", "mem sync ", "mem index "];
+
+/** Exact commands that are noise. */
+const EXACT_NOISE = new Set(["mem", "history", "clear", "cls", "exit"]);
 
 /** Return true when a command should never appear in results. */
 function isNoise(cmd: string): boolean {
@@ -11,7 +14,7 @@ function isNoise(cmd: string): boolean {
   for (const p of SELF_PREFIXES) {
     if (c.startsWith(p)) return true;
   }
-  if (c === "mem" || c === "history" || c === "clear" || c === "cls" || c === "exit") return true;
+  if (EXACT_NOISE.has(c)) return true;
   if (c.length <= 1) return true;
   if (/^[^a-z0-9]+$/.test(c)) return true;
   return false;

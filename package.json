@@ -1,6 +1,6 @@
 {
   "name": "mem-terminal",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "Search your terminal history instantly. Fuzzy search for PowerShell/PSReadLine history.",
   "type": "module",
   "bin": {
@@ -22,8 +22,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "commander": "^13.0.0",
-    "fuse.js": "^7.1.0"
+    "commander": "^13.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
