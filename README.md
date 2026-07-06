@@ -1,13 +1,13 @@
 # mem
 
-Never lose a terminal command again. Search your PowerShell history instantly using keywords and fuzzy search. No cloud. No setup.
+Never lose a terminal command again. Search your PowerShell history instantly using keywords. No cloud. No setup.
 
 ```bash
 mem "docker compose"
-# → Found 3 matching commands
-#   1. docker compose up -d
-#   2. docker compose down
-#   3. docker compose logs
+# → 3 matches
+#   docker compose up -d    • recent
+#   docker compose down     • used 2x
+#   docker compose logs
 ```
 
 ## Install
@@ -20,37 +20,36 @@ npm install -g mem-terminal
 
 ```bash
 mem "docker compose"        # direct search
-mem search "docker compose" # explicit subcommand
+mem "git" --all             # show all 172 results
+mem search "npm run build"  # explicit subcommand
 mem --help                  # show help
 mem --version               # show version
 ```
 
-Fuzzy matching works with typos, partial words, and any case:
+Results are deduped, ranked by relevance, with usage frequency and recency:
 
 ```bash
-mem "docer"          # fuzzy → finds docker
-mem "DOCKER"         # case insensitive
-mem " docker "       # spaces trimmed
-mem ""               # → friendly error
+mem "git"
+# → 16 matches (showing top 20)
+#   git status              • used 12x • recent
+#   git push origin main    • used 8x
+#   git commit -m "fix"
 ```
+
+Use `--all` to see every match without truncation.
 
 ## How it works
 
 Reads your PSReadLine history (`ConsoleHost_history.txt`), newest-first.
 Detects UTF-8 and UTF-16 LE BOM automatically.
-Searches with Fuse.js (threshold 0.6, min match length 2).
-Formats results with ANSI highlights (respects `NO_COLOR` env var).
+Token-aware search with strict relevance ranking.
+Respects `NO_COLOR` env var.
 
-**Search engine config:**
+## Security
 
-```typescript
-const fuse = new Fuse(entries, {
-  keys: ["command"],
-  includeScore: true,
-  threshold: 0.6,
-  minMatchCharLength: 2,
-});
-```
+API keys and tokens in history are automatically masked on display:
+- `github_pat_****`, `ghp_****`, `sk-****`, `AIza****`
+- Authorization headers, Bearer tokens, AWS keys, JWTs
 
 ## Requirements
 
@@ -59,15 +58,16 @@ const fuse = new Fuse(entries, {
 
 ## Roadmap
 
-- **V1** ✅ — PowerShell history search, fuzzy matching
-- **V2** — Indexed search, Bash/Zsh/Fish support, sync, stats
+- **V1** ✅ — PowerShell history search, deduped results, counts
+- **V2 (current)** ✅ — Token-aware ranking, `--all` flag, secret masking
+- **V3** — Bash/Zsh/Fish support, indexed search, sync
 
 ## Development
 
 ```bash
 npm install
 npm run build     # tsc
-npm test          # vitest run (13 tests)
+npm test          # vitest run (15 tests)
 npm run dev       # tsx src/cli.ts
 ```
 
