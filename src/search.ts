@@ -2,87 +2,108 @@ import type { HistoryEntry, SearchHit } from "./types.js";
 
 const ALL_KEYWORDS = ["all", "*", "everything"];
 
-/**
- * Tokenise a command into lower-case alphanumeric tokens.
- */
+/** Commands mem itself produces — never return as search results. */
+const SELF_CMDS = new Set(["mem", "mem search", "mem stats", "mem sync", "mem index"]);
+
+/** Return true when a command is noise that should never appear in results. */
+function isNoise(cmd: string): boolean {
+  const c = cmd.trim().toLowerCase();
+  if (SELF_CMDS.has(c)) return true;
+  // Single char or pure punctuation
+  if (c.length <= 1) return true;
+  if (/^[^a-z0-9]+$/.test(c)) return true;
+  return false;
+}
+
+/** Tokenise a command into lower-case alphanumeric tokens. */
 function tokenise(s: string): string[] {
   return s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 }
 
 /**
- * Compute a simple relevance score (0 = perfect, 1 = no match).
- * Token-aware: the query "com" will rank "docker compose" higher than
- * "Get-Command" because the token match is longer relative to the token
- * and appears after a word boundary, but still works for substring hits.
+ * Score a command for a set of query words (0 = perfect, 1 = no match).
+ *
+ * Scoring hierarchy (per query word):
+ *   0.00  exact token match ("git" in "git status")
+ *   0.10  token is a prefix of query word ("doc" → "docker")
+ *   0.15  query word is a prefix of token ("com" → "compose")
+ *   0.25  token contains query word as substring ("ai" → "clAIude")
+ *   0.35  query word matches command start ("get" → "Get-ChildItem")
+ *   0.50  query word appears anywhere in the command string
+ *   1.00  no match at all
+ *
+ * The final score is the average across all query words, clipped to [0, 1].
  */
 function scoreCmd(command: string, queryWords: string[]): number {
   const lower = command.toLowerCase();
-  const tokens = tokenise(command);
+  const tokens = tokenise(lower);
   let totalPenalty = 0;
 
   for (const qw of queryWords) {
-    // Try exact token match first (fuzzy already caught by Fuse earlier)
-    let best = 1;
-
-    // 1) Full token match
-    for (const tok of tokens) {
-      if (tok === qw) { best = Math.min(best, 0); break; }
+    // If any token exactly equals the query word → best possible.
+    if (tokens.includes(qw)) {
+      totalPenalty += 0;
+      continue;
     }
 
-    // 2) Token starts with query word  (com → compose: 0.15)
-    if (best > 0) {
+    let best = 1;
+
+    // Token prefix match: query word is a prefix of a token  ("com" → "compose")
+    for (const tok of tokens) {
+      if (tok.startsWith(qw) && qw.length >= 2) {
+        best = Math.min(best, 0.15);
+      }
+    }
+
+    // Query prefix match: token is a prefix of query word  ("doc" → "docker")
+    if (best > 0.15) {
       for (const tok of tokens) {
-        if (tok.startsWith(qw) && tok.length > qw.length) {
-          best = Math.min(best, 0.15);
+        if (qw.startsWith(tok) && tok.length >= 2) {
+          best = Math.min(best, 0.1);
         }
       }
     }
 
-    // 3) Query word starts with token (doc → docker: 0.25)
-    if (best > 0) {
+    // Substring inside a token  ("ai" in "clAIude")
+    if (best > 0.15) {
       for (const tok of tokens) {
-        if (qw.startsWith(tok) && qw.length > tok.length) {
+        if (tok.includes(qw) && qw.length >= 2) {
           best = Math.min(best, 0.25);
         }
       }
     }
 
-    // 4) Substring inside any token  (ai → claude: 0.45)
-    if (best > 0) {
-      for (const tok of tokens) {
-        if (tok.includes(qw)) {
-          best = Math.min(best, 0.45);
-        }
-      }
+    // Command starts with query word  ("get" → "Get-ChildItem")
+    if (best > 0.35 && lower.startsWith(qw)) {
+      best = Math.min(best, 0.35);
     }
 
-    // 5) Substring anywhere in command (weak)
-    if (best > 0 && lower.includes(qw)) {
-      best = Math.min(best, 0.6);
+    // Substring anywhere in full command
+    if (best > 0.5 && lower.includes(qw)) {
+      best = Math.min(best, 0.5);
     }
 
     totalPenalty += best;
   }
 
-  return totalPenalty / queryWords.length;
+  return Math.min(totalPenalty / queryWords.length, 1);
 }
 
 /**
  * Deduplicate identical commands and collect stats.
- * Returns entries unique by command, newest first, with count and recency.
+ * Returns unique commands (newest first) with count and recency.
  */
 function dedupeWithCounts(entries: HistoryEntry[]): SearchHit[] {
-  const seen = new Map<string, { count: number; index: number; firstIndex: number }>();
+  const seen = new Map<string, { count: number; index: number }>();
   const total = entries.length;
 
-  // Count and track positions — first occurrence wins for newest ordering
   for (let i = 0; i < entries.length; i++) {
     const cmd = entries[i].command;
     const existing = seen.get(cmd);
     if (existing) {
       existing.count++;
     } else {
-      seen.set(cmd, { count: 1, index: i, firstIndex: i });
+      seen.set(cmd, { count: 1, index: i });
     }
   }
 
@@ -97,7 +118,6 @@ function dedupeWithCounts(entries: HistoryEntry[]): SearchHit[] {
     });
   }
 
-  // Sort by first occurrence (newest first since entries are newest-first)
   return hits.sort((a, b) => {
     const aIdx = seen.get(a.command)!.index;
     const bIdx = seen.get(b.command)!.index;
@@ -105,30 +125,35 @@ function dedupeWithCounts(entries: HistoryEntry[]): SearchHit[] {
   });
 }
 
+/**
+ * Search history entries.
+ *
+ * - Empty / "all" → every unique command (deduped, newest-first, with counts)
+ * - Otherwise → token-aware fuzzy search with strict relevance filtering
+ */
 export function search(entries: HistoryEntry[], query: string): SearchHit[] {
   const normalized = query.trim();
 
-  // "all" / empty → show every unique command (deduped, newest-first, with counts)
   if (normalized.length === 0 || ALL_KEYWORDS.includes(normalized.toLowerCase())) {
-    return dedupeWithCounts(entries).map((h) => ({ ...h, score: 1 }));
+    return dedupeWithCounts(entries).filter((h) => !isNoise(h.command));
   }
 
   const queryWords = tokenise(normalized);
   if (queryWords.length === 0) {
-    return dedupeWithCounts(entries).map((h) => ({ ...h, score: 1 }));
+    return dedupeWithCounts(entries).filter((h) => !isNoise(h.command));
   }
 
-  // Score each unique command
-  const deduped = dedupeWithCounts(entries);
+  const deduped = dedupeWithCounts(entries).filter((h) => !isNoise(h.command));
+
   const scored = deduped.map((h) => ({
     ...h,
     score: scoreCmd(h.command, queryWords),
   }));
 
-  // Filter: keep score < 0.7 (catch substring / token-prefix matches but reject noise)
-  const filtered = scored.filter((h) => h.score < 0.7);
+  // Strict filter: only scores < 0.4 survive (was 0.7 — too loose)
+  const filtered = scored.filter((h) => h.score < 0.4);
 
-  // Sort by score (lower = better), then by count (more frequent first), then by recency
+  // Sort by score, then frequency, then recency
   filtered.sort((a, b) => {
     const d = a.score - b.score;
     if (Math.abs(d) > 0.01) return d;

@@ -23,10 +23,9 @@ describe("search", () => {
     expect(results[0].command).toContain("docker compose");
   });
 
-  it("fuzzy matches near-misses", () => {
+  it("returns empty for typo (strict = no fuzzy)", () => {
     const results = search(entries, "docer compose");
-    expect(results.length).toBeGreaterThan(0);
-    expect(results.some((r) => r.command.includes("docker"))).toBe(true);
+    expect(results).toHaveLength(0);
   });
 
   it("returns empty array for impossible query", () => {
