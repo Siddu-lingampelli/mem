@@ -79,8 +79,8 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   { re: /(hooks\.slack\.com\/services\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/)[A-Za-z0-9]+/g, mask: "$1********" },
   // Telegram bot tokens
   { re: /\b(bot[0-9]{8,}:[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  // Discord bot tokens
-  { re: /\b([A-Za-z0-9_-]{24,26}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,38})/g, mask: "$1********" },
+  // Discord bot tokens (format: <id>.<timestamp>.<hmac>)
+  { re: /\b([A-Za-z0-9_-]{18,26})\.([A-Za-z0-9_-]{6})\.([A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, mask: "$1.$2.$3********" },
 
   // ── Package registries ────────────────────────────────────────
   { re: /\b(npm_[A-Za-z0-9]{4})[A-Za-z0-9]+/g, mask: "$1********" },

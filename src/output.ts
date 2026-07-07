@@ -75,9 +75,12 @@ export function print(
     if (q && q !== "all" && q !== "*") {
       console.log(yellow("No matching commands."));
       console.log(dim(`  Try: mem "${q.slice(0, 12)}"`));
-      // Suggest common nearby commands
+      // Suggest commands sharing a 2-char prefix with the query
       const sugg = ["docker", "git", "npm", "cd", "ls", "ssh", "curl", "node"];
-      const filtered = sugg.filter(s => s.includes(q[0]) || q.includes(s[0]));
+      const prefix2 = q.slice(0, 2);
+      const filtered = sugg.filter(s =>
+        s.includes(prefix2) || q.includes(s.slice(0, 2))
+      );
       const picks = filtered.length > 0 ? filtered.slice(0, 3) : sugg.slice(0, 3);
       console.log(dim(`  Try: ${picks.map(s => `mem "${s}"`).join(", ")}`));
     } else {

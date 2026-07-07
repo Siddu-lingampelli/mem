@@ -11,7 +11,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.2.3";
+const VERSION = "1.2.4";
 
 function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -26,6 +26,13 @@ function paint(text: string): string {
 
 let showAll = false;
 let maxCount: number | undefined;
+
+/** Parse a user-supplied integer, returning fallback on invalid input. */
+function parseCount(val: string | undefined, fallback?: number): number | undefined {
+  if (val === undefined || val.length === 0) return fallback;
+  const n = parseInt(val, 10);
+  return Number.isNaN(n) || n < 1 ? fallback : n;
+}
 
 function runSearch(query: string): void {
   try {
@@ -103,7 +110,7 @@ searchCmd
   .description("Search your terminal history")
   .action((query: string, opts: { all?: boolean; max?: string }) => {
     showAll = opts.all ?? false;
-    maxCount = opts.max ? parseInt(opts.max, 10) : undefined;
+    maxCount = opts.max ? parseCount(opts.max) : undefined;
     runSearch(query);
   });
 
@@ -112,7 +119,7 @@ benchCmd
   .description("Benchmark history parsing and search performance")
   .option("-l, --limit <n>", "History read limit", "50000")
   .action((opts: { limit?: string }) => {
-    const limit = opts.limit ? parseInt(opts.limit, 10) : 50000;
+    const limit = parseCount(opts.limit, 50000) ?? 50000;
     runBench(limit);
   });
 
@@ -143,7 +150,7 @@ program
       return;
     }
     showAll = opts.all ?? false;
-    maxCount = opts.max ? parseInt(opts.max, 10) : undefined;
+    maxCount = opts.max ? parseCount(opts.max) : undefined;
     runSearch(query);
   });
 
