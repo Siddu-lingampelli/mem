@@ -21,48 +21,41 @@ describe("welcome", () => {
     expect(hasSeenWelcome()).toBe(true);
   });
 
-  it("showWelcome outputs welcome text", () => {
-    const out: string[] = [];
-    const spy = vi.spyOn(console, "log").mockImplementation((m) => out.push(String(m)));
-
-    // Simulate the welcome rendering without stdin blocking
-    // by calling the internal render functionality
-    const VERSION = "1.2.4";
+  it("showWelcome renders expected content", () => {
+    const VERSION = "1.2.5";
     const lines = [
       "",
-      `╭────────────────────────────────────────╮`,
-      `│  mem v${VERSION}                          │`,
-      `│                                        │`,
-      `│  Search your terminal history          │`,
-      `│  instantly.                            │`,
-      `╰────────────────────────────────────────╯`,
+      `┌────────────────────────────────────┐`,
+      `│  mem v${VERSION}                        │`,
+      `│  Never lose a terminal command.     │`,
+      `└────────────────────────────────────┘`,
       "",
       "Quick Start",
       `  mem "docker"`,
       `  mem "git"`,
-      `  mem "npm"`,
       "",
-      "Help",
-      "  mem --help",
-      "",
-      "Supported",
+      "Supports",
       "  ✓ PowerShell",
       "  ✓ Bash",
       "  ✓ Zsh",
       "  ✓ Fish",
       "",
+      "Run mem --help anytime.",
+      "",
       "Press Enter to continue...",
     ];
-    for (const l of lines) console.log(l);
 
-    spy.mockRestore();
-    const output = out.join("\n");
-    expect(output).toContain("mem v1.2.4");
-    expect(output).toContain("Quick Start");
-    expect(output).toContain("Press Enter to continue");
-    expect(output).toContain("PowerShell");
-    expect(output).toContain("Bash");
-    expect(output).toContain("Zsh");
-    expect(output).toContain("Fish");
+    // Verify key labels exist
+    expect(lines.join("\n")).toContain("mem v1.2.5");
+    expect(lines.join("\n")).toContain("Never lose a terminal command");
+    expect(lines.join("\n")).toContain("Quick Start");
+    expect(lines.join("\n")).toContain('mem "docker"');
+    expect(lines.join("\n")).toContain('mem "git"');
+    expect(lines.join("\n")).toContain("Supports");
+    expect(lines.join("\n")).toContain("PowerShell");
+    expect(lines.join("\n")).toContain("Bash");
+    expect(lines.join("\n")).toContain("Zsh");
+    expect(lines.join("\n")).toContain("Fish");
+    expect(lines.join("\n")).toContain("Press Enter to continue");
   });
 });

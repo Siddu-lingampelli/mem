@@ -12,57 +12,46 @@ const GREEN = "\x1b[32m";
 
 function c(t: string, code: string) { return useColor() ? `${code}${t}${RESET}` : t; }
 
-/** Render the welcome box with centered text. */
+/** Render the first-run welcome. */
 function renderWelcome(version: string): string[] {
-  const w = 38; // interior width
-  const L = (s: string) => c("│ " + s + " ".repeat(Math.max(0, w - 1 - s.length)) + "│", DIM);
+  const w = 36;
+  const pad = (s: string) => c("│ " + s + " ".repeat(Math.max(0, w - 1 - s.length)) + "│", DIM);
 
-  const lines = [
+  return [
     "",
-    c("╭" + "─".repeat(w + 2) + "╮", CYAN),
-    L(c(`mem v${version}`, BOLD)),
-    L(""),
-    L("Search your terminal history"),
-    L("instantly."),
-    c("╰" + "─".repeat(w + 2) + "╯", CYAN),
+    c("┌" + "─".repeat(w) + "┐", CYAN),
+    pad(c(`mem v${version}`, BOLD)),
+    pad("Never lose a terminal command."),
+    c("└" + "─".repeat(w) + "┘", CYAN),
     "",
     c("Quick Start", BOLD),
     `  ${c("mem", CYAN)} "docker"`,
     `  ${c("mem", CYAN)} "git"`,
-    `  ${c("mem", CYAN)} "npm"`,
     "",
-    c("Help", BOLD),
-    `  ${c("mem", CYAN)} --help`,
-    "",
-    c("Supported", BOLD),
+    c("Supports", BOLD),
     `  ${c("✓", GREEN)} PowerShell`,
     `  ${c("✓", GREEN)} Bash`,
     `  ${c("✓", GREEN)} Zsh`,
     `  ${c("✓", GREEN)} Fish`,
     "",
+    `${c("Run", DIM)} ${c("mem --help", CYAN)} ${c("anytime.", DIM)}`,
+    "",
     c("Press Enter to continue...", DIM),
   ];
-  return lines;
 }
 
-/** Has the welcome screen been shown before? */
 export function hasSeenWelcome(): boolean {
   return existsSync(FLAG_FILE);
 }
 
-/** Show the first-run welcome screen and wait for Enter. */
 export function showWelcome(version = "1.2.5"): void {
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
-  // Synchronously wait for a single Enter press
   try {
     const buf = Buffer.alloc(1);
     readSync(process.stdin.fd, buf, 0, 1, null);
-  } catch {
-    // stdin unavailable (piped, non-TTY), just continue
-  }
+  } catch { /* non-TTY */ }
 
-  // Mark as seen
   try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
 }

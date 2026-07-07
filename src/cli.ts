@@ -149,6 +149,7 @@ program
     if (query === undefined) {
       if (!hasSeenWelcome()) {
         showWelcome(VERSION);
+        return;
       }
       program.outputHelp();
       return;
