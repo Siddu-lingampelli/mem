@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readHistory } from "./history.js";
-import { search } from "./search.js";
+import { preprocess, searchCached } from "./search.js";
 
 const BENCH_QUERIES = ["git", "docker", "npm", "ssh", "node"];
 
@@ -16,20 +16,28 @@ export function runBench(limit = 50000): void {
     return;
   }
 
-  // Measure search across several queries
+  // Pre-process once (dedupe, tokenise, index)
+  const processStart = performance.now();
+  const cached = preprocess(entries);
+  const processMs = performance.now() - processStart;
+
+  // Measure search across several queries (reuses pre-processed data)
   const searchStart = performance.now();
   for (const q of BENCH_QUERIES) {
-    search(entries, q);
+    searchCached(cached, entries.length, q);
   }
   const searchMs = performance.now() - searchStart;
 
-  const totalMs = parseMs + searchMs;
+  const totalMs = parseMs + processMs + searchMs;
 
   console.log(`History
   ${entries.length.toLocaleString()} commands
 
 Parser
   ${parseMs.toFixed(0)} ms
+
+Process
+  ${processMs.toFixed(0)} ms
 
 Search
   ${searchMs.toFixed(0)} ms
