@@ -11,7 +11,10 @@ describe("print", () => {
   it("handles empty results", () => {
     const spy = vi.spyOn(console, "log");
     print([], "docker");
-    expect(spy).toHaveBeenCalledWith("No matching commands found.");
+    expect(spy).toHaveBeenCalled();
+    const msgs = spy.mock.calls.flatMap((c) => String(c)).join(" ");
+    expect(msgs).toContain("No matching commands");
+    expect(msgs).toContain("Try: mem");
     spy.mockRestore();
   });
 
