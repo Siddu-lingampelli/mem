@@ -5,6 +5,7 @@ import { readHistory } from "./history.js";
 import { search } from "./search.js";
 import { print, useColor } from "./output.js";
 import { runBench } from "./bench.js";
+import { hasSeenWelcome, showWelcome } from "./welcome.js";
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
@@ -146,6 +147,9 @@ program
   .option("-n, --max <n>", "Show at most N results")
   .action((query: string | undefined, opts: { all?: boolean; max?: string }) => {
     if (query === undefined) {
+      if (!hasSeenWelcome()) {
+        showWelcome(VERSION);
+      }
       program.outputHelp();
       return;
     }
