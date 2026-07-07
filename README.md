@@ -58,7 +58,7 @@ API keys and tokens in history are automatically masked on display:
 
 ## Roadmap
 
-- **V1 (current)** ✅ — PowerShell history search, deduped results, counts, fuzzy matching
+- **V1.1.1 (current)** ✅ — PowerShell history search, deduped results, counts, fuzzy matching
 - **V2** — Token-aware ranking, `--all` flag, secret masking
 - **V3** — Bash/Zsh/Fish support, indexed search, sync
 
