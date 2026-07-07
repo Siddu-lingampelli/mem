@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "fs";
 import type { HistoryEntry } from "./types.js";
 import { getHistoryFilePath } from "./utils.js";
+import { readBashHistory } from "./bash-history.js";
 
 /**
  * Detects BOM (Byte Order Mark) in buffer and returns the appropriate encoding.
@@ -20,23 +21,24 @@ function detectEncoding(buffer: Buffer): "utf-8" | "utf8" | "utf16le" {
 
 export function readHistory(limit = 2000): HistoryEntry[] {
   const path = getHistoryFilePath();
-  if (!existsSync(path)) {
-    return [];
-  }
+  if (existsSync(path)) {
+    const buffer = readFileSync(path);
+    const encoding = detectEncoding(buffer);
+    let raw = buffer.toString(encoding);
+    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    const lines = raw.split(/\r?\n/);
 
-  const buffer = readFileSync(path);
-  const encoding = detectEncoding(buffer);
-  let raw = buffer.toString(encoding);
-  if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
-  const lines = raw.split(/\r?\n/);
-
-  const entries: HistoryEntry[] = [];
-  for (let i = lines.length - 1; i >= 0 && entries.length < limit; i--) {
-    const cmd = lines[i].trim();
-    if (cmd.length > 0) {
-      entries.push({ command: cmd });
+    const entries: HistoryEntry[] = [];
+    for (let i = lines.length - 1; i >= 0 && entries.length < limit; i--) {
+      const cmd = lines[i].trim();
+      if (cmd.length > 0) {
+        entries.push({ command: cmd });
+      }
     }
+
+    return entries;
   }
 
-  return entries;
+  // Fallback: try Bash history (.bash_history) on Linux/macOS/Git Bash
+  return readBashHistory(limit);
 }

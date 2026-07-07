@@ -1,6 +1,6 @@
 # mem
 
-Never lose a terminal command again. Search your PowerShell history instantly using keywords. No cloud. No setup.
+Never lose a terminal command again. Search your PowerShell or Bash history instantly using keywords. No cloud. No setup.
 
 ```bash
 mem "docker compose"
@@ -40,8 +40,9 @@ Use `--all` to see every match without truncation.
 
 ## How it works
 
-Reads your PSReadLine history (`ConsoleHost_history.txt`), newest-first.
-Detects UTF-8 and UTF-16 LE BOM automatically.
+Reads your PSReadLine history (`ConsoleHost_history.txt`) or Bash history (`.bash_history`), newest-first.
+Auto-detects which file exists.
+Detects UTF-8, UTF-16 LE BOM, and HISTTIMEFORMAT timestamps automatically.
 Token-aware search with strict relevance ranking.
 Respects `NO_COLOR` env var.
 
@@ -53,14 +54,13 @@ API keys and tokens in history are automatically masked on display:
 
 ## Requirements
 
-- Windows + PowerShell (PSReadLine history)
 - Node.js 18+
+- PowerShell (PSReadLine history) **or** Bash (.bash_history) — Linux, macOS, Git Bash on Windows
 
 ## Roadmap
 
-- **V1.1.3 (current)** ✅ — PowerShell history search, deduped results, counts, fuzzy matching
-- **V2** — Token-aware ranking, `--all` flag, secret masking
-- **V3** — Bash/Zsh/Fish support, indexed search, sync
+- **V1.1.3 (current)** ✅ — PowerShell & Bash history search, fuzzy matching, `--all` flag, secret masking
+- **V3** — Zsh/Fish support, indexed search, sync
 
 ## Development
 
@@ -71,11 +71,15 @@ npm test          # vitest run (15 tests)
 npm run dev       # tsx src/cli.ts
 ```
 
-Override history file for testing:
+Override history file for testing (PowerShell):
 
 ```bash
 $env:PSREADLINE_HISTORY_FILE = ".\test_history.txt"
 node dist/cli.js "docker"
+
+# Or override Bash history:
+$env:HISTFILE = ".\test_bash_history.txt"
+node dist/cli.js "ssh"
 ```
 
 ## License
