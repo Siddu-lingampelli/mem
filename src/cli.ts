@@ -4,6 +4,7 @@ import { program, Command } from "commander";
 import { readHistory } from "./history.js";
 import { search } from "./search.js";
 import { print, useColor } from "./output.js";
+import { runBench } from "./bench.js";
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
@@ -62,6 +63,7 @@ function customHelp(): string {
   const commands = paint([
     `${DIM}Commands${RESET}`,
     `${BOLD}search${RESET} <query>    Search your terminal history`,
+    `${BOLD}bench${RESET}             Benchmark history parsing and search`,
     `${BOLD}index${RESET}             ${DIM}(coming in V2)${RESET}`,
     `${BOLD}sync${RESET}              ${DIM}(coming in V2)${RESET}`,
     `${BOLD}stats${RESET}             ${DIM}(coming in V2)${RESET}`
@@ -105,6 +107,15 @@ searchCmd
     runSearch(query);
   });
 
+const benchCmd = new Command("bench");
+benchCmd
+  .description("Benchmark history parsing and search performance")
+  .option("-l, --limit <n>", "History read limit", "50000")
+  .action((opts: { limit?: string }) => {
+    const limit = opts.limit ? parseInt(opts.limit, 10) : 50000;
+    runBench(limit);
+  });
+
 // Stub commands for V2 preview
 function stub(name: string): Command {
   const cmd = new Command(name);
@@ -119,6 +130,7 @@ function stub(name: string): Command {
 program
   .name("mem")
   .addCommand(searchCmd)
+  .addCommand(benchCmd)
   .addCommand(stub("index"))
   .addCommand(stub("sync"))
   .addCommand(stub("stats"))
