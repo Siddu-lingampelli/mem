@@ -48,7 +48,7 @@ function parseFishHistory(content: string, limit: number): HistoryEntry[] {
     }
 
     // Timestamp or path line — skip, but commit current command
-    if (/^\s+when:\s*\d+/.test(trimmed) || /^\s+paths?:/.test(trimmed)) {
+    if (/^\s+when:\s*\d+/.test(trimmed) || /^\s+paths:/.test(trimmed)) {
       if (currentCmd !== null && currentCmd.length > 0) {
         commands.push(currentCmd.trim());
         currentCmd = null;
@@ -56,8 +56,8 @@ function parseFishHistory(content: string, limit: number): HistoryEntry[] {
       continue;
     }
 
-    // Continuation of multi-line command (indented text without a key)
-    if (currentCmd !== null && /^\s+\S/.test(trimmed)) {
+    // Continuation of multi-line command (indented text or blank line within multiline)
+    if (currentCmd !== null && (trimmed.length === 0 || /^\s+\S/.test(trimmed))) {
       currentCmd += "\n" + trimmed.trim();
       continue;
     }

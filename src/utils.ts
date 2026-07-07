@@ -42,28 +42,3 @@ export function getHistoryFilePath(): string {
   // Nothing found yet — return the most common default so the caller can error gracefully.
   return join(home, CANDIDATES[1]);
 }
-
-/**
- * Returns candidate Zsh history paths.
- * Checks HISTFILE env var first, then default locations.
- */
-export function getZshHistoryPaths(): string[] {
-  const histFile = process.env.HISTFILE;
-  if (histFile && histFile.length > 0 && existsSync(histFile)) {
-    return [histFile];
-  }
-  const home = homedir();
-  return [join(home, ".zsh_history"), join(home, ".histfile")];
-}
-
-/**
- * Returns candidate Fish history paths.
- * Checks XDG_DATA_HOME first, then default location.
- */
-export function getFishHistoryPaths(): string[] {
-  const xdg = process.env.XDG_DATA_HOME;
-  if (xdg && xdg.length > 0) {
-    return [join(xdg, "fish/fish_history"), join(homedir(), ".local/share/fish/fish_history")];
-  }
-  return [join(homedir(), ".local/share/fish/fish_history")];
-}
