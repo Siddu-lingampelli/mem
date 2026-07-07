@@ -5,6 +5,7 @@ import { readHistory } from "./history.js";
 import { search } from "./search.js";
 import { print, useColor } from "./output.js";
 import { runBench } from "./bench.js";
+import { runStats } from "./stats.js";
 import { hasSeenWelcome, showWelcome } from "./welcome.js";
 
 const RESET = "\x1b[0m";
@@ -12,7 +13,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.2.6";
+const VERSION = "1.2.7";
 
 function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -71,10 +72,10 @@ function customHelp(): string {
   const commands = paint([
     `${DIM}Commands${RESET}`,
     `${BOLD}search${RESET} <query>    Search your terminal history`,
+    `${BOLD}stats${RESET}             Show command usage statistics`,
     `${BOLD}bench${RESET}             Benchmark history parsing and search`,
     `${BOLD}index${RESET}             ${DIM}(coming in V2)${RESET}`,
-    `${BOLD}sync${RESET}              ${DIM}(coming in V2)${RESET}`,
-    `${BOLD}stats${RESET}             ${DIM}(coming in V2)${RESET}`
+    `${BOLD}sync${RESET}              ${DIM}(coming in V2)${RESET}`
   ].join("\n"));
 
   const examples = paint([
@@ -124,6 +125,15 @@ benchCmd
     runBench(limit);
   });
 
+const statsCmd = new Command("stats");
+statsCmd
+  .description("Show history statistics (top commands, usage counts)")
+  .option("-n, --top <n>", "Number of top commands", "10")
+  .action((opts: { top?: string }) => {
+    const n = parseInt(opts.top ?? "10", 10);
+    runStats(Number.isNaN(n) || n < 1 ? 10 : n);
+  });
+
 // Stub commands for V2 preview
 function stub(name: string): Command {
   const cmd = new Command(name);
@@ -139,9 +149,9 @@ program
   .name("mem")
   .addCommand(searchCmd)
   .addCommand(benchCmd)
+  .addCommand(statsCmd)
   .addCommand(stub("index"))
   .addCommand(stub("sync"))
-  .addCommand(stub("stats"))
   .argument("[query]", "Search query")
   .option("--all", "Show every matching command without truncation")
   .option("-n, --max <n>", "Show at most N results")
