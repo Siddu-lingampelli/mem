@@ -91,8 +91,12 @@ ${options}`;
 const searchCmd = new Command("search");
 searchCmd
   .argument("<query>", "Search query")
+  .option("--all", "Show every matching command without truncation")
   .description("Search your terminal history")
-  .action((query: string) => runSearch(query));
+  .action((query: string, opts: { all?: boolean }) => {
+    showAll = opts.all ?? false;
+    runSearch(query);
+  });
 
 // Stub commands for V2 preview
 function stub(name: string): Command {
@@ -151,7 +155,11 @@ try {
     code === "commander.missingArgument" ||
     code === "commander.unknownOption" ||
     code === "commander.unknownCommand" ||
-    code === "commander.missingArgumentForCommand"
+    code === "commander.invalidArgument" ||
+    code === "commander.optionMissingArgument" ||
+    code === "commander.missingMandatoryOptionValue" ||
+    code === "commander.conflictingOption" ||
+    code === "commander.excessArguments"
   ) {
     console.error(paint(`${DIM}Error:${RESET} ${(e as Error).message}`));
     program.outputHelp();

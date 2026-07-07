@@ -1,5 +1,6 @@
 import type { SearchHit } from "./types.js";
 import { maskSecrets } from "./secrets.js";
+import { ALL_KEYWORDS } from "./search.js";
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
@@ -29,13 +30,13 @@ function esc(str: string): string {
 /** Build a highlighting regex from query words (case-insensitive). */
 function highlightCmd(cmd: string, query: string): string {
   const q = query.trim().toLowerCase();
-  if (!q || q === "all" || q === "*") return cmd;
+  if (!q || q === "*" || ALL_KEYWORDS.includes(q)) return cmd;
   const words = q.split(/[^a-z0-9]+/).filter(Boolean).filter(w => w.length >= 2);
   if (words.length === 0) return cmd;
   const pattern = words.map(w => `(${esc(w)})`).join("|");
   const re = new RegExp(pattern, "gi");
-  if (!useColor()) return cmd.replace(re, "$1");
-  return cmd.replace(re, `${MAGENTA}$1${RESET}`);
+  if (!useColor()) return cmd.replace(re, "$&");
+  return cmd.replace(re, `${MAGENTA}$&${RESET}`);
 }
 
 export function print(results: SearchHit[], query: string, showAll = false): void {

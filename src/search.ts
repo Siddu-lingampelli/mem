@@ -1,6 +1,6 @@
 import type { HistoryEntry, SearchHit } from "./types.js";
 
-const ALL_KEYWORDS = ["all", "*", "everything"];
+export const ALL_KEYWORDS = ["all", "*", "everything"];
 
 /** Commands starting with these prefixes are ignored (self-pollution). */
 const SELF_PREFIXES = ["mem ", "mem search ", "mem stats ", "mem sync ", "mem index "];
@@ -55,7 +55,7 @@ function scoreCmd(command: string, queryWords: string[]): number {
 
   for (const qw of queryWords) {
     // Single-char query words can't discriminately match anything.
-    if (qw.length < 2) { totalPenalty += 1; continue; }
+    if (qw.length < 2) { totalPenalty += 0; continue; }
 
     // Exact token match → best.
     if (tokens.includes(qw)) { totalPenalty += 0; continue; }
@@ -128,7 +128,7 @@ function dedupeWithCounts(entries: HistoryEntry[]): SearchHit[] {
   const recentCutoff = Math.floor(total * 0.25);
   const hits: SearchHit[] = [];
   for (const [command, meta] of seen) {
-    hits.push({ command, score: 1, count: meta.count, recent: meta.index <= recentCutoff });
+    hits.push({ command, score: 1, count: meta.count, recent: meta.index < recentCutoff });
   }
 
   return hits.sort((a, b) => {

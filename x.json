@@ -1,0 +1,38 @@
+[
+  {
+    "file": "src/search.ts",
+    "line": 29,
+    "summary": "levenshtein() allocates a full O(m*n) matrix when only two rows are needed",
+    "failure_scenario": "For large history with long commands, the full DP matrix adds GC pressure with no benefit. An optimized two-row or single-row implementation would use O(min(m,n)) memory and run faster. This is a latent scalability issue."
+  },
+  {
+    "file": "src/search.ts + src/output.ts",
+    "line": 24,
+    "summary": "Tokenisation logic duplicated: tokenise() in search.ts (line 24) and inline split in output.ts highlightCmd() (line 33) parse alphanumeric tokens with nearly identical regexes",
+    "failure_scenario": "Changing tokenisation rules (e.g., adding Unicode letter support, changing word-boundary regex) requires editing two independent code paths. The .filter(w => w.length >= 2) in highlightCmd is the only difference, but it could just wrap the shared tokenise()."
+  },
+  {
+    "file": "src/history.ts",
+    "line": 9,
+    "summary": "UTF-8 BOM branch in detectEncoding() is dead work — Node.js Buffer.toString('utf8') strips the UTF-8 BOM automatically",
+    "failure_scenario": "The first if-block (0xEF BB BF check) returns 'utf8' which is the same fallback at line 18. The buffer bytes are inspected for no reason. Future maintainers may extend detectEncoding() with more BOM types, not realizing the entire function could be replaced by buffer.toString('utf-8') since Node.js handles both UTF-8 and UTF-16 BOM removal on toString()."
+  },
+  {
+    "file": "src/search.ts",
+    "line": 66,
+    "summary": "scoreCmd() loops over the tokens array four separate times (lines 66, 75, 84, 93) for different match strategies instead of a single pass",
+    "failure_scenario": "Each loop independently iterates tokens[], making the function O(4*|tokens|) and harder to read. Adding a fifth match strategy encourages more copy-paste loop blocks rather than consolidating into one pass, perpetuating the pattern."
+  },
+  {
+    "file": "src/output.ts + src/cli.ts",
+    "line": 4,
+    "summary": "ANSI escape code constants duplicated: output.ts defines RESET/BOLD/DIM/GREEN/MAGENTA and cli.ts defines RESET/BOLD/DIM/CYAN — three out of four are identical",
+    "failure_scenario": "If a terminal compatibility fix changes RESET or DIM in one file, the other file silently diverges. These should live in a shared constants module (e.g., src/ansi.ts) that both files import."
+  },
+  {
+    "file": "src/output.ts",
+    "line": 32,
+    "summary": "highlightCmd() hard-codes ALL_KEYWORDS comparison ('all'/'*') instead of importing the constant from search.ts",
+    "failure_scenario": "If ALL_KEYWORDS is extended in search.ts (e.g., adding 'everything'), highlightCmd() will still apply highlighting to those queries while the search engine treats them as 'show all' — an inconsistency bug that won't surface until a user tries the new keyword."
+  }
+]

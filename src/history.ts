@@ -26,7 +26,8 @@ export function readHistory(limit = 2000): HistoryEntry[] {
 
   const buffer = readFileSync(path);
   const encoding = detectEncoding(buffer);
-  const raw = buffer.toString(encoding);
+  let raw = buffer.toString(encoding);
+  if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
   const lines = raw.split(/\r?\n/);
 
   const entries: HistoryEntry[] = [];
