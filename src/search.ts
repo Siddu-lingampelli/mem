@@ -63,8 +63,9 @@ function scoreCmd(command: string, queryWords: string[]): number {
     let best = 1;
 
     // Fuzzy (Levenshtein) — catch "dcoker" → "docker" (dist 1-2)
+    // Skip for short query words (<4 chars) to avoid false positives like "api" → "app"
     for (const tok of tokens) {
-      if (tok.length < 2 || qw.length < 2) continue;
+      if (tok.length < 2 || qw.length < 4) continue;
       const dist = levenshtein(qw, tok);
       if (dist === 0) { best = 0; break; }
       if (dist === 1) best = Math.min(best, 0.05);
