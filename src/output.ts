@@ -63,7 +63,12 @@ export function print(results: SearchHit[], query: string, showAll = false): voi
 
   for (const hit of shown) {
     const hl = highlightCmd(hit.command, query);
-    console.log(`  ${bold(hl)}`);
+    // Indent continuation lines for multi-line commands
+    const lines = hl.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const prefix = i === 0 ? "  " : "    ";
+      console.log(`${prefix}${i === 0 ? bold(lines[i]) : lines[i]}`);
+    }
 
     const parts: string[] = [];
     if (hit.count > 1) parts.push(`${hit.count}×`);

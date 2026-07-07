@@ -5,7 +5,10 @@ import { existsSync } from "fs";
 /**
  * Candidate history file locations, in priority order.
  * Covers Windows PowerShell 5.1, PowerShell 7+, and VS Code's integrated
- * PowerShell host, plus Bash (.bash_history). The first existing file wins.
+ * PowerShell host. The first existing file wins.
+ * NOTE: Bash (.bash_history) is NOT listed here — it is handled by the
+ * readBashHistory() fallback in history.ts, which has proper HISTTIMEFORMAT
+ * and multiline command support.
  */
 const CANDIDATES: string[] = [
   // Windows PowerShell 5.1 — default
@@ -14,8 +17,6 @@ const CANDIDATES: string[] = [
   "AppData/Roaming/Microsoft/PowerShell/PSReadLine/ConsoleHost_history.txt",
   // VS Code integrated terminal running PowerShell
   "AppData/Roaming/Microsoft/PowerShell/PSReadLine/Visual Studio Code Host_history.txt",
-  // Bash (.bash_history) — for Linux/macOS/Git Bash
-  ".bash_history",
 ];
 
 /**
