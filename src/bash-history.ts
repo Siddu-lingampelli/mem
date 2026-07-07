@@ -13,7 +13,7 @@ const CANDIDATES: string[] = [
 ];
 
 /** Regex: ASCII-only digits (avoid \d matching Unicode digits). */
-const TS_RE = /^#[0-9]{8,}$/;
+const TS_RE = /^#[0-9]{8,}\s*$/;
 
 /**
  * Returns the first existing .bash_history path.

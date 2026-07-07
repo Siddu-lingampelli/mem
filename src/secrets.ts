@@ -54,11 +54,11 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   // JWT / JWS — base64url header starts with eyJ
   { re: /\b(eyJ[A-Za-z0-9_-]{4})[A-Za-z0-9_.-]+/g, mask: "$1********" },
   // Authorization: Bearer <token>
-  { re: /(Bearer\s+)([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1$2********" },
+  { re: /(Bearer\s+)(["']?)([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1$2$3********" },
   // x-api-key: <token>
-  { re: /(x-api-key\s*[:=]\s*"?)([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1$2********" },
+  { re: /(x-api-key\s*[:=]\s*["']?)([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1$2********" },
   // Authorization header with any scheme — capture the actual credential after the scheme
-  { re: /(Authorization\s*:\s*)(?:Basic|Bearer|Digest|Token|OAuth)\s+([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1[hidden] $2********" },
+  { re: /(Authorization\s*[:=]\s*)(?:Basic|Bearer|Digest|Token|OAuth)\s+([A-Za-z0-9_.-]{4})[A-Za-z0-9_.-]+/gi, mask: "$1[hidden] $2********" },
 ];
 
 export function maskSecrets(input: string): string {

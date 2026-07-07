@@ -10,10 +10,13 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.1.5";
+const VERSION = "1.1.6";
 
 function stripAnsi(text: string): string {
-  return text.replace(/\x1b\[\d+m/g, "");
+  // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
+  // 256-color (\x1b[38;5;231m), true-color (\x1b[38;2;255;0;0m),
+  // and common non-SGR escape sequences (\x1b[K, \x1b[H, \x1b[?25l, etc.)
+  return text.replace(/\x1b\[[0-9;:?]*[a-zA-Z]/g, "");
 }
 
 function paint(text: string): string {
