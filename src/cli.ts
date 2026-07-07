@@ -10,7 +10,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.1.4";
+const VERSION = "1.1.5";
 
 function stripAnsi(text: string): string {
   return text.replace(/\x1b\[\d+m/g, "");
