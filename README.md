@@ -59,7 +59,7 @@ API keys and tokens in history are automatically masked on display:
 
 ## Roadmap
 
-- **V1.1.6 (current)** ✅ — PowerShell & Bash history search, fuzzy matching, `--all` flag, secret masking
+- **V1.1.7 (current)** ✅ — PowerShell & Bash history search, fuzzy matching, `--all`/`-n` flags, secret masking
 - **V3** — Zsh/Fish support, indexed search, sync
 
 ## Development

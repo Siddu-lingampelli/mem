@@ -10,7 +10,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.1.6";
+const VERSION = "1.1.7";
 
 function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -24,6 +24,7 @@ function paint(text: string): string {
 }
 
 let showAll = false;
+let maxCount: number | undefined;
 
 function runSearch(query: string): void {
   try {
@@ -37,7 +38,7 @@ function runSearch(query: string): void {
       console.log("No matching commands found.");
       return;
     }
-    print(results, query, showAll);
+    print(results, query, showAll, maxCount);
   } catch (err) {
     console.error("Error reading history:", (err as Error).message);
     process.exit(1);
@@ -76,6 +77,7 @@ function customHelp(): string {
   const options = paint([
     `${DIM}Options${RESET}`,
     `${BOLD}--all${RESET}            Show every match without truncation`,
+    `${BOLD}-n, --max <n>${RESET}    Show at most N results`,
     `${BOLD}-V, --version${RESET}  output the version number`,
     `${BOLD}-h, --help${RESET}     display help for command`,
   ].join("\n"));
@@ -95,9 +97,11 @@ const searchCmd = new Command("search");
 searchCmd
   .argument("<query>", "Search query")
   .option("--all", "Show every matching command without truncation")
+  .option("-n, --max <n>", "Show at most N results")
   .description("Search your terminal history")
-  .action((query: string, opts: { all?: boolean }) => {
+  .action((query: string, opts: { all?: boolean; max?: string }) => {
     showAll = opts.all ?? false;
+    maxCount = opts.max ? parseInt(opts.max, 10) : undefined;
     runSearch(query);
   });
 
@@ -120,12 +124,14 @@ program
   .addCommand(stub("stats"))
   .argument("[query]", "Search query")
   .option("--all", "Show every matching command without truncation")
-  .action((query: string | undefined, opts: { all?: boolean }) => {
+  .option("-n, --max <n>", "Show at most N results")
+  .action((query: string | undefined, opts: { all?: boolean; max?: string }) => {
     if (query === undefined) {
       program.outputHelp();
       return;
     }
     showAll = opts.all ?? false;
+    maxCount = opts.max ? parseInt(opts.max, 10) : undefined;
     runSearch(query);
   });
 

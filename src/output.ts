@@ -39,7 +39,7 @@ function highlightCmd(cmd: string, query: string): string {
   return cmd.replace(re, `${MAGENTA}$&${RESET}`);
 }
 
-export function print(results: SearchHit[], query: string, showAll = false): void {
+export function print(results: SearchHit[], query: string, showAll = false, max?: number): void {
   if (results.length === 0) {
     console.log("No matching commands found.");
     return;
@@ -47,15 +47,16 @@ export function print(results: SearchHit[], query: string, showAll = false): voi
 
   const masked = results.map((r) => ({ ...r, command: maskSecrets(r.command) }));
   const total = masked.length;
-  const shown = showAll ? masked : masked.slice(0, MAX_SHOWN);
+  const limit = showAll ? total : (max ?? MAX_SHOWN);
+  const shown = masked.slice(0, limit);
 
   // Header
-  const suffix = total > MAX_SHOWN && !showAll
-    ? dim(` — showing top ${MAX_SHOWN}`)
+  const suffix = total > limit && !showAll
+    ? dim(` — showing top ${limit}`)
     : "";
   console.log(`\n${green(`${total}`)}${dim(" matches")}${suffix}`);
 
-  if (total > MAX_SHOWN && !showAll) {
+  if (total > limit && !showAll) {
     console.log(dim(`  use --all to show all`));
   }
 
