@@ -2,6 +2,8 @@ import { readFileSync, existsSync } from "fs";
 import type { HistoryEntry } from "./types.js";
 import { getHistoryFilePath } from "./utils.js";
 import { readBashHistory } from "./bash-history.js";
+import { readZshHistory } from "./zsh-history.js";
+import { readFishHistory } from "./fish-history.js";
 
 /**
  * Detects BOM (Byte Order Mark) in buffer and returns the appropriate encoding.
@@ -39,6 +41,12 @@ export function readHistory(limit = 2000): HistoryEntry[] {
     return entries;
   }
 
-  // Fallback: try Bash history (.bash_history) on Linux/macOS/Git Bash
-  return readBashHistory(limit);
+  // Fallback chain: Bash → Zsh → Fish
+  const bash = readBashHistory(limit);
+  if (bash.length > 0) return bash;
+
+  const zsh = readZshHistory(limit);
+  if (zsh.length > 0) return zsh;
+
+  return readFishHistory(limit);
 }

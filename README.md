@@ -1,6 +1,6 @@
 # mem
 
-Never lose a terminal command again. Search your PowerShell or Bash history instantly using keywords. No cloud. No setup.
+Never lose a terminal command again. Search your PowerShell, Bash, Zsh, or Fish history instantly using keywords. No cloud. No setup.
 
 ```bash
 mem "docker compose"
@@ -40,7 +40,7 @@ Use `--all` to see every match without truncation.
 
 ## How it works
 
-Reads your PSReadLine history (`ConsoleHost_history.txt`) or Bash history (`.bash_history`), newest-first.
+Reads your PSReadLine history (`ConsoleHost_history.txt`), Bash (`.bash_history`), Zsh (`.zsh_history`), or Fish (`fish_history`), newest-first.
 Auto-detects which file exists.
 Detects UTF-8, UTF-16 LE BOM, and HISTTIMEFORMAT timestamps automatically.
 Token-aware search with strict relevance ranking.
@@ -55,12 +55,12 @@ API keys and tokens in history are automatically masked on display:
 ## Requirements
 
 - Node.js 18+
-- PowerShell (PSReadLine history) **or** Bash (.bash_history) — Linux, macOS, Git Bash on Windows
+- PowerShell, Bash, Zsh, or Fish — any shell with a history file
 
 ## Roadmap
 
-- **V1.1.9 (current)** ✅ — PowerShell & Bash history search, fuzzy matching, `--all`/`-n` flags, secret masking
-- **V3** — Zsh/Fish support, indexed search, sync
+- **V1.2.0 (current)** ✅ — PowerShell, Bash, Zsh, Fish history search, fuzzy matching, `--all`/`-n` flags, secret masking
+- **V3** — Indexed search, sync
 
 ## Development
 
