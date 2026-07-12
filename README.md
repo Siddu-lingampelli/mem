@@ -59,15 +59,15 @@ API keys and tokens in history are automatically masked on display:
 
 ## Roadmap
 
-- **V1.2.1 (current)** ✅ — PowerShell, Bash, Zsh, Fish history search, fuzzy matching, `--all`/`-n` flags, secret masking
-- **V3** — Indexed search, sync
+- **V1.2.7 (current)** ✅ — PowerShell, Bash, Zsh, Fish history search, fuzzy matching, `--all`/`-n` flags, secret masking, `stats`, `bench`, welcome screen
+- **V2 (planned)** — Indexed search, sync
 
 ## Development
 
 ```bash
 npm install
 npm run build     # tsc
-npm test          # vitest run (15 tests)
+npm test          # vitest run (9 test files)
 npm run dev       # tsx src/cli.ts
 ```
 
