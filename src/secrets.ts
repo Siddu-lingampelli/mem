@@ -36,6 +36,13 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   { re: /\b(github_pat_[A-Za-z0-9_]{4})[A-Za-z0-9_]+/g, mask: "$1********" },
   { re: /\b(gh[pousr]_[A-Za-z0-9]{4})[A-Za-z0-9]+/g, mask: "$1********" },
 
+  // ── Stripe ────────────────────────────────────────────────────
+  { re: /\b(whsec_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
+  { re: /\b(sk_live_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
+  { re: /\b(sk_test_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
+  { re: /\b(rk_live_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
+  { re: /\b(rk_test_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
+
   // ── AI / ML platform keys ─────────────────────────────────────
   // Anthropic (sk-ant-...)
   { re: /\b(sk-[A-Za-z0-9]{3,4})[A-Za-z0-9_-]+/g, mask: "$1********" },
@@ -52,7 +59,7 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   // GitLab
   { re: /\b(glpat-[A-Za-z0-9]{4})[A-Za-z0-9]+/g, mask: "$1********" },
   // Bitbucket
-  { re: /\b(BB[A-Za-z0-9]{4})[A-Za-z0-9]+/g, mask: "$1********" },
+  { re: /\b(BB[A-Za-z0-9]{4})[A-Za-z0-9]{28}\b/g, mask: "$1********" },
 
   // ── Cloud provider keys ───────────────────────────────────────
   // Databricks
@@ -60,17 +67,10 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   // Google API
   { re: /\b(AIza[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
   // AWS
-  { re: /\b(AKIA[A-Z0-9]{4})[A-Z0-9]+/g, mask: "$1********" },
-  { re: /\b(ASIA[A-Z0-9]{4})[A-Z0-9]+/g, mask: "$1********" },
+  { re: /\b(AKIA[A-Z0-9]{4})[A-Z0-9]{12}\b/g, mask: "$1********" },
+  { re: /\b(ASIA[A-Z0-9]{4})[A-Z0-9]{12}\b/g, mask: "$1********" },
   // DigitalOcean
   { re: /\b(dopx_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-
-  // ── Stripe ────────────────────────────────────────────────────
-  { re: /\b(whsec_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  { re: /\b(sk_live_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  { re: /\b(sk_test_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  { re: /\b(rk_live_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  { re: /\b(rk_test_[A-Za-z0-9]{4})[A-Za-z0-9_-]+/g, mask: "$1********" },
 
   // ── Messaging / Slack ─────────────────────────────────────────
   { re: /\b(xox[bpoa]2?-[-A-Za-z0-9]{4})[-A-Za-z0-9]+/g, mask: "$1********" },

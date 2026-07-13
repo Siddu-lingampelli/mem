@@ -88,9 +88,9 @@ describe("maskSecrets", () => {
     });
 
     it("masks Bitbucket BB tokens", () => {
-      // BB + 4 alnum captured: BBabcD . Mask: BBabcD********
-      expect(maskSecrets("git clone https://x-token-auth:BBabcDefghijKlmnopqr@bitbucket.org/repo"))
-        .toContain("BBabcD********");
+      // BB + 4 alnum captured: BBabcd . Mask: BBabcd********
+      expect(maskSecrets("git clone https://x-token-auth:BBabcdEFGHIJKLMNOPQRSTUVWXYZ012345@bitbucket.org/repo"))
+        .toContain("BBabcd********");
     });
   });
 

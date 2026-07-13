@@ -6,6 +6,7 @@ import { search } from "./search.js";
 import { print, useColor } from "./output.js";
 import { runBench } from "./bench.js";
 import { runStats } from "./stats.js";
+import { runRecent } from "./recent.js";
 import { hasSeenWelcome, showWelcome } from "./welcome.js";
 
 const RESET = "\x1b[0m";
@@ -13,30 +14,27 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.2.7";
+const VERSION = "1.2.9";
 
-function stripAnsi(text: string): string {
+export function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
   // 256-color (\x1b[38;5;231m), true-color (\x1b[38;2;255;0;0m),
   // and common non-SGR escape sequences (\x1b[K, \x1b[H, \x1b[?25l, etc.)
   return text.replace(/\x1b\[[0-9;:?]*[a-zA-Z]/g, "");
 }
 
-function paint(text: string): string {
+export function paint(text: string): string {
   return useColor() ? text : stripAnsi(text);
 }
 
-let showAll = false;
-let maxCount: number | undefined;
-
 /** Parse a user-supplied integer, returning fallback on invalid input. */
-function parseCount(val: string | undefined, fallback?: number): number | undefined {
+export function parseCount(val: string | undefined, fallback?: number): number | undefined {
   if (val === undefined || val.length === 0) return fallback;
   const n = parseInt(val, 10);
   return Number.isNaN(n) || n < 1 ? fallback : n;
 }
 
-function runSearch(query: string): void {
+export function runSearch(query: string, showAll = false, maxCount?: number): void {
   try {
     const entries = readHistory();
     if (entries.length === 0) {
@@ -74,6 +72,7 @@ function customHelp(): string {
     `${BOLD}search${RESET} <query>    Search your terminal history`,
     `${BOLD}stats${RESET}             Show command usage statistics`,
     `${BOLD}bench${RESET}             Benchmark history parsing and search`,
+    `${BOLD}recent${RESET} [-n N]     Show newest N commands (default 20)`,
     `${BOLD}index${RESET}             ${DIM}(coming in V2)${RESET}`,
     `${BOLD}sync${RESET}              ${DIM}(coming in V2)${RESET}`
   ].join("\n"));
@@ -111,9 +110,7 @@ searchCmd
   .option("-n, --max <n>", "Show at most N results")
   .description("Search your terminal history")
   .action((query: string, opts: { all?: boolean; max?: string }) => {
-    showAll = opts.all ?? false;
-    maxCount = opts.max ? parseCount(opts.max) : undefined;
-    runSearch(query);
+    runSearch(query, opts.all ?? false, opts.max ? parseCount(opts.max) : undefined);
   });
 
 const benchCmd = new Command("bench");
@@ -134,6 +131,14 @@ statsCmd
     runStats(Number.isNaN(n) || n < 1 ? 10 : n);
   });
 
+const recentCmd = new Command("recent");
+recentCmd
+  .description("Show newest N commands")
+  .option("-n, --max <n>", "Number of recent commands", "20")
+  .action((opts: { max?: string }) => {
+    runRecent(opts.max ? parseCount(opts.max, 20) ?? 20 : 20);
+  });
+
 // Stub commands for V2 preview
 function stub(name: string): Command {
   const cmd = new Command(name);
@@ -150,6 +155,7 @@ program
   .addCommand(searchCmd)
   .addCommand(benchCmd)
   .addCommand(statsCmd)
+  .addCommand(recentCmd)
   .addCommand(stub("index"))
   .addCommand(stub("sync"))
   .argument("[query]", "Search query")
@@ -164,49 +170,52 @@ program
       program.outputHelp();
       return;
     }
-    showAll = opts.all ?? false;
-    maxCount = opts.max ? parseCount(opts.max) : undefined;
-    runSearch(query);
+    runSearch(query, opts.all ?? false, opts.max ? parseCount(opts.max) : undefined);
   });
 
-// Override the default help information
-program.helpInformation = () => paint(customHelp());
+// Only run CLI startup when executed directly (not when imported for testing)
+import { fileURLToPath } from "url";
+import { resolve } from "path";
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 
-// Handle --version and -V with custom formatting via pre-parse scan.
-// This runs before Commander processes subcommand args, so there's no
-// hijacking risk — Commander never sees the flag.
-program.exitOverride();
-const idx = process.argv.indexOf("--version");
-const idxShort = process.argv.indexOf("-V");
-if (idx > 0 || idxShort > 0) {
-  console.log(paint([
-    `${CYAN}${BOLD}mem${RESET} ${DIM}v${VERSION}${RESET}`,
-    `${DIM}Search your terminal history instantly.${RESET}`,
-  ].join("\n")));
-  process.exit(0);
-}
+if (isMain) {
+  // Override the default help information
+  program.helpInformation = () => paint(customHelp());
 
-// Suppress Commander's help-throws-after-display noise
-try {
-  program.parse();
-} catch (e: unknown) {
-  const code = (e as { code?: string })?.code;
-  if (code === "commander.helpDisplayed") {
+  // Handle --version and -V with custom formatting via pre-parse scan.
+  program.exitOverride();
+  const idx = process.argv.indexOf("--version");
+  const idxShort = process.argv.indexOf("-V");
+  if (idx > 0 || idxShort > 0) {
+    console.log(paint([
+      `${CYAN}${BOLD}mem${RESET} ${DIM}v${VERSION}${RESET}`,
+      `${DIM}Search your terminal history instantly.${RESET}`,
+    ].join("\n")));
     process.exit(0);
   }
-  if (
-    code === "commander.missingArgument" ||
-    code === "commander.unknownOption" ||
-    code === "commander.unknownCommand" ||
-    code === "commander.invalidArgument" ||
-    code === "commander.optionMissingArgument" ||
-    code === "commander.missingMandatoryOptionValue" ||
-    code === "commander.conflictingOption" ||
-    code === "commander.excessArguments"
-  ) {
-    console.error(paint(`${DIM}Error:${RESET} ${(e as Error).message}`));
-    program.outputHelp();
-    process.exit(1);
+
+  // Suppress Commander's help-throws-after-display noise
+  try {
+    program.parse();
+  } catch (e: unknown) {
+    const code = (e as { code?: string })?.code;
+    if (code === "commander.helpDisplayed") {
+      process.exit(0);
+    }
+    if (
+      code === "commander.missingArgument" ||
+      code === "commander.unknownOption" ||
+      code === "commander.unknownCommand" ||
+      code === "commander.invalidArgument" ||
+      code === "commander.optionMissingArgument" ||
+      code === "commander.missingMandatoryOptionValue" ||
+      code === "commander.conflictingOption" ||
+      code === "commander.excessArguments"
+    ) {
+      console.error(paint(`${DIM}Error:${RESET} ${(e as Error).message}`));
+      program.outputHelp();
+      process.exit(1);
+    }
+    throw e;
   }
-  throw e;
 }

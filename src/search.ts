@@ -46,9 +46,9 @@ function levenshteinBounded(a: string, b: string, maxDist = 2): number {
   const m = a.length;
   if (m === 0) return b.length > maxDist ? maxDist + 1 : b.length;
 
-  // Use pre-allocated buffers (safe: m+1 <= _levBufSize for any realistic token)
-  const prev = _levPrev;
-  const curr = _levCurr;
+  const usingPool = m < _levBufSize;
+  const prev = usingPool ? _levPrev : new Array(m + 1);
+  const curr = usingPool ? _levCurr : new Array(m + 1);
   for (let i = 0; i <= m; i++) prev[i] = i;
 
   for (let j = 1; j <= b.length; j++) {
@@ -108,7 +108,6 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
   let total = 0;
   for (const qw of queryWords) {
     if (qw.length < 2) { continue; }
-    if (tokens.includes(qw)) { continue; }
 
     let best = 1;
 
@@ -116,8 +115,10 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
     for (const tok of tokens) {
       if (tok.length < 2) continue;
 
+      if (tok === qw) { best = 0; break; }
+
       // Substring inside a token: "ai" in "claim" (weakest, check first)
-      if (tok.length >= 3 && tok.includes(qw)) best = Math.min(best, PENALTY.TOKEN_SUBSTR);
+      if (qw.length <= tok.length && tok.length >= 3 && tok.includes(qw)) best = Math.min(best, PENALTY.TOKEN_SUBSTR);
 
       // Token prefix: "com" → "compose"
       if (tok.startsWith(qw)) best = Math.min(best, PENALTY.TOKEN_PREFIX);
@@ -125,9 +126,8 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
       // Fuzzy Levenshtein (only for 4+ char query words)
       if (qw.length >= 4) {
         const d = levenshteinBounded(qw, tok, 2);
-        if (d === 0) { best = PENALTY.EXACT; break; }
         if (d <= 1) best = Math.min(best, PENALTY.FUZZY_DIST1);
-        if (d <= 2) best = Math.min(best, PENALTY.FUZZY_DIST2);
+        else if (d <= 2) best = Math.min(best, PENALTY.FUZZY_DIST2);
       }
 
       // Query prefix: "doc" → "docker" (strongest token check)
@@ -159,6 +159,7 @@ export function searchCached(
   cached: CachedEntry[],
   totalEntryCount: number,
   query: string,
+  topN?: number,
 ): SearchHit[] {
   const normalized = query.trim();
   const rc = Math.max(1, Math.floor(totalEntryCount * 0.25));
@@ -191,10 +192,11 @@ export function searchCached(
     return a.command.localeCompare(b.command);
   });
 
+  if (topN !== undefined) scored.length = Math.min(scored.length, topN);
   return scored;
 }
 
 /** Convenience wrapper: preprocess + searchCached in one call. */
-export function search(entries: HistoryEntry[], query: string): SearchHit[] {
-  return searchCached(preprocess(entries), entries.length, query);
+export function search(entries: HistoryEntry[], query: string, topN?: number): SearchHit[] {
+  return searchCached(preprocess(entries), entries.length, query, topN);
 }

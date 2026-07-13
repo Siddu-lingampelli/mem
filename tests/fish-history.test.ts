@@ -83,4 +83,10 @@ describe("readFishHistory", () => {
     mockReadFileSync.mockReturnValue(Buffer.from(lines.join("\n"), "utf-8"));
     expect(readFishHistory(2)).toHaveLength(2);
   });
+
+  it("returns empty array when readFileSync throws", () => {
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockImplementation(() => { throw new Error("read error"); });
+    expect(readFishHistory()).toEqual([]);
+  });
 });

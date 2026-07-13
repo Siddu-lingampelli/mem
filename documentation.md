@@ -1,6 +1,6 @@
 # MEM CLI — Terminal History Search Tool
 
-**Version:** 1.2.7 · **v1.2.x (current)**  
+**Version:** 1.2.9 · **v1.2.x (current)**  
 **Binary:** `mem` · **Package:** `mem-terminal`  
 **License:** MIT
 
@@ -60,6 +60,7 @@ mem/
 │   ├── secrets.ts          # API key / token masking on display
 │   ├── stats.ts            # Statistics command (top commands, usage counts)
 │   ├── bench.ts            # Benchmark command (parse + process + search timings)
+│   ├── recent.ts           # Recent command (newest N commands, secret-masked)
 │   └── welcome.ts          # First-run welcome screen
 ├── tests/
 │   ├── history.test.ts     # PSReadLine history parsing tests
@@ -70,7 +71,10 @@ mem/
 │   ├── output.test.ts      # Output formatting tests
 │   ├── bench.test.ts       # Benchmark tests
 │   ├── utils.test.ts       # Utility function tests
-│   └── welcome.test.ts     # Welcome screen tests
+│   ├── welcome.test.ts     # Welcome screen tests
+│   ├── stats.test.ts       # Statistics output, top-N, empty history, bar charts
+│   ├── secrets.test.ts     # Secret masking for 30+ token patterns
+│   └── recent.test.ts      # Recent command ordering, count, secret masking
 ├── dist/                   # Compiled JavaScript output (gitignored)
 ├── package.json            # Project manifest
 ├── README.md               # Quick-start documentation
@@ -227,6 +231,7 @@ Built on Commander.js with:
 | `mem search <query>` | Explicit search subcommand | ✅ V1 |
 | `mem stats [-n/--top <n>]` | Show command usage statistics | ✅ V1.2.7 |
 | `mem bench [-l/--limit <n>]` | Benchmark parse/process/search | ✅ V1.2.6 |
+| `mem recent [-n/--max <n>]` | Show newest N commands (default 20), with secret masking | ✅ V1.2.8 |
 | `mem index` | Indexed search | 🔜 V2 (stub) |
 | `mem sync` | Cross-machine sync | 🔜 V2 (stub) |
 
@@ -311,7 +316,7 @@ npm run prepublishOnly  # build before npm publish
 
 ### Test Suite
 
-The test suite covers **11 test files** with comprehensive scenarios:
+The test suite covers **12 test files** with comprehensive scenarios:
 
 | Test File | What It Tests |
 |-----------|--------------|
@@ -326,6 +331,7 @@ The test suite covers **11 test files** with comprehensive scenarios:
 | `tests/welcome.test.ts` | Flag file detection, rendered content verification |
 | `tests/stats.test.ts` | Statistics output, top-N, empty history, bar charts |
 | `tests/secrets.test.ts` | Secret masking for 30+ token patterns, no false positives |
+| `tests/recent.test.ts` | Recent command ordering, N param, secret masking |
 
 ### Override History File for Testing
 
@@ -391,6 +397,14 @@ mem bench                   # Default (50k entry limit)
 mem bench -l 100000         # Custom limit
 ```
 
+### Recent
+
+```bash
+mem recent                  # Show last 20 commands
+mem recent -n 5             # Show last 5 commands
+mem recent --max 100        # Show last 100 commands
+```
+
 ### Help & Version
 
 ```bash
@@ -416,7 +430,8 @@ mem                         # First run: welcome screen
 | 1.0.0 | — | Initial release: PowerShell history search, fuzzy matching |
 | 1.2.5 | — | First-run welcome screen |
 | 1.2.6 | — | Benchmark command |
-| **1.2.7** | **Current** | **Stats command, refined welcome** |
+| 1.2.7 | — | Stats command, refined welcome |
+| **1.2.8** | **Current** | **Recent command, secret masking on display** |
 
 ### V2 Roadmap
 

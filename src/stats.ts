@@ -1,13 +1,11 @@
 import { readHistory } from "./history.js";
 import { preprocess } from "./search.js";
-import { useColor } from "./output.js";
+import { colorize as c } from "./output.js";
+import { maskSecrets } from "./secrets.js";
 
-const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const YELLOW = "\x1b[33m";
-
-function c(t: string, code: string) { return useColor() ? `${code}${t}${RESET}` : t; }
 
 export function runStats(top = 10): void {
   const entries = readHistory();
@@ -41,7 +39,8 @@ export function runStats(top = 10): void {
     const barLen = Math.round((e.count / maxCount) * barW);
     const bar = c("█".repeat(Math.max(1, barLen)), DIM);
     const count = c(String(e.count), YELLOW);
-    console.log(`  ${c(rank, DIM)}. ${e.command.padEnd(30)} ${count} ${bar}`);
+    const cmd = maskSecrets(e.command);
+    console.log(`  ${c(rank, DIM)}. ${cmd.padEnd(30)} ${count} ${bar}`);
   }
 
   console.log();

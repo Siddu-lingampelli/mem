@@ -1,16 +1,13 @@
 import { existsSync, writeFileSync, readSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
-import { useColor } from "./output.js";
+import { colorize as c } from "./output.js";
 
 const FLAG_FILE = join(homedir(), ".mem-welcome");
-const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 const GREEN = "\x1b[32m";
-
-function c(t: string, code: string) { return useColor() ? `${code}${t}${RESET}` : t; }
 
 /** Render the first-run welcome. */
 function renderWelcome(version: string): string[] {

@@ -78,4 +78,10 @@ describe("readZshHistory", () => {
     expect(result[0].command).toBe("npm test");
     expect(result[1].command).toBe("docker ps");
   });
+
+  it("returns empty array when readFileSync throws", () => {
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockImplementation(() => { throw new Error("read error"); });
+    expect(readZshHistory()).toEqual([]);
+  });
 });

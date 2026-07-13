@@ -9,7 +9,7 @@ import { readFishHistory } from "./fish-history.js";
  * Detects BOM (Byte Order Mark) in buffer and returns the appropriate encoding.
  * Returns the correct encoding for UTF-8 BOM, UTF-16 LE BOM, or defaults to utf-8.
  */
-function detectEncoding(buffer: Buffer): "utf-8" | "utf8" | "utf16le" {
+export function detectEncoding(buffer: Buffer): "utf-8" | "utf8" | "utf16le" {
   // UTF-8 BOM: EF BB BF
   if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
     return "utf8";
@@ -24,7 +24,15 @@ function detectEncoding(buffer: Buffer): "utf-8" | "utf8" | "utf16le" {
 export function readHistory(limit = 2000): HistoryEntry[] {
   const path = getHistoryFilePath();
   if (existsSync(path)) {
-    const buffer = readFileSync(path);
+    let buffer;
+    try { buffer = readFileSync(path); }
+    catch {
+      const bash = readBashHistory(limit);
+      if (bash.length > 0) return bash;
+      const zsh = readZshHistory(limit);
+      if (zsh.length > 0) return zsh;
+      return readFishHistory(limit);
+    }
     const encoding = detectEncoding(buffer);
     let raw = buffer.toString(encoding);
     if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);

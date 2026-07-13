@@ -16,7 +16,7 @@ export function useColor(): boolean {
   return process.stdout.isTTY === true;
 }
 
-function colorize(text: string, code: string) { return useColor() ? `${code}${text}${RESET}` : text; }
+export function colorize(text: string, code: string) { return useColor() ? `${code}${text}${RESET}` : text; }
 const dim = (s: string) => colorize(s, DIM);
 const green = (s: string) => colorize(s, GREEN);
 const yellow = (s: string) => colorize(s, YELLOW);
@@ -24,7 +24,7 @@ const yellow = (s: string) => colorize(s, YELLOW);
 const SEP = dim("─".repeat(40));
 
 /** Escape regex metacharacters. */
-function esc(str: string): string {
+export function esc(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -33,7 +33,7 @@ function esc(str: string): string {
  * Returns string with ANSI codes: matched words get BOLD+MAGENTA,
  * the rest of the command is dim.
  */
-function highlightCmd(cmd: string, query: string): string {
+export function highlightCmd(cmd: string, query: string): string {
   const q = query.trim().toLowerCase();
   if (!q || q === "*" || ALL_KEYWORDS.includes(q)) return useColor() ? dim(cmd) : cmd;
 

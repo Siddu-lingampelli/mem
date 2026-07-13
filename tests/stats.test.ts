@@ -9,6 +9,7 @@ vi.mock("../src/history.js", () => ({
 // Mock useColor to avoid ANSI in output tests
 vi.mock("../src/output.js", () => ({
   useColor: () => false,
+  colorize: (t: string) => t,
 }));
 
 const { runStats } = await import("../src/stats.js");
