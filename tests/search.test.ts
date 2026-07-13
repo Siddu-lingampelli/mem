@@ -112,3 +112,31 @@ describe("preprocess noise filtering (isNoise)", () => {
     expect(result).toHaveLength(2);
   });
 });
+
+describe("match categories", () => {
+  const entries: HistoryEntry[] = [
+    entry("docker compose up -d"),
+    entry("docker compose down"),
+    entry("claude doctor"),
+    entry("openclaw doctor"),
+    entry("npm run test"),
+  ];
+
+  it("exact query returns category 'exact'", () => {
+    const results = search(entries, "docker compose");
+    expect(results.length).toBeGreaterThan(0);
+    for (const r of results) expect(r.category).toBe("exact");
+  });
+
+  it("fuzzy match returns category 'fuzzy'", () => {
+    const results = search(entries, "docer compose");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some(r => r.category === "fuzzy")).toBe(true);
+  });
+
+  it("all-as-hits (empty query) returns category 'exact'", () => {
+    const results = search(entries, "");
+    expect(results.length).toBe(entries.length);
+    for (const r of results) expect(r.category).toBe("exact");
+  });
+});

@@ -1,6 +1,6 @@
 # MEM CLI — Terminal History Search Tool
 
-**Version:** 1.2.9 · **v1.2.x (current)**  
+**Version:** 1.3.0 · **v1.3.x (current)**  
 **Binary:** `mem` · **Package:** `mem-terminal`  
 **License:** MIT
 
@@ -316,7 +316,7 @@ npm run prepublishOnly  # build before npm publish
 
 ### Test Suite
 
-The test suite covers **12 test files** with comprehensive scenarios:
+The test suite covers **13 test files** with comprehensive scenarios:
 
 | Test File | What It Tests |
 |-----------|--------------|
@@ -431,7 +431,8 @@ mem                         # First run: welcome screen
 | 1.2.5 | — | First-run welcome screen |
 | 1.2.6 | — | Benchmark command |
 | 1.2.7 | — | Stats command, refined welcome |
-| **1.2.8** | **Current** | **Recent command, secret masking on display** |
+| 1.2.8 | — | Recent command, secret masking on display |
+| **1.3.0** | **Current** | **Match category labels (Exact/Similar/Did you also mean?)** |
 
 ### V2 Roadmap
 

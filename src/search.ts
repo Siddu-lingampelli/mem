@@ -1,4 +1,4 @@
-import type { HistoryEntry, SearchHit } from "./types.js";
+import type { HistoryEntry, SearchHit, MatchCategory } from "./types.js";
 
 export const ALL_KEYWORDS = ["all", "*", "everything"];
 
@@ -18,6 +18,13 @@ const PENALTY = {
   THRESHOLD: 0.4,
   SORT_EPSILON: 0.01,
 } as const;
+
+/** Derive a display category from the aggregate score. */
+function matchCategory(score: number): MatchCategory {
+  if (score === 0) return "exact";
+  if (score <= PENALTY.FUZZY_DIST2) return "fuzzy";
+  return "similar";
+}
 
 function isNoise(cmd: string): boolean {
   const c = cmd.trim().toLowerCase();
@@ -147,7 +154,7 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
 
 /** Build all-entries-as-hits for empty / all-keyword queries. */
 function allAsHits(cached: CachedEntry[], rc: number): SearchHit[] {
-  return cached.map(e => ({ command: e.command, score: 1, count: e.count, recent: e.index < rc }));
+  return cached.map(e => ({ command: e.command, score: 1, category: "exact" as const, count: e.count, recent: e.index < rc }));
 }
 
 /**
@@ -179,7 +186,7 @@ export function searchCached(
   for (const entry of cached) {
     const score = scoreCmd(entry.commandLower, entry.tokens, queryWords);
     if (score < PENALTY.THRESHOLD) {
-      scored.push({ command: entry.command, score, count: entry.count, recent: entry.index < rc });
+      scored.push({ command: entry.command, score, category: matchCategory(score), count: entry.count, recent: entry.index < rc });
     }
   }
 

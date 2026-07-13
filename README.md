@@ -104,7 +104,7 @@ Respects `NO_COLOR` env var (per [no-color.org](https://no-color.org/)).
 
 ## Roadmap
 
-- **V1.2.9 (current)** ✅ — Cross-shell history search (PowerShell, Bash, Zsh, Fish), fuzzy matching with Levenshtein, relevance ranking, deduplication, secret masking (40+ patterns), `stats` (usage frequency + bar charts), `bench` (performance metrics), `recent` (last N commands), welcome screen, `--all`/`-n` flags, `NO_COLOR` compliance, BOM detection
+- **V1.3.0 (current)** ✅ — Cross-shell history search (PowerShell, Bash, Zsh, Fish), fuzzy matching with Levenshtein, relevance ranking, deduplication, **match category labels** (Exact / Similar / Did you also mean?), secret masking (40+ patterns), `stats` (usage frequency + bar charts), `bench` (performance metrics), `recent` (last N commands), welcome screen, `--all`/`-n` flags, `NO_COLOR` compliance, BOM detection
 - **V2 (planned)** — Indexed search, cross-machine sync
 
 ## Development
@@ -112,7 +112,7 @@ Respects `NO_COLOR` env var (per [no-color.org](https://no-color.org/)).
 ```bash
 npm install
 npm run build     # tsc
-npm test          # vitest run (13 test files, 184 tests)
+npm test          # vitest run (13 test files, 191 tests)
 npm run dev       # tsx src/cli.ts
 ```
 

@@ -62,6 +62,24 @@ export function highlightCmd(cmd: string, query: string): string {
   return parts.join("");
 }
 
+const SEP_SHORT = dim("─".repeat(20));
+
+function renderHits(hits: SearchHit[], query: string, shellSource?: string): void {
+  for (const hit of hits) {
+    const hl = highlightCmd(hit.command, query);
+    const lines = hl.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const prefix = i === 0 ? "  " : "    ";
+      console.log(`${prefix}${lines[i]}`);
+    }
+    const parts: string[] = [];
+    if (hit.count > 1) parts.push(`${hit.count}×`);
+    if (shellSource) parts.push(shellSource);
+    if (hit.recent) parts.push("recent");
+    if (parts.length) console.log(`    ${dim(parts.join(" • "))}`);
+  }
+}
+
 export function print(
   results: SearchHit[],
   query: string,
@@ -94,6 +112,18 @@ export function print(
   const limit = showAll ? total : (max ?? MAX_SHOWN);
   const shown = masked.slice(0, limit);
 
+  // Split into groups by match category
+  const exact: SearchHit[] = [];
+  const fuzzy: SearchHit[] = [];
+  const similar: SearchHit[] = [];
+  for (const hit of shown) {
+    if (hit.category === "exact") exact.push(hit);
+    else if (hit.category === "fuzzy") fuzzy.push(hit);
+    else similar.push(hit);
+  }
+
+  const hasNonExact = fuzzy.length > 0 || similar.length > 0;
+
   // Header with timing
   const headerParts = [`${green(`${total}`)}${dim(" matches")}`];
   if (durationMs !== undefined) {
@@ -110,20 +140,37 @@ export function print(
 
   console.log(SEP);
 
-  for (const hit of shown) {
-    const hl = highlightCmd(hit.command, query);
-    // Indent continuation lines for multi-line commands
-    const lines = hl.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      const prefix = i === 0 ? "  " : "    ";
-      console.log(`${prefix}${lines[i]}`);
-    }
+  let firstSection = true;
 
-    const parts: string[] = [];
-    if (hit.count > 1) parts.push(`${hit.count}×`);
-    if (shellSource) parts.push(shellSource);
-    if (hit.recent) parts.push("recent");
-    if (parts.length) console.log(`    ${dim(parts.join(" • "))}`);
+  // ── Exact section ──
+  if (exact.length > 0) {
+    if (hasNonExact) console.log(dim("  Exact"));
+    renderHits(exact, query, shellSource);
+    firstSection = false;
+  }
+
+  // ── Similar section (fuzzy matches) ──
+  if (fuzzy.length > 0) {
+    if (!firstSection) console.log(SEP_SHORT);
+    console.log(dim("  Similar"));
+    renderHits(fuzzy, query, shellSource);
+    firstSection = false;
+  }
+
+  // ── Did you also mean? section ──
+  if (similar.length > 0) {
+    if (!firstSection) console.log(SEP_SHORT);
+    console.log(dim("  Did you also mean?"));
+    const seen = new Set<string>();
+    let count = 0;
+    for (const hit of similar) {
+      const firstWord = hit.command.split(/[^a-z0-9]+/)[0]?.toLowerCase();
+      if (firstWord && !seen.has(firstWord) && count < 5) {
+        seen.add(firstWord);
+        console.log(dim(`  ${firstWord}`));
+        count++;
+      }
+    }
   }
 
   console.log(SEP);

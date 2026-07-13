@@ -177,7 +177,7 @@ describe("runSearch", () => {
 
   it("calls print with results, query, and default showAll/maxCount", () => {
     const entries = [{ command: "docker ps" }, { command: "git status" }];
-    const results = [{ command: "docker ps", score: 0.2, count: 1, recent: true }];
+    const results = [{ command: "docker ps", score: 0.2, count: 1, recent: true, category: "fuzzy" }];
 
     mockReadHistory.mockReturnValue(entries);
     mockSearch.mockReturnValue(results);
@@ -212,7 +212,7 @@ describe("runSearch", () => {
 
   it("does not call process.exit on normal flow", () => {
     mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
-    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true }]);
+    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
 
     runSearch("docker");
 
@@ -221,7 +221,7 @@ describe("runSearch", () => {
 
   it("passes through to print with correct query string", () => {
     mockReadHistory.mockReturnValue([{ command: "npm run build" }]);
-    mockSearch.mockReturnValue([{ command: "npm run build", score: 0, count: 2, recent: false }]);
+    mockSearch.mockReturnValue([{ command: "npm run build", score: 0, count: 2, recent: false, category: "exact" }]);
 
     runSearch("npm build");
 

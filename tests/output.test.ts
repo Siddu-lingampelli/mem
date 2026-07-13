@@ -3,8 +3,8 @@ import { print, useColor, esc, highlightCmd } from "../src/output.js";
 
 describe("print", () => {
   const results = [
-    { command: "docker compose up -d", score: 0, count: 1, recent: true },
-    { command: "docker compose down", score: 0.2, count: 2, recent: false },
+    { command: "docker compose up -d", score: 0, count: 1, recent: true, category: "exact" },
+    { command: "docker compose down", score: 0.2, count: 2, recent: false, category: "fuzzy" },
   ];
 
   it("handles empty results", () => {
@@ -23,6 +23,60 @@ describe("print", () => {
     expect(spy).toHaveBeenCalled();
     const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
     expect(output).toContain("2 matches");
+    spy.mockRestore();
+  });
+});
+
+// ── print grouped by category ─────────────────────────────────────────
+describe("print grouped by category", () => {
+  it("renders exact-only results without section headers", () => {
+    const spy = vi.spyOn(console, "log");
+    const results = [
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+      { command: "docker compose", score: 0, count: 2, recent: false, category: "exact" },
+    ];
+    print(results, "docker");
+    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    expect(output).toContain("2 matches");
+    expect(output).not.toContain("Similar");
+    expect(output).not.toContain("Did you also mean?");
+    spy.mockRestore();
+  });
+
+  it("renders mixed results with Similar section", () => {
+    const spy = vi.spyOn(console, "log");
+    const results = [
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+      { command: "claude doctor", score: 0.05, count: 3, recent: false, category: "fuzzy" },
+    ];
+    print(results, "docker");
+    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    expect(output).toContain("2 matches");
+    expect(output).toContain("Similar");
+    spy.mockRestore();
+  });
+
+  it("renders 'Did you also mean?' for similar-category results", () => {
+    const spy = vi.spyOn(console, "log");
+    const results = [
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+      { command: "hermes doctor", score: 0.25, count: 1, recent: false, category: "similar" },
+    ];
+    print(results, "docker");
+    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    expect(output).toContain("Did you also mean?");
+    spy.mockRestore();
+  });
+
+  it("omits empty sections", () => {
+    const spy = vi.spyOn(console, "log");
+    const results = [
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+    ];
+    print(results, "docker");
+    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    expect(output).not.toContain("Similar");
+    expect(output).not.toContain("Did you also mean?");
     spy.mockRestore();
   });
 });
