@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program, Command } from "commander";
-import { readHistory } from "./history.js";
+import { readHistory, shellLabel, type ShellSource } from "./history.js";
 import { search } from "./search.js";
 import { print, useColor } from "./output.js";
 import { runBench } from "./bench.js";
@@ -34,9 +34,21 @@ export function parseCount(val: string | undefined, fallback?: number): number |
   return Number.isNaN(n) || n < 1 ? fallback : n;
 }
 
-export function runSearch(query: string, showAll = false, maxCount?: number): void {
+/** Parse a --shell flag value into a ShellSource, defaulting to "auto". */
+export function parseShell(val: string | undefined): ShellSource {
+  const allowed: ShellSource[] = ["auto", "powershell", "bash", "zsh", "fish"];
+  if (val && (allowed as string[]).includes(val)) return val as ShellSource;
+  return "auto";
+}
+
+export function runSearch(
+  query: string,
+  showAll = false,
+  maxCount?: number,
+  shell: ShellSource = "auto",
+): void {
   try {
-    const entries = readHistory();
+    const entries = readHistory(2000, shell);
     if (entries.length === 0) {
       console.error("No history found.");
       process.exit(1);
@@ -46,7 +58,7 @@ export function runSearch(query: string, showAll = false, maxCount?: number): vo
       console.log("No matching commands found.");
       return;
     }
-    print(results, query, showAll, maxCount);
+    print(results, query, showAll, maxCount, undefined, shellLabel(shell));
   } catch (err) {
     console.error("Error reading history:", (err as Error).message);
     process.exit(1);
@@ -88,6 +100,7 @@ function customHelp(): string {
     `${DIM}Options${RESET}`,
     `${BOLD}--all${RESET}            Show every match without truncation`,
     `${BOLD}-n, --max <n>${RESET}    Show at most N results`,
+    `${BOLD}--shell <name>${RESET}  Source shell (auto|powershell|bash|zsh|fish)`,
     `${BOLD}-V, --version${RESET}  output the version number`,
     `${BOLD}-h, --help${RESET}     display help for command`,
   ].join("\n"));
@@ -108,35 +121,41 @@ searchCmd
   .argument("<query>", "Search query")
   .option("--all", "Show every matching command without truncation")
   .option("-n, --max <n>", "Show at most N results")
+  .option("--shell <name>", "Source shell: auto | powershell | bash | zsh | fish", "auto")
+  .enablePositionalOptions()
   .description("Search your terminal history")
-  .action((query: string, opts: { all?: boolean; max?: string }) => {
-    runSearch(query, opts.all ?? false, opts.max ? parseCount(opts.max) : undefined);
+  .action((query: string, opts: { all?: boolean; max?: string; shell?: string }) => {
+    runSearch(query, opts.all ?? false, opts.max ? parseCount(opts.max) : undefined, parseShell(opts.shell));
   });
 
 const benchCmd = new Command("bench");
 benchCmd
   .description("Benchmark history parsing and search performance")
   .option("-l, --limit <n>", "History read limit", "50000")
-  .action((opts: { limit?: string }) => {
+  .option("--shell <name>", "Source shell: auto | powershell | bash | zsh | fish", "auto")
+  .enablePositionalOptions()
+  .action((opts: { limit?: string; shell?: string }) => {
     const limit = parseCount(opts.limit, 50000) ?? 50000;
-    runBench(limit);
+    runBench(limit, parseShell(opts.shell));
   });
 
 const statsCmd = new Command("stats");
 statsCmd
   .description("Show history statistics (top commands, usage counts)")
   .option("-n, --top <n>", "Number of top commands", "10")
-  .action((opts: { top?: string }) => {
+  .option("--shell <name>", "Source shell: auto | powershell | bash | zsh | fish", "auto")
+  .action((opts: { top?: string; shell?: string }) => {
     const n = parseInt(opts.top ?? "10", 10);
-    runStats(Number.isNaN(n) || n < 1 ? 10 : n);
+    runStats(Number.isNaN(n) || n < 1 ? 10 : n, parseShell(opts.shell));
   });
 
 const recentCmd = new Command("recent");
 recentCmd
   .description("Show newest N commands")
   .option("-n, --max <n>", "Number of recent commands", "20")
-  .action((opts: { max?: string }) => {
-    runRecent(opts.max ? parseCount(opts.max, 20) ?? 20 : 20);
+  .option("--shell <name>", "Source shell: auto | powershell | bash | zsh | fish", "auto")
+  .action((opts: { max?: string; shell?: string }) => {
+    runRecent(opts.max ? parseCount(opts.max, 20) ?? 20 : 20, parseShell(opts.shell));
   });
 
 // Stub commands for V2 preview
@@ -202,20 +221,10 @@ if (isMain) {
     if (code === "commander.helpDisplayed") {
       process.exit(0);
     }
-    if (
-      code === "commander.missingArgument" ||
-      code === "commander.unknownOption" ||
-      code === "commander.unknownCommand" ||
-      code === "commander.invalidArgument" ||
-      code === "commander.optionMissingArgument" ||
-      code === "commander.missingMandatoryOptionValue" ||
-      code === "commander.conflictingOption" ||
-      code === "commander.excessArguments"
-    ) {
-      console.error(paint(`${DIM}Error:${RESET} ${(e as Error).message}`));
-      program.outputHelp();
-      process.exit(1);
-    }
-    throw e;
+    // Any other Commander error (unknown option, missing argument, etc.)
+    // surfaces here; show the message and exit non-zero.
+    console.error(paint(`${DIM}Error:${RESET} ${(e as Error).message}`));
+    program.outputHelp();
+    process.exit(1);
   }
 }

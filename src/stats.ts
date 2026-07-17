@@ -1,4 +1,4 @@
-import { readHistory } from "./history.js";
+import { readHistory, shellLabel, type ShellSource } from "./history.js";
 import { preprocess } from "./search.js";
 import { colorize as c } from "./output.js";
 import { maskSecrets } from "./secrets.js";
@@ -7,8 +7,8 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const YELLOW = "\x1b[33m";
 
-export function runStats(top = 10): void {
-  const entries = readHistory();
+export function runStats(top = 10, shell: ShellSource = "auto"): void {
+  const entries = readHistory(2000, shell);
   if (entries.length === 0) {
     console.log("No history found.");
     return;
@@ -26,6 +26,7 @@ export function runStats(top = 10): void {
 
   // Summary line
   console.log(`${c("History", DIM)}  ${total.toLocaleString()} commands (${unique.toLocaleString()} unique)`);
+  if (shell !== "auto") console.log(`${c("Shell", DIM)}   ${shellLabel(shell)}`);
 
   // Top commands
   console.log(`\n${c("Top", DIM)} ${c(String(top), YELLOW)} ${c("commands", DIM)}`);

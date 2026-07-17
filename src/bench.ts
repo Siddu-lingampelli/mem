@@ -1,20 +1,22 @@
 #!/usr/bin/env node
 
-import { readHistory } from "./history.js";
+import { readHistory, shellLabel, type ShellSource } from "./history.js";
 import { preprocess, searchCached } from "./search.js";
 
 const BENCH_QUERIES = ["git", "docker", "npm", "ssh", "node"];
 
-export function runBench(limit = 50000): void {
+export function runBench(limit = 50000, shell: ShellSource = "auto"): void {
   // Measure history parsing
   const parseStart = performance.now();
-  const entries = readHistory(limit);
+  const entries = readHistory(limit, shell);
   const parseMs = performance.now() - parseStart;
 
   if (entries.length === 0) {
     console.log("No history found. Nothing to benchmark.");
     return;
   }
+
+  if (shell !== "auto") console.log(`Shell   ${shellLabel(shell)}\n`);
 
   // Pre-process once (dedupe, tokenise, index)
   const processStart = performance.now();

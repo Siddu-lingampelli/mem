@@ -7,7 +7,6 @@ const EXACT_NOISE = new Set(["mem", "history", "clear", "cls", "exit"]);
 
 /** Scoring constants — penalty values (lower=better) */
 const PENALTY = {
-  EXACT: 0,
   FUZZY_DIST1: 0.05,
   FUZZY_DIST2: 0.12,
   TOKEN_PREFIX: 0.15,

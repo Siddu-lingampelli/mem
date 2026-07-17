@@ -8,6 +8,7 @@ const mockUseColor = vi.fn();
 
 vi.mock("../src/history.js", () => ({
   readHistory: (...args: any[]) => mockReadHistory(...args),
+  shellLabel: (s: any) => (s === "auto" ? "auto" : s),
 }));
 
 vi.mock("../src/search.js", () => ({
@@ -19,7 +20,7 @@ vi.mock("../src/output.js", () => ({
   print: (...args: any[]) => mockPrint(...args),
 }));
 
-const { parseCount, stripAnsi, paint, runSearch } = await import("../src/cli.js");
+const { parseCount, parseShell, stripAnsi, paint, runSearch } = await import("../src/cli.js");
 
 // ── parseCount ───────────────────────────────────────────────────────
 describe("parseCount", () => {
@@ -186,7 +187,7 @@ describe("runSearch", () => {
 
     expect(mockReadHistory).toHaveBeenCalledTimes(1);
     expect(mockSearch).toHaveBeenCalledWith(entries, "docker");
-    expect(mockPrint).toHaveBeenCalledWith(results, "docker", false, undefined);
+    expect(mockPrint).toHaveBeenCalledWith(results, "docker", false, undefined, undefined, "auto");
   });
 
   it("prints to console.error and exits when history is empty", () => {
@@ -234,6 +235,8 @@ describe("runSearch", () => {
       "npm build",
       expect.any(Boolean),
       undefined,
+      undefined,
+      "auto",
     );
   });
 
@@ -249,5 +252,61 @@ describe("runSearch", () => {
       "permission denied",
     );
     expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+});
+
+// ── parseShell ─────────────────────────────────────────────────────
+describe("parseShell", () => {
+  it("defaults to auto for undefined", () => {
+    expect(parseShell(undefined)).toBe("auto");
+  });
+  it("accepts valid shell names", () => {
+    expect(parseShell("powershell")).toBe("powershell");
+    expect(parseShell("bash")).toBe("bash");
+    expect(parseShell("zsh")).toBe("zsh");
+    expect(parseShell("fish")).toBe("fish");
+  });
+  it("falls back to auto for invalid names", () => {
+    expect(parseShell("nu")).toBe("auto");
+    expect(parseShell("")).toBe("auto");
+  });
+});
+
+// ── shell selection drives readHistory ────────────────────────────
+describe("runSearch shell selection", () => {
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    mockReadHistory.mockReset();
+    mockSearch.mockReset();
+    mockPrint.mockReset();
+    exitSpy = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never);
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    exitSpy?.mockRestore();
+    consoleErrorSpy?.mockRestore();
+    consoleLogSpy?.mockRestore();
+  });
+
+  it("passes explicit shell to readHistory", () => {
+    mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
+    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
+
+    runSearch("docker", false, undefined, "bash");
+
+    expect(mockReadHistory).toHaveBeenCalledWith(2000, "bash");
+  });
+
+  it("defaults shell to auto when omitted", () => {
+    mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
+    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
+
+    runSearch("docker");
+
+    expect(mockReadHistory).toHaveBeenCalledWith(2000, "auto");
   });
 });

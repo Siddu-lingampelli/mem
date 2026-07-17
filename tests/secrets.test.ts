@@ -348,4 +348,17 @@ describe("maskSecrets", () => {
       expect(result).toBe("echo 'my skills are great'");
     });
   });
+
+  // ── Robustness ─────────────────────────────────────────────
+  describe("robustness", () => {
+    it("never throws on normal-ish input", () => {
+      expect(() => maskSecrets("")).not.toThrow();
+      expect(() => maskSecrets("🔥 emoji & \t\n weird \"chars\"")).not.toThrow();
+    });
+
+    it("returns a string always", () => {
+      const result = maskSecrets("git push origin main");
+      expect(typeof result).toBe("string");
+    });
+  });
 });

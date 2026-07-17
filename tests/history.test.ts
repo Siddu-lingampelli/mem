@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { readHistory, detectEncoding } from "../src/history.js";
+import { readHistory, readPsReadLineHistory, detectEncoding } from "../src/history.js";
 
 // Mock fs
 vi.mock("fs", () => {
@@ -92,5 +92,24 @@ describe("BOM handling", () => {
     // Commands are newest-first
     expect(entries[0].command).toBe("git push");
     expect(entries[1].command).toBe("npm run build");
+  });
+});
+
+describe("shell selection", () => {
+  it("auto falls back to bash/zsh/fish when PSReadLine is missing", () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+    expect(readHistory()).toEqual([]);
+  });
+
+  it("explicit powershell reads PSReadLine even when fallback readers are mocked empty", () => {
+    vi.mocked(readFileSync).mockReturnValue("git status\nnpm test\n");
+    const entries = readHistory(2000, "powershell");
+    expect(entries).toHaveLength(2);
+    expect(entries[0].command).toBe("npm test");
+  });
+
+  it("readPsReadLineHistory returns [] when file is absent", () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+    expect(readPsReadLineHistory()).toEqual([]);
   });
 });

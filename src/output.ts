@@ -93,13 +93,21 @@ export function print(
     if (q && q !== "all" && q !== "*") {
       console.log(yellow("No matching commands."));
       console.log(dim(`  Try: mem "${q.slice(0, 12)}"`));
-      // Suggest commands sharing a 2-char prefix with the query
+      // Suggest commands sharing a 2-char prefix with the query.
+      // Don't recommend the query itself — fall back to it only when nothing
+      // else shares the prefix (the sugg list is short and dominated by short words).
       const sugg = ["docker", "git", "npm", "cd", "ls", "ssh", "curl", "node"];
       const prefix2 = q.slice(0, 2);
       const filtered = sugg.filter(s =>
-        s.includes(prefix2) || q.includes(s.slice(0, 2))
+        s !== q &&
+        !s.includes(q) &&
+        (s.includes(prefix2) || q.includes(s.slice(0, 2)))
       );
-      const picks = filtered.length > 0 ? filtered.slice(0, 3) : sugg.slice(0, 3);
+      // ponytail: hardcoded sugg is short; refine to a richer dict when the
+      // first 2-char prefix matches nothing relevant in practice.
+      const picks =
+        filtered.length > 0 ? filtered.slice(0, 3)
+        : (sugg.includes(q) ? [q] : sugg.slice(0, 3));
       console.log(dim(`  Try: ${picks.map(s => `mem "${s}"`).join(", ")}`));
     } else {
       console.log("No history found.");

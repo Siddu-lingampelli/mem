@@ -47,6 +47,30 @@ mem "git" --all                # show all matches
 mem "docker" -n 5              # show only 5 results
 ```
 
+### Cross-shell history
+
+By default `mem` reads your **PowerShell / PSReadLine** history (the most
+common on Windows). If you use **Bash**, **Zsh**, or **Fish** (e.g. Git Bash
+on Windows), pick the source shell explicitly so `mem` reads the log you
+actually run:
+
+```bash
+mem search "git" --shell bash    # read .bash_history
+mem search "git" --shell zsh     # read .zsh_history
+mem search "git" --shell fish     # read fish_history
+mem stats        --shell bash
+mem recent       --shell zsh
+mem bench        --shell fish
+```
+
+`--shell` accepts: `auto` (default — PSReadLine, then Bash → Zsh → Fish
+fallback), `powershell`, `bash`, `zsh`, `fish`. On Windows, Git Bash rewrites
+`/tmp/...` paths to `C:/Users/.../Temp/...`, so export `HISTFILE` with a
+Windows-style path (or use `--shell`) to target a specific log.
+
+> Note: the `--shell` flag lives on the **subcommands** (`search`, `stats`,
+> `bench`, `recent`). For a bare `mem "query"` the shell is always `auto`.
+
 ### Statistics
 
 ```bash
