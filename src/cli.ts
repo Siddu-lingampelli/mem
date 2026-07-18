@@ -14,7 +14,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "2.2.2";
+const VERSION = "2.2.3";
 
 export function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -180,10 +180,10 @@ program
   .argument("[query]", "Search query")
   .option("--all", "Show every matching command without truncation")
   .option("-n, --max <n>", "Show at most N results")
-  .action((query: string | undefined, opts: { all?: boolean; max?: string }) => {
+  .action(async (query: string | undefined, opts: { all?: boolean; max?: string }) => {
     if (query === undefined) {
       if (!hasSeenWelcome()) {
-        showWelcome(VERSION);
+        await showWelcome(VERSION);
         return;
       }
       program.outputHelp();

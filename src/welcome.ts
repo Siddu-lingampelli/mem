@@ -1,5 +1,4 @@
 import { existsSync, writeFileSync } from "fs";
-import { isatty } from "tty";
 import { join } from "path";
 import { homedir } from "os";
 import { colorize as c } from "./output.js";
@@ -42,15 +41,16 @@ export function hasSeenWelcome(): boolean {
   return existsSync(FLAG_FILE);
 }
 
-export function showWelcome(version = "1.2.5"): void {
+export async function showWelcome(version: string = "1.2.5"): Promise<void> {
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
-  // ponytail: original `readSync` blocked silently when stdin was piped.
-  // Only wait for a keypress when stdin is a real TTY; otherwise the welcome
-  // text is enough — drop the read.
-  if (isatty(0)) {
-    try { process.stdin.read(1); } catch { /* best-effort */ }
+  // ponytail: original `readSync` blocked forever on a pipe, and `process.stdin.read(1)`
+  // silently returns null on a paused stream — neither actually pauses for a keypress.
+  // Resume the stream and wait on a one-shot 'data' event so we get a real pause on a
+  // real TTY and an immediate fall-through on pipes (no listener, no resume(), no wait).
+  if (process.stdin.isTTY) {
+    await new Promise<void>(r => process.stdin.once("data", () => r()));
   }
 
   try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
