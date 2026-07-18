@@ -14,7 +14,7 @@ const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 
-const VERSION = "1.3.0";
+const VERSION = "2.2.1";
 
 export function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
