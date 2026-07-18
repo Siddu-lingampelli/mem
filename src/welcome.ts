@@ -40,7 +40,7 @@ export function hasSeenWelcome(): boolean {
   return existsSync(FLAG_FILE);
 }
 
-export async function showWelcome(version: string = "1.2.5"): Promise<void> {
+export function showWelcome(version: string = "1.2.5"): Promise<void> {
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
@@ -48,9 +48,9 @@ export async function showWelcome(version: string = "1.2.5"): Promise<void> {
   // as a pipe even on a TTY — 'data' never fires. The original readSync blocked
   // forever on those; v2.2.3 patch removed the hang but the "Press Enter…" banner
   // misled users into waiting. Drop the prompt entirely — the banner is informational,
-  // not a gate. Keep the showWelcome function async so future "Press any key"
-  // behavior can layer on without changing the caller signature.
-  await Promise.resolve();
+  // not a gate. The function stays async-typed so a future "Press any key" can
+  // layer on without rippling into the caller signature in cli.ts.
+  return Promise.resolve();
 
   try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
 }
