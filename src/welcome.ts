@@ -1,4 +1,5 @@
-import { existsSync, writeFileSync, readSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
+import { isatty } from "tty";
 import { join } from "path";
 import { homedir } from "os";
 import { colorize as c } from "./output.js";
@@ -45,10 +46,12 @@ export function showWelcome(version = "1.2.5"): void {
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
-  try {
-    const buf = Buffer.alloc(1);
-    readSync(process.stdin.fd, buf, 0, 1, null);
-  } catch { /* non-TTY */ }
+  // ponytail: original `readSync` blocked silently when stdin was piped.
+  // Only wait for a keypress when stdin is a real TTY; otherwise the welcome
+  // text is enough — drop the read.
+  if (isatty(0)) {
+    try { process.stdin.read(1); } catch { /* best-effort */ }
+  }
 
   try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
 }
