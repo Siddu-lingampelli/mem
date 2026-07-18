@@ -33,7 +33,6 @@ function renderWelcome(version: string): string[] {
     "",
     `${c("Run", DIM)} ${c("mem --help", CYAN)} ${c("anytime.", DIM)}`,
     "",
-    c("Press Enter to continue...", DIM),
   ];
 }
 
@@ -45,13 +44,13 @@ export async function showWelcome(version: string = "1.2.5"): Promise<void> {
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
-  // ponytail: original `readSync` blocked forever on a pipe, and `process.stdin.read(1)`
-  // silently returns null on a paused stream — neither actually pauses for a keypress.
-  // Resume the stream and wait on a one-shot 'data' event so we get a real pause on a
-  // real TTY and an immediate fall-through on pipes (no listener, no resume(), no wait).
-  if (process.stdin.isTTY) {
-    await new Promise<void>(r => process.stdin.once("data", () => r()));
-  }
+  // ponytail: many terminals (MINGW64, msys, spawned subprocesses) report stdin
+  // as a pipe even on a TTY — 'data' never fires. The original readSync blocked
+  // forever on those; v2.2.3 patch removed the hang but the "Press Enter…" banner
+  // misled users into waiting. Drop the prompt entirely — the banner is informational,
+  // not a gate. Keep the showWelcome function async so future "Press any key"
+  // behavior can layer on without changing the caller signature.
+  await Promise.resolve();
 
   try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
 }
