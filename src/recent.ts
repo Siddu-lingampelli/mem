@@ -1,9 +1,7 @@
 import { readHistory, shellLabel, type ShellSource } from "./history.js";
 import { maskSecrets } from "./secrets.js";
 import { colorize as c } from "./output.js";
-
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
+import { BOLD, DIM } from "./ansi.js";
 
 export function runRecent(n = 20, shell: ShellSource = "auto"): void {
   const entries = readHistory(2000, shell);

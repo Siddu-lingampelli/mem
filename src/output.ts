@@ -1,13 +1,7 @@
 import type { SearchHit } from "./types.js";
 import { maskSecrets } from "./secrets.js";
 import { ALL_KEYWORDS } from "./search.js";
-
-const RESET = "\x1b[0m";
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
-const GREEN = "\x1b[32m";
-const MAGENTA = "\x1b[35m";
-const YELLOW = "\x1b[33m";
+import { RESET, BOLD, DIM, GREEN, MAGENTA, YELLOW } from "./ansi.js";
 
 const MAX_SHOWN = 20;
 

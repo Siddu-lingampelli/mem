@@ -1,12 +1,12 @@
 # mem-terminal — Complete Project Reference
 
-> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.5 (commit `35383a7`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
+> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.6 (commit `7fd1f83`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
 
 ---
 
 ## 1. What `mem` is
 
-`mem` (npm package **`mem-terminal`**, v2.2.5) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
+`mem` (npm package **`mem-terminal`**, v2.2.6) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
 
 - **One production dependency** (`commander`). Everything else (search engine, secret masking, parsers, ANSI output) is hand-rolled.
 - **Zero cloud, zero setup.** Reads local history files; writes one tiny flag file.
@@ -19,16 +19,16 @@
 
 | Metric | Value | How verified |
 |---|---|---|
-| Version | `2.2.5` | `package.json` |
+| Version | `2.2.6` | `package.json` |
 | Node engine | `>=18` | `package.json` `engines.node` |
 | Binary | `bin: { "mem": "dist/cli.js" }` | `package.json` |
 | Prod deps | `commander ^13.0.0` | `package.json` |
 | Dev deps | `@types/node`, `typescript ^5.7`, `tsx ^4.19`, `vitest ^3.0` | `package.json` |
-| Source files | 14 `.ts` | `src/` listing |
+| Source files | 15 `.ts` | `src/` listing (ansi.ts added v2.2.6) |
 | Test files | 13 `.ts` | `tests/` listing |
-| Source LoC | 1,353 | `wc -l src/*.ts` |
+| Source LoC | ~1,380 | `wc -l src/*.ts` (ansi.ts added v2.2.6) |
 | Test LoC | 1,961 | `wc -l tests/*.ts` |
-| Total LoC | 3,314 | `wc -l` |
+| Total LoC | ~3,341 | `wc -l` |
 | Tests passing | **202 / 202** in ~1.2s | `npx vitest run` |
 | npm pack | 45 files, 103,758 bytes | `npm pack --dry-run --json` |
 | `dist/` size | 124K | `du` |
@@ -61,7 +61,7 @@
 
 ```
 mem-pro/
-├── src/                      # 14 TypeScript modules (1,353 LoC)
+├── src/                      # 15 TypeScript modules (~1,380 LoC)
 │   ├── cli.ts          (229) # Entry point, Commander wiring, custom help/version
 │   ├── search.ts       (208) # preprocess() + searchCached(), bounded Levenshtein
 │   ├── output.ts       (185) # ANSI rendering, NO_COLOR/TTY gating, grouped display
@@ -75,6 +75,7 @@ mem-pro/
 │   ├── stats.ts         (48) # Top-N with ASCII bar charts
 │   ├── utils.ts         (44) # PSReadLine candidate path resolver
 │   ├── recent.ts        (28) # Newest N, secret-masked
+│   ├── ansi.ts           (8) # Shared ANSI escape constants (new v2.2.6)
 │   └── types.ts         (21) # HistoryEntry, SearchHit, MatchCategory
 ├── tests/                    # 13 test files (1,961 LoC, 202 tests)
 ├── dist/                     # Compiled output (gitignored, 124K)
@@ -293,7 +294,7 @@ Prints `No matching commands.` + `Try: mem "<q[:12]>"`, then picks from hardcode
 
 `stripAnsi`, `paint`, `parseCount(val, fallback?)`, `parseShell(val)`, `runSearch(query, showAll?, maxCount?, shell?)`.
 
-`parseCount` rejects `NaN` and `< 1`, returning the fallback. Note `runRecent`'s `parseCount(opts.max, 20) ?? 20` — the trailing `?? 20` is dead defensive code (`parseCount` already returns the fallback).
+`parseCount` rejects `NaN` and `< 1`, returning the fallback. Note: an earlier draft used `parseCount(opts.max, 20) ?? 20` — the trailing `?? 20` was dead defensive code (`parseCount` already returns the fallback), removed in v2.2.6.
 
 ---
 
@@ -436,7 +437,8 @@ node dist/cli.js "docker"
 | 2.2.2 | `5b5234d` | Fix silent welcome on non-TTY stdin |
 | 2.2.3 | `d42896f` | Restore welcome pause for keypress on real TTYs |
 | 2.2.4 | `c3f4855` | Drop misleading "Press Enter to continue" prompt |
-| **2.2.5** | `35383a7` | **Cleanup: drop redundant await, kill fake async surface** (current HEAD) |
+| **2.2.5** | `35383a7` | Cleanup: drop redundant await, kill fake async surface |
+| **2.2.6** | `7fd1f83` | **docs site + welcome state-reset fix; ansi.ts extracted; dead `?? 20` removed** (current HEAD) |
 
 **V2 roadmap:** indexed search (faster for >10k histories), cross-machine sync (both `index`/`sync` are stubs).
 
@@ -458,7 +460,7 @@ node dist/cli.js "docker"
 ## 17. Observations and improvement candidates (not requested, for reference)
 
 - `output.ts` empty-state suggestion list is hardcoded to 8 common commands — source comment flags it as a candidate for drawing from preprocessed top-N instead.
-- `cli.ts` `runRecent`: `parseCount(opts.max, 20) ?? 20` — trailing `?? 20` is dead (`parseCount` already returns the fallback). Cosmetic noise, not a bug.
+- `cli.ts` `runRecent`: `parseCount(opts.max, 20) ?? 20` — trailing `?? 20` was dead defensive (`parseCount` already returns the fallback). Removed in v2.2.6.
 - `welcome.ts` `showWelcome` is `async`-typed with a synchronous body — intentional forward hook for a future keypress gate; currently never awaited meaningfully.
 - `secrets.ts` Bitbucket pattern (`BB…`, 28-char suffix) and Discord pattern (3-dot format) are length-anchored — could miss tokens outside those exact lengths, but match real formats.
 - `vercel.json` + `docs/` are untracked; consider committing (with a `site/` note) or documenting they're deploy-only and excluded from the npm pack.
@@ -471,7 +473,7 @@ node dist/cli.js "docker"
 ```bash
 npm test                          # expect: 13 files, 202 tests, 0 failures, ~1.2s
 npm pack --dry-run --json | grep  # expect: 45 entries
-node dist/cli.js --version        # mem v2.2.5
+node dist/cli.js --version        # mem v2.2.6
 node dist/cli.js --help           # custom ANSI help
 node dist/cli.js "git"            # search your live history
 node dist/cli.js stats -n 10      # top 10 + bar charts
@@ -482,4 +484,4 @@ git log --oneline | wc -l         # expect: 54
 
 ---
 
-*Verified 2026-07-29 against source at commit `35383a7` (v2.2.5). File: `docs/PROJECT.md`.*
+*Verified 2026-07-29 against source at commit `7fd1f83` (v2.2.6). File: `docs/PROJECT.md`.*

@@ -2,12 +2,11 @@ import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { colorize as c } from "./output.js";
+import { BOLD, DIM, CYAN, GREEN } from "./ansi.js";
 
-const FLAG_FILE = join(homedir(), ".mem-welcome");
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
-const CYAN = "\x1b[36m";
-const GREEN = "\x1b[32m";
+function flagFile(): string {
+  return join(homedir(), ".mem-welcome");
+}
 
 // In-memory memo: survives within a process even if the flag write fails
 // (read-only HOME, permission denied, sandbox). Keeps the welcome from
@@ -42,7 +41,7 @@ function renderWelcome(version: string): string[] {
 }
 
 export function hasSeenWelcome(): boolean {
-  return shownThisProcess || existsSync(FLAG_FILE);
+  return shownThisProcess || existsSync(flagFile());
 }
 
 /** Test-only: clear the in-process memo so a single vitest worker can
@@ -64,7 +63,7 @@ export function showWelcome(version: string): Promise<void> {
   // in-memory memo above still suppresses the banner for the rest of this
   // process.
   try {
-    writeFileSync(FLAG_FILE, "", "utf-8");
+    writeFileSync(flagFile(), "", "utf-8");
   } catch {
     // No diagnostic; the welcome already printed and won't repeat this run.
   }

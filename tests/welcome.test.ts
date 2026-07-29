@@ -1,19 +1,33 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { hasSeenWelcome, showWelcome, resetWelcomeState } from "../src/welcome.js";
-import { existsSync, writeFileSync, unlinkSync } from "fs";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { join } from "path";
-import { homedir } from "os";
+import { mkdtempSync, existsSync, writeFileSync, rmSync } from "fs";
+import { tmpdir } from "os";
 
-const FLAG = join(homedir(), ".mem-welcome");
+let TMPDIR: string;
+let FLAG: string;
+
+vi.mock("os", async () => {
+  const actual = await vi.importActual<typeof import("os")>("os");
+  return {
+    ...actual,
+    homedir: () => TMPDIR,
+  };
+});
+
+const { hasSeenWelcome, showWelcome, resetWelcomeState } = await import("../src/welcome.js");
 
 describe("welcome", () => {
+  beforeEach(() => {
+    TMPDIR = mkdtempSync(join(tmpdir(), "mem-welcome-test-"));
+    FLAG = join(TMPDIR, ".mem-welcome");
+  });
+
   afterEach(() => {
-    try { unlinkSync(FLAG); } catch { /* ok */ }
     resetWelcomeState();
+    rmSync(TMPDIR, { recursive: true, force: true });
   });
 
   it("hasSeenWelcome returns false when no flag file", () => {
-    try { unlinkSync(FLAG); } catch { /* ok */ }
     expect(hasSeenWelcome()).toBe(false);
   });
 
@@ -59,7 +73,6 @@ describe("welcome", () => {
   });
 
   it("showWelcome persists the seen flag so it does not re-fire", async () => {
-    try { unlinkSync(FLAG); } catch { /* ok */ }
     expect(hasSeenWelcome()).toBe(false);
     await showWelcome("2.2.5");
     expect(hasSeenWelcome()).toBe(true);

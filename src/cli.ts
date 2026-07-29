@@ -8,13 +8,9 @@ import { runBench } from "./bench.js";
 import { runStats } from "./stats.js";
 import { runRecent } from "./recent.js";
 import { hasSeenWelcome, showWelcome } from "./welcome.js";
+import { RESET, BOLD, DIM, CYAN } from "./ansi.js";
 
-const RESET = "\x1b[0m";
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
-const CYAN = "\x1b[36m";
-
-const VERSION = "2.2.5";
+const VERSION = "2.2.6";
 
 export function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -155,7 +151,7 @@ recentCmd
   .option("-n, --max <n>", "Number of recent commands", "20")
   .option("--shell <name>", "Source shell: auto | powershell | bash | zsh | fish", "auto")
   .action((opts: { max?: string; shell?: string }) => {
-    runRecent(opts.max ? parseCount(opts.max, 20) ?? 20 : 20, parseShell(opts.shell));
+    runRecent(opts.max ? parseCount(opts.max, 20) : 20, parseShell(opts.shell));
   });
 
 // Stub commands for V2 preview
@@ -194,8 +190,8 @@ program
 
 // Only run CLI startup when executed directly (not when imported for testing)
 import { fileURLToPath } from "url";
-import { resolve } from "path";
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+import { resolve, relative } from "path";
+const isMain = process.argv[1] && relative(resolve(process.argv[1]), fileURLToPath(import.meta.url)) === "";
 
 if (isMain) {
   // Override the default help information

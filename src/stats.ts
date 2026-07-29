@@ -2,10 +2,7 @@ import { readHistory, shellLabel, type ShellSource } from "./history.js";
 import { preprocess } from "./search.js";
 import { colorize as c } from "./output.js";
 import { maskSecrets } from "./secrets.js";
-
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
-const YELLOW = "\x1b[33m";
+import { BOLD, DIM, YELLOW } from "./ansi.js";
 
 export function runStats(top = 10, shell: ShellSource = "auto"): void {
   const entries = readHistory(2000, shell);

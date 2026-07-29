@@ -46,14 +46,14 @@ const PATTERNS: { re: RegExp; mask: string }[] = [
   // ── AI / ML platform keys ─────────────────────────────────────
   // Anthropic (sk-ant-...)
   { re: /\b(sk-[A-Za-z0-9]{3,4})[A-Za-z0-9_-]+/g, mask: "$1********" },
-  // OpenAI-style (sk-...)
-  { re: /\b(sk_[A-Za-z0-9]{4})[A-Za-z0-9_]+/g, mask: "$1********" },
   // Hugging Face
   { re: /\b(hf_[A-Za-z0-9]{4})[A-Za-z0-9]+/g, mask: "$1********" },
   // Replicate
   { re: /\b(r8_[A-Za-z0-9]{4})[A-Za-z0-9_]+/g, mask: "$1********" },
   // Cohere
   { re: /\b(coy[A-Za-z0-9]{4})[A-Za-z0-9_]+/g, mask: "$1********" },
+  // OpenAI-style (sk-...) — must be after Stripe so sk_live_/sk_test_ match first
+  { re: /\b(sk_[A-Za-z0-9]{4})[A-Za-z0-9_]+/g, mask: "$1********" },
 
   // ── Git hosting tokens ────────────────────────────────────────
   // GitLab

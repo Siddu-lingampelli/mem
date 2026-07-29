@@ -1,4 +1,5 @@
 {
+  "name": "mem-terminal",
   "outputDirectory": "docs",
   "buildCommand": "",
   "installCommand": "",
