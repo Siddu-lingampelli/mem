@@ -161,4 +161,80 @@
       if (el) { el.scrollIntoView({ behavior: "smooth" }); history.replaceState(null, "", "#" + id); closeSidebar(); }
     });
   });
+
+  // ── terminal typing animation (hero demo) ─────────────────
+  var OUTPUTS = {
+    "2": '<span class="ok">3 matches</span>\n  <span class="ok">docker compose up -d</span>     recent\n  <span class="muted">docker compose down</span>      <span class="muted">used 8×</span>\n  <span class="muted">docker compose logs -f</span>   <span class="muted">used 3×</span>\n',
+    "4": '<span class="ok">mem stats</span>\n  <span class="muted">History</span>  1,234 commands (567 unique)\n\n  <span class="muted">Top 10 commands</span>\n   <span class="muted">1.</span> git status                   <span class="ok">45</span> <span class="bar">████████████████████</span>\n   <span class="muted">2.</span> docker compose up -d         <span class="ok">32</span> <span class="bar">██████████████</span>\n   <span class="muted">3.</span> npm run build                <span class="ok">28</span> <span class="bar">████████████</span>\n',
+    "6": '<span class="ok">mem recent</span>\n  <span class="muted">Last 3 commands</span>\n\n   <span class="muted">1.</span> npm test\n   <span class="muted">2.</span> git status\n   <span class="muted">3.</span> docker compose up -d\n'
+  };
+
+  function typeInto(el, text, speed) {
+    return new Promise(function (resolve) {
+      var i = 0;
+      el.textContent = "";
+      var t = setInterval(function () {
+        if (i >= text.length) { clearInterval(t); resolve(); return; }
+        el.textContent += text[i++];
+      }, speed || 35);
+    });
+  }
+
+  function runDemo() {
+    var body = document.getElementById("terminal-body");
+    if (!body) return;
+    var lines = Array.prototype.slice.call(body.querySelectorAll(".t-line"));
+    var outs = Array.prototype.slice.call(body.querySelectorAll(".t-out"));
+
+    async function play() {
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var cmdEl = line.querySelector(".t-cmd");
+        var cmd = cmdEl ? cmdEl.getAttribute("data-cmd") || "" : "";
+        await typeInto(cmdEl, cmd, 38);
+        line.classList.add("done");
+        var outEl = outs[i];
+        if (outEl && OUTPUTS[String(i + 1)]) {
+          await new Promise(function (r) { setTimeout(r, parseInt(outEl.getAttribute("data-delay") || "300", 10)); });
+          outEl.innerHTML = OUTPUTS[String(i + 1)];
+          outEl.classList.add("show");
+        }
+      }
+    }
+    play();
+  }
+
+  // Play on load + replay when terminal scrolls into view
+  if (document.getElementById("terminal-body")) {
+    setTimeout(runDemo, 600);
+  }
+
+  // ── Animate every code block once it scrolls into view ─────
+  var blocks = document.querySelectorAll(".codeblock pre");
+  var observer = ("IntersectionObserver" in window) ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var pre = e.target;
+      observer.unobserve(pre);
+      var code = pre.querySelector("code") || pre;
+      var full = code.textContent;
+      if (!full) return;
+      var block = pre.parentElement;
+      block.classList.add("typing");
+      code.textContent = "";
+      var i = 0;
+      var speed = full.length > 200 ? 6 : 14;
+      var t = setInterval(function () {
+        if (i >= full.length) { clearInterval(t); block.classList.remove("typing"); return; }
+        var chunk = full.charCodeAt(i) === 10 ? "\n" : full[i];
+        code.textContent += chunk;
+        i++;
+        if (i % 3 === 0) pre.scrollTop = pre.scrollHeight;
+      }, speed);
+    });
+  }, { threshold: 0.2, rootMargin: "0px 0px -10% 0px" }) : null;
+
+  if (observer) {
+    blocks.forEach(function (b) { observer.observe(b); });
+  }
 })();

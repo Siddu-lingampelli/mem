@@ -170,27 +170,56 @@ a:hover { text-decoration: underline; }
   border: 0.8px solid var(--code-border); overflow: hidden;
   background: var(--code-bg);
 }
+.codeblock::before {
+  content: "●  ●  ●";
+  display: block;
+  height: 32px; line-height: 32px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-bottom: 0.8px solid var(--border);
+  font-size: 10px; letter-spacing: 4px;
+  background-image: linear-gradient(to right, var(--surface), var(--surface)),
+    linear-gradient(90deg, #ff5f57 0 33%, #febc2e 33% 66%, #28c840 66% 100%);
+  -webkit-background-clip: text, text;
+  background-clip: text, text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  position: relative;
+}
+.codeblock[data-lang]::after {
+  content: attr(data-lang);
+  position: absolute; top: 0; left: 80px; height: 32px; line-height: 32px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--text-faint); pointer-events: none;
+}
 .codeblock pre {
-  margin: 0; padding: 16px 18px; overflow-x: auto;
+  margin: 0; padding: 14px 18px 16px; overflow-x: auto;
   font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
   color: var(--code-text);
 }
 .codeblock pre code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; }
 .codeblock .copy {
-  position: absolute; top: 8px; right: 8px;
+  position: absolute; top: 4px; right: 8px;
   display: inline-grid; place-items: center;
   height: 24px; padding: 0 8px; border-radius: 4px;
   background: rgba(255,255,255,.04); border: 0.8px solid rgba(255,255,255,.08);
   color: var(--text-faint); font-size: 10px; font-family: var(--mono); cursor: pointer;
   opacity: 0; transition: opacity .12s;
+  z-index: 2;
 }
 .codeblock:hover .copy { opacity: 1; }
 .codeblock .copy:hover { background: rgba(255,255,255,.1); color: var(--text); }
-.codeblock[data-lang]::before {
-  content: attr(data-lang);
-  position: absolute; top: 8px; left: 12px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--text-faint); pointer-events: none;
+
+/* Typing state — caret on <pre> via a wrapper trick */
+.codeblock.typing pre { position: relative; }
+.codeblock.typing pre::after {
+  content: "▍";
+  position: absolute;
+  display: inline-block;
+  color: var(--accent);
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
+  bottom: 16px;
 }
 
 .callout {
@@ -249,20 +278,31 @@ footer { padding: 24px 0 0; color: var(--text-faint); font-size: 12px; border-to
 .hero {
   margin-bottom: 48px;
 }
-.hero-label {
-  font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--text-faint); margin-bottom: 12px;
+.hero-eyebrow {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--accent); margin-bottom: 14px; font-weight: 500;
 }
-.hero h1 {
-  font-size: 26px; font-weight: 500; letter-spacing: -0.5px;
-  color: var(--text); margin: 0 0 16px;
+.hero h1, .hero-title {
+  font-size: 36px; font-weight: 500; letter-spacing: -1px;
+  color: var(--text); margin: 0 0 14px; line-height: 1.1;
 }
 .hero-sub {
-  font-size: 14px; color: var(--text-muted); margin: 0 0 24px; max-width: 600px;
+  font-size: 15px; color: var(--text-muted); margin: 0 0 24px; max-width: 620px; line-height: 1.55;
 }
 .hero-actions {
-  display: flex; gap: 10px; align-items: center;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 40px;
 }
+.btn-cta {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.btn-cta:hover {
+  background: var(--accent);
+  color: var(--code-bg);
+}
+
 .btn-primary {
   background: transparent;
   color: var(--accent-text);
@@ -279,6 +319,96 @@ footer { padding: 24px 0 0; color: var(--text-faint); font-size: 12px; border-to
 .btn-primary:hover {
   border-color: var(--accent);
   text-decoration: none;
+}
+
+/* ── Terminal mockup ──────────────────────────────── */
+.terminal {
+  border: 0.8px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--code-bg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  max-width: 720px;
+}
+.terminal-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 0.8px solid var(--border);
+}
+.terminal-bar .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block;
+}
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+.terminal-title {
+  margin-left: auto; margin-right: auto;
+  font-size: 11px; color: var(--text-faint);
+}
+.terminal-body {
+  padding: 16px 18px 18px;
+  font-family: var(--mono); font-size: 13px; line-height: 1.7;
+  color: var(--code-text);
+  min-height: 280px;
+}
+.t-line { white-space: pre-wrap; word-break: break-word; }
+.t-line .t-prompt { color: var(--accent); margin-right: 6px; }
+.t-line .t-cmd { color: var(--text); }
+.t-line .t-cmd::after {
+  content: "▍"; color: var(--accent);
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+.t-line.done .t-cmd::after { content: ""; }
+.t-out {
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  font-size: 12.5px;
+  padding: 2px 0 6px 22px;
+  display: none;
+}
+.t-out.show { display: block; }
+.t-out .ok { color: var(--accent-text); }
+.t-out .muted { color: var(--text-faint); }
+.t-out .bar { color: var(--text-faint); }
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ── Advanced collapsible sections ───────────────── */
+.advanced { margin-bottom: 24px; }
+.advanced details { border-top: 0.8px solid var(--border); padding-top: 8px; }
+.advanced summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 0;
+  display: flex; align-items: center;
+  user-select: none;
+}
+.advanced summary::-webkit-details-marker { display: none; }
+.advanced summary::before {
+  content: "▸";
+  color: var(--text-faint);
+  margin-right: 10px;
+  font-size: 11px;
+  transition: transform .15s;
+  display: inline-block;
+}
+.advanced details[open] > summary::before { transform: rotate(90deg); }
+.advanced summary h2 {
+  border: 0; padding: 0; margin: 0;
+  font-size: 13px; letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.advanced summary:hover h2 { color: var(--text); }
+.advanced[open] summary h2 { color: var(--text); }
+.advanced details > *:not(summary) {
+  padding: 4px 0 16px 22px;
 }
 
 @media (max-width: 1100px) { .toc { display: none; } .layout { grid-template-columns: 240px 1fr; } }
