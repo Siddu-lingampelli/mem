@@ -208,4 +208,7 @@
   if (document.getElementById("terminal-body")) {
     setTimeout(runDemo, 600);
   }
+
+  // ── Open all <details> by default ──────────────────────────
+  document.querySelectorAll("details").forEach(function (d) { d.open = true; });
 })();
