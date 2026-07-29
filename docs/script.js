@@ -208,33 +208,4 @@
   if (document.getElementById("terminal-body")) {
     setTimeout(runDemo, 600);
   }
-
-  // ── Animate every code block once it scrolls into view ─────
-  var blocks = document.querySelectorAll(".codeblock pre");
-  var observer = ("IntersectionObserver" in window) ? new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      var pre = e.target;
-      observer.unobserve(pre);
-      var code = pre.querySelector("code") || pre;
-      var full = code.textContent;
-      if (!full) return;
-      var block = pre.parentElement;
-      block.classList.add("typing");
-      code.textContent = "";
-      var i = 0;
-      var speed = full.length > 200 ? 6 : 14;
-      var t = setInterval(function () {
-        if (i >= full.length) { clearInterval(t); block.classList.remove("typing"); return; }
-        var chunk = full.charCodeAt(i) === 10 ? "\n" : full[i];
-        code.textContent += chunk;
-        i++;
-        if (i % 3 === 0) pre.scrollTop = pre.scrollHeight;
-      }, speed);
-    });
-  }, { threshold: 0.2, rootMargin: "0px 0px -10% 0px" }) : null;
-
-  if (observer) {
-    blocks.forEach(function (b) { observer.observe(b); });
-  }
 })();

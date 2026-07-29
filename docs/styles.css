@@ -210,18 +210,6 @@ a:hover { text-decoration: underline; }
 .codeblock:hover .copy { opacity: 1; }
 .codeblock .copy:hover { background: rgba(255,255,255,.1); color: var(--text); }
 
-/* Typing state — caret on <pre> via a wrapper trick */
-.codeblock.typing pre { position: relative; }
-.codeblock.typing pre::after {
-  content: "▍";
-  position: absolute;
-  display: inline-block;
-  color: var(--accent);
-  animation: blink 1s steps(1) infinite;
-  margin-left: 2px;
-  bottom: 16px;
-}
-
 .callout {
   display: flex; gap: 10px; margin: 16px 0; padding: 12px 14px;
   border-radius: var(--radius); border: 0.8px solid var(--border-strong);
