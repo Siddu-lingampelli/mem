@@ -1,0 +1,7 @@
+{
+  "outputDirectory": "docs",
+  "buildCommand": "",
+  "installCommand": "",
+  "cleanUrls": true,
+  "trailingSlash": false
+}

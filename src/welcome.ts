@@ -9,6 +9,11 @@ const DIM = "\x1b[2m";
 const CYAN = "\x1b[36m";
 const GREEN = "\x1b[32m";
 
+// In-memory memo: survives within a process even if the flag write fails
+// (read-only HOME, permission denied, sandbox). Keeps the welcome from
+// re-firing for the rest of this invocation when we can't persist.
+let shownThisProcess = false;
+
 /** Render the first-run welcome. */
 function renderWelcome(version: string): string[] {
   const w = 36;
@@ -37,20 +42,35 @@ function renderWelcome(version: string): string[] {
 }
 
 export function hasSeenWelcome(): boolean {
-  return existsSync(FLAG_FILE);
+  return shownThisProcess || existsSync(FLAG_FILE);
 }
 
-export function showWelcome(version: string = "1.2.5"): Promise<void> {
+/** Test-only: clear the in-process memo so a single vitest worker can
+ *  re-run welcome scenarios deterministically across tests, regardless of
+ *  declaration order or `--shuffle`. Has no effect in production code. */
+export function resetWelcomeState(): void {
+  shownThisProcess = false;
+}
+
+export function showWelcome(version: string): Promise<void> {
+  if (shownThisProcess) return Promise.resolve();
+  shownThisProcess = true;
+
   const lines = renderWelcome(version);
   for (const l of lines) console.log(l);
 
-  // ponytail: many terminals (MINGW64, msys, spawned subprocesses) report stdin
-  // as a pipe even on a TTY — 'data' never fires. The original readSync blocked
-  // forever on those; v2.2.3 patch removed the hang but the "Press Enter…" banner
-  // misled users into waiting. Drop the prompt entirely — the banner is informational,
-  // not a gate. The function stays async-typed so a future "Press any key" can
-  // layer on without rippling into the caller signature in cli.ts.
-  return Promise.resolve();
+  // Persist the flag so subsequent bare `mem` invocations don't re-fire.
+  // Best-effort: on read-only HOME / sandbox / permission denied, the
+  // in-memory memo above still suppresses the banner for the rest of this
+  // process.
+  try {
+    writeFileSync(FLAG_FILE, "", "utf-8");
+  } catch {
+    // No diagnostic; the welcome already printed and won't repeat this run.
+  }
 
-  try { writeFileSync(FLAG_FILE, "", "utf-8"); } catch { /* best-effort */ }
+  // Async-typed so a future "Press any key" gate can layer on without
+  // rippling into the caller signature in cli.ts.
+  return Promise.resolve();
 }
+

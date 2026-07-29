@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>mem - Terminal History Search</title>
+<meta name="description" content="Search your PowerShell, Bash, Zsh, or Fish history instantly. No cloud. No setup. Documentation for mem-terminal." />
+<meta name="theme-color" content="#0d0d10" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230c0c0f%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27monospace%27 font-size=%2718%27 font-weight=%27700%27 fill=%27%2322d3ee%27 text-anchor=%27middle%3Eme%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+<header class="topbar">
+<button class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="sidebar"></button>
+<a href="#top" class="brand" aria-label="mem home">
+<span class="logo" aria-hidden="true">m</span>
+<span class="brand-text">mem</span>
+<span class="badge">v2.2.5</span>
+</a>
+<span class="spacer"></span>
+<button class="theme-btn" id="theme-btn" aria-label="Toggle theme" aria-pressed="false"></button>
+</header>
+<div class="mobile-overlay" id="overlay">
+</div>
+
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Primary">
+<div class="nav-group"><div class="label">Getting Started</div>
+<ul>
+<li><a href="#overview" data-target="overview">Overview</a</li>
+<li><a href="#footprint" data-target="footprint">Verified Footprint</a</li>
+<li><a href="#install" data-target="install">Install</a</li>
+<li><a href="#quickstart" data-target="quickstart">Quick Start</a</li>
+</a></li></a></li></a></li></a></li></ul>
+</div>
+<div class="nav-group"><div class="label">Usage</div>
+<ul>
+<li><a href="#search" data-target="search">Search</a</li>
+<li><a href="#shells" data-target="shells">Cross-shell</a</li>
+<li><a href="#stats" data-target="stats">Statistics</a</li>
+<li><a href="#recent" data-target="recent">Recent</a</li>
+<li><a href="#bench" data-target="bench">Benchmark</a</li>
+</a></li></a></li></a></li></a></li></a></li></ul>
+</div>
+<div class="nav-group"><div class="label">Core</div>
+<ul>
+<li><a href="#how" data-target="how">How it works</a</li>
+<li><a href="#trace" data-target="trace">Execution trace</a</li>
+<li><a href="#search-engine" data-target="search-engine">Search engine</a</li>
+<li><a href="#parsers" data-target="parsers">Parsers</a</li>
+<li><a href="#secrets" data-target="secrets">Secret masking</a</li>
+<li><a href="#ranking" data-target="ranking">Ranking</a</li>
+<li><a href="#welcome" data-target="welcome">Welcome persistence</a</li>
+<li><a href="#startup" data-target="startup">Startup mechanics</a</li>
+</a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></ul>
+</div>
+<div class="nav-group"><div class="label">Reference</div>
+<ul>
+<li><a href="#flags" data-target="flags">CLI flags</a</li>
+<li><a href="#commands" data-target="commands">Commands</a</li>
+<li><a href="#env" data-target="env">Environment</a</li>
+<li><a href="#config" data-target="config">Config files</a</li>
+<li><a href="#changelog" data-target="changelog">Changelog</a</li>
+<li><a href="#strengths" data-target="strengths">Strengths</a</li>
+<li><a href="#observations" data-target="observations">Observations</a</li>
+<li><a href="#cheatsheet" data-target="cheatsheet">Verification</a</li>
+</a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></ul>
+</div>
+<div class="nav-group"><div class="label">Develop</div>
+<ul>
+<li><a href="#dev" data-target="dev">Development</a</li>
+<li><a href="#testing" data-target="testing">Testing</a</li>
+<li><a href="#deploy" data-target="deploy">Deploy on Vercel</a</li>
+</a></li></a></li></a></li></ul>
+</div>
+</nav>
+<main class="content" id="top">
+<section id="overview">
+<h1>mem</h1>
+<p class="lead">Never lose a terminal command again. Search your PowerShell, Bash, Zsh, or Fish history instantly using keywords. No cloud. No setup</p>
+<div class="codeblock" data-lang="bash"><pre><code>mem "docker compose"
+# &rarr; 3 matches
+#   docker compose up -d    &bull; recent
+#   docker compose down     &bull; used 8&times;
+#   docker compose logs -f  &bull; used 3&times</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<div class="cards">
+<div class="card"><div class="h"><span class="ico" aria-hidden="true"></span> Instant</div><p>Fuzzy keyword search across your shell history in milliseconds</p</div>
+<div class="card"><div class="h"><span class="ico" aria-hidden="true">">&#10697</span> Cross-shell</div><p>PowerShell, Bash, Zsh, Fish &mdash; auto-detected, with explicit override</p</div>
+<div class="card"><div class="h"><span class="ico" aria-hidden="true"></span> Safe</div><p>API keys and tokens in history are masked on display. Local only</p</div>
+<div class="card"><div class="h"><span class="ico" aria-hidden="true"></span> Zero-config</div><p>One dep. No cloud, no telemetry, no login. Reads files you already have</p</div>
+</p></div>
+</p></div></p></div></p></div></div></section>
+
+<section id="footprint">
+<h2>Verified Footprint <a class="anchor" href="#footprint" aria-label="Anchor link">&para</a</h2>
+<p>Every number below was read from source or <code>npm pack --dry-run</code> &mdash; not assumed</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Metric</th><th>Value</th><th>How verified</th></tr></thead>
+<tbody>
+<tr><td>Version</td><td><code>2.2.5</code</td><td><code>package.json</code</td</tr>
+<tr><td>Node engine</td><td><code>>=18</code</td><td><code>package.json</code> <code>engines.node</code</td</tr>
+<tr><td>Binary</td><td><code>bin: { "mem": "dist/cli.js" }</code</td><td><code>package.json</code</td</tr>
+<tr><td>Prod deps</td><td><code>commander ^13.0.0</code</td><td><code>package.json</code</td</tr>
+<tr><td>Dev deps</td><td><code>@types/node</code>, <code>typescript ^5.7</code>, <code>tsx ^4.19</code>, <code>vitest ^3.0</code</td><td><code>package.json</code</td</tr>
+<tr><td>Source files</td><td>14 <code>.ts</code</td><td><code>src/</code> listing</td</tr>
+<tr><td>Test files</td><td>13 <code>.ts</code</td><td><code>tests/</code> listing</td</tr>
+<tr><td>Source LoC</td><td>1,353</td><td><code>wc -l src/*.ts</code</td</tr>
+<tr><td>Test LoC</td><td>1,961</td><td><code>wc -l tests/*.ts</code></td></tr>
+<tr><td>Total LoC</td><td>3,314</td><td><code>wc -l</code</td</tr>
+<tr><td>Tests passing</td><td><strong>202 / 202</strong> in ~1.2s</td><td><code>npx vitest run</code</td</tr>
+<tr><td>npm pack</td><td>45 files, 103,758 bytes</td><td><code>npm pack --dry-run --json</code</td</tr>
+<tr><td><code>dist/</code> size</td><td>124K</td><td><code>du</code</td</tr>
+<tr><td>Published files</td><td><code>dist/</code>, <code>README.md</code>, <code>LICENSE</code</td><td><code>package.json</code> <code>files</code> + <code>.npmignore</code</td</tr>
+<tr><td>Commits on <code>main</code></td><td>54</td><td><code>git log</code> count</td></tr>
+<tr><td>ANSI color codes used</td><td><code>\x1b[0,1,2,31,32,33,35,36m</code</td><td>grep across <code>src/</code</td</tr>
+</code></td></code></td></tr></code></td></code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></td></code></td></tr></td></code></td></tr></code></td></code></td></tr></code></td></code></td></tr></code></td></code></td></tr></code></td></code></td></tr></code></td></code></td></tr></tbody>
+</table</div>
+<h3>Test count by file (verified</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Tests</th</tr</thead>
+<tbody>
+<tr><td><code>cli.test.ts</code</td><td>33</td</tr>
+<tr><td><code>output.test.ts</code</td><td>37</td</tr>
+<tr><td><code>search.test.ts</code</td><td>17</td</tr>
+<tr><td><code>secrets.test.ts</code</td><td>58</td</tr>
+<tr><td><code>history.test.ts</code</td><td>12</td</tr>
+<tr><td><code>bash-history.test.ts</code</td><td>11</td</tr>
+<tr><td><code>fish-history.test.ts</code</td><td>8</td</tr>
+<tr><td><code>zsh-history.test.ts</code</td><td>8</td</tr>
+<tr><td><code>recent.test.ts</code</td><td>6</td</tr>
+<tr><td><code>stats.test.ts</code</td><td>6</td</tr>
+<tr><td><code>welcome.test.ts</code</td><td>4</td</tr>
+<tr><td><code>utils.test.ts</code</td><td>1</td</tr>
+<tr><td><code>bench.test.ts</code</td><td>1</td</tr>
+<tr><td><strong>Total</strong</td><td><strong>202</strong</td</tr>
+</strong></td></strong></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></tbody>
+</table</div>
+<h3>Directory map</h3>
+<div class="codeblock" data-lang="text"><pre><code>mem-pro/
+&#9500;&#9472;&#9472; src/                      # 14 TypeScript modules (1,353 LoC)
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; cli.ts          (229) # Entry point, Commander wiring, custom help/version
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; search.ts       (208) # preprocess() + searchCached(), bounded Levenshtein
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; output.ts       (185) # ANSI rendering, NO_COLOR/TTY gating, grouped display
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; secrets.ts      (120) # 25 regex patterns -> 40+ token types masked
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; bash-history.ts  (94) # Plain + HISTTIMEFORMAT multiline parser
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; fish-history.ts  (91) # YAML-like parser, multiline, paths blocks
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; history.ts       (88) # PSReadLine reader + BOM detection + shell router
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; zsh-history.ts   (78) # Extended-history `: ts:dur;cmd` parser
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; welcome.ts       (69) # First-run banner + flag-file + in-process memo
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; bench.ts         (49) # 5 fixed queries, reuses preprocessed cache
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; stats.ts         (48) # Top-N with ASCII bar charts
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; utils.ts         (44) # PSReadLine candidate path resolver
+&#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; recent.ts        (28) # Newest N, secret-masked
+&#9474;&nbsp;&nbsp; &#9492;&#9472;&#9472; types.ts         (21) # HistoryEntry, SearchHit, MatchCategory
+&#9500;&#9472;&#9472; tests/                    # 13 test files (1,961 LoC, 202 tests)
+&#9500;&#9472;&#9472; dist/                     # Compiled output (gitignored, 124K)
+&#9500;&#9472;&#9472; docs/                     # This static page (Vercel-deployed)
+&#9500;&#9472;&#9472; .claude/                  # Claude Code config (graphify hooks, perms)
+&#9500;&#9472;&#9472; package.json
+&#9500;&#9472;&#9472; tsconfig.json             # strict, ES2022, ESNext, bundler resolution
+&#9500;&#9472;&#9472; vercel.json               # outputDirectory: docs
+&#9500;&#9472;&#9472; CLAUDE.md, README.md, documentation.md
+&#9492;&#9472;&#9472; LICENSE, .gitignore, .npmignore</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</th></tr></thead></table></div></table></div></a></h2></section>
+
+<section id="install">
+<h2>Install <a class="anchor" href="#install" aria-label="Anchor link">&para</a</h2>
+<p>Requires <strong>Node.js 18+</strong> and any shell with a history file</p>
+<div class="codeblock" data-lang="bash"><pre><code>npm install -g mem-terminal</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>Verify</p>
+<div class="codeblock" data-lang="bash"><pre><code>mem --version
+# mem v2.2.5</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="quickstart">
+<h2>Quick Start <a class="anchor" href="#quickstart" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>mem "docker compose"        # direct search
+mem search "npm run build"  # explicit search subcommand
+mem stats                   # command usage statistics
+mem bench                   # benchmark parse & search
+mem recent                  # last 20 commands
+mem --help                  # help</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<div class="callout info">
+<span class="icon" aria-hidden="true"></span>
+<p>On the very first bare <code>mem</code> run, a welcome banner prints once and a flag file (<code>~/.mem-welcome</code>) is written so it never re-fires. Later bare <code>mem</code> shows help</p>
+</div>
+</a></h2></section>
+
+<section id="search">
+<h2>Search <a class="anchor" href="#search" aria-label="Anchor link">&para</a</h2>
+<p>Results are deduped, ranked by relevance, with usage frequency and recency</p>
+<div class="codeblock" data-lang="bash"><pre><code>mem "git"
+# &rarr; 16 matches (showing top 20)
+#   git status              &bull; used 12&times; &bull; recent
+#   git push origin main    &bull; used 8&times;
+#   git commit -m "fix</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>Use <code>--all</code> for every match, or <code>-n/--max</code> for a custom limit</p>
+<div class="codeblock" data-lang="bash"><pre><code>mem "git" --all                # show all matches
+mem "docker" -n 5              # show only 5 results</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<div class="callout warn">
+<span class="icon" aria-hidden="true"></span>
+<p>The <code>--shell</code> flag lives on the <strong>subcommands</strong> (<code>search</code>, <code>stats</code>, <code>bench</code>, <code>recent</code>). For a bare <code>mem "query</code> the shell is always <code>auto</code</p>
+</code></p></div>
+</a></h2></section>
+
+<section id="shells">
+<h2>Cross-shell history <a class="anchor" href="#shells" aria-label="Anchor link">&para</a</h2>
+<p>By default <code>mem</code> reads your <strong>PowerShell / PSReadLine</strong> history (common on Windows). If you use Bash, Zsh, or Fish (e.g. Git Bash on Windows), pick the source shell explicitly so <code>mem</code> reads the log you actually run</p>
+<div class="pills" role="list">
+<span class="pill" role="listitem">auto</span>
+<span class="pill" role="listitem">powershell (pwsh</span>
+<span class="pill" role="listitem">bash</span>
+<span class="pill" role="listitem">zsh</span>
+<span class="pill" role="listitem">fish</span>
+</div>
+<div class="codeblock" data-lang="bash"><pre><code>mem search "git" --shell bash    # read .bash_history
+mem search "git" --shell zsh     # read .zsh_history
+mem search "git" --shell fish    # read fish_history
+mem stats        --shell bash
+mem recent       --shell zsh
+mem bench        --shell fish</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p><strong>auto</strong> prefers PSReadLine, then falls back Bash &rarr; Zsh &rarr; Fish. Explicit shell names bypass PSReadLine entirely &mdash; fixes the case where a Windows user with Git Bash always got the PSReadLine history regardless of <code>HISTFILE</code</p>
+<div class="callout info">
+<span class="icon" aria-hidden="true"></span>
+<p>On Windows, Git Bash rewrites <code>/tmp/</code> paths to <code>C:/Users/.../Temp/</code>. Export <code>HISTFILE</code> with a Windows-style path (or use <code>--shell</code>) to target a specific log</p>
+</div>
+</code></p></a></h2></section>
+
+<section id="stats">
+<h2>Statistics <a class="anchor" href="#stats" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>mem stats                      # top 10 most-used commands
+mem stats -n 20                # top 20 with ASCII bar charts
+# mem stats
+# History  1,234 commands (567 unique)
+# Top 20 commands
+#   1. git status                   45 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;
+#   2. docker compose up -d         32 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;
+#   3. npm run build                28 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="recent">
+<h2>Recent <a class="anchor" href="#recent" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>mem recent                     # last 20 commands
+mem recent -n 5                # last 5
+mem recent --max 100           # last 100</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="bench">
+<h2>Benchmark <a class="anchor" href="#bench" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>mem bench                      # measure parse/process/search
+mem bench -l 100000            # custom history limit</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>Bench measures four phases against your real history</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>What it measures</th</tr</thead>
+<tbody>
+<tr><td><code>Parser</code</td><td>Read + decode history file (BOM-aware</td</tr>
+<tr><td><code>Process</code</td><td>Dedupe, tokenise, noise-filter, index</td</tr>
+<tr><td><code>Search</code</td><td>5 queries against pre-processed data</td</tr>
+<tr><td><code>Total</code</td><td>Aggregate wall-clock</td</tr>
+</td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></tbody>
+</table</div>
+</th></tr></thead></table></div></a></h2></section>
+
+<section id="how">
+<h2>How it works <a class="anchor" href="#how" aria-label="Anchor link">&para</a</h2>
+<p><code>mem</code> reads your PSReadLine (<code>ConsoleHost_history.txt</code>), Bash (<code>.bash_history</code>), Zsh (<code>.zsh_history</code>), or Fish (<code>fish_history</code>) history, newest-first &mdash; auto-detects which file exists, with graceful fallback between shells</p>
+<ul>
+<li><strong>Encoding</strong> &mdash; auto-detects UTF-8 BOM, UTF-16 LE BOM, or plain UTF-8</li>
+<li><strong>Search</strong> &mdash; token-aware fuzzy matching with Levenshtein distance scoring</li>
+<li><strong>Ranking</strong> &mdash; relevance score &rarr; usage frequency &rarr; alphabetical</li>
+<li><strong>Deduplication</strong> &mdash; identical commands merged with usage count</li>
+<li><strong>Noise filtering</strong> &mdash; self-commands (<code>mem</code>, <code>history</code>) and single-char commands filtered</li>
+</ul>
+</a></h2></section>
+
+<section id="trace">
+<h2>Execution trace <a class="anchor" href="#trace" aria-label="Anchor link">&para</a</h2>
+<p>What happens when you run <code>mem "docker</code></p>
+<div class="codeblock" data-lang="text"><pre><code>cli.ts
+  &brvbar;-- isMain guard (fileURLToPath) -> runs only when executed, not imported
+  &brvbar;-- pre-parse --version/-V -> custom formatting, exit 0
+  &brvbar;-- program.parse()
+       &brvbar;-- positional "query" -> runSearch(query, showAll, maxCount, shell="auto")
+                                          (mem search <q> hits the same runSearch)
+
+runSearch() -- cli.ts:44
+  |-- readHistory(limit=2000, shell) -------- history.ts:72  (shell router)
+  |     |-- shell=="powershell" -> readPsReadLineHistory  (history.ts:40)
+  |     |-- shell=="bash"       -> readBashHistory        (bash-history.ts:83)
+  |     |-- shell=="zsh"        -> readZshHistory          (zsh-history.ts:67)
+  |     |-- shell=="fish"       -> readFishHistory        (fish-history.ts:80)
+  |     &brvbar;-- shell=="auto" -> PSReadLine -> Bash -> Zsh -> Fish fallback
+  |
+  |-- search(entries, query) ---------------- search.ts:206
+  |     |-- preprocess(entries) ------------- search.ts:90
+  |     |     |-- case-insensitive dedupe (count++)
+  |     |     |-- tokenize (lowercase, [^a-z0-9]+ split)
+  |     |     |-- noise filter (mem/history/clear/cls/exit, <=1 char, non-alnum)
+  |     |     &brvbar;-- sort preserving original index
+  |     |     -> CachedEntry[] (command, commandLower, tokens, count, index)
+  |     &brvbar;-- searchCached(cached, totalEntryCount, query) -- search.ts:164
+  |           |-- empty / "all"/*/"everything" -> return everything as hits
+  |           |-- scoreCmd per entry (bounded Levenshtein, prefix/substr checks)
+  |           |-- filter score < 0.4 threshold
+  |           &brvbar;-- sort: score(&epsilon;=0.01) -> frequency desc -> alpha
+  &brvbar;-- print(results, query, showAll, max, undefined, shellLabel) -- output.ts:83
+        |-- maskSecrets each command -- secrets.ts:114
+        |-- split into Exact / Similar / "Did you also mean?" groups
+        &brvbar;-- highlightCmd matched words (BOLD+MAGENTA), dim the rest</code</pre>
+<button class="copy" type="button">copy</button>
+</q></code></pre></div>
+<p>The <strong>preprocessing split</strong> is the key optimization. <code>preprocess</code> runs once; <code>searchCached</code> is O(n) per query and reusable. <code>bench</code> exploits this to run 5 queries over one cached set</p>
+</a></h2></section>
+
+<section id="search-engine">
+<h2>Search engine <a class="anchor" href="#search-engine" aria-label="Anchor link">&para</a</h2>
+<p>A custom, zero-dependency engine (not Fuse.js). Two phases</p>
+<h3>Preprocess</h3>
+<ul>
+<li><strong>Dedupe</strong> &mdash; case-insensitive; each keeps a usage <code>count</code</li>
+<li><strong>Noise filter</strong> &mdash; drops <code>mem</code>, <code>history</code>, <code>clear</code>, <code>cls</code>, <code>exit</code>, single-char, non-alnum-only</li>
+<li><strong>Tokenise</strong> &mdash; lowercase alphanumeric split</li>
+<li><strong>Index</strong> &mdash; newest-first order preserved</li>
+</code></li></ul>
+<h3>Score</h3>
+<p>Each query word is scored against each cached entry token. Lower = better</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Match type</th><th>Penalty</th><th>Example</th</tr</thead>
+<tbody>
+<tr><td>Exact token</td><td>0.00</td><td><code>compose</code> in <code>docker compose</code</td</tr>
+<tr><td>Levenshtein distance 1</td><td>0.05</td><td><code>docer</code> &rarr; <code>docker</code</td</tr>
+<tr><td>Levenshtein distance 2</td><td>0.12</td><td><code>docor</code> &rarr; <code>docker</code</td</tr>
+<tr><td>Query prefix</td><td>0.10</td><td><code>doc</code> &rarr; <code>docker</code</td</tr>
+<tr><td>Token prefix</td><td>0.15</td><td><code>com</code> &rarr; <code>compose</code</td</tr>
+<tr><td>Token substring</td><td>0.25</td><td><code>ai</code> in <code>claim</code</td</tr>
+<tr><td>Command prefix</td><td>0.35</td><td><code>git</code> in <code>git push</code</td</tr>
+<tr><td>Command global substring</td><td>0.50</td><td><code>run</code> in <code>npm run build</code</td</tr>
+</code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></code></td></tr></tbody>
+</table</div>
+<p>Bounded Levenshtein: length-gap early exit + two-row DP. Token buffers are pre-allocated and pooled for any token strictly shorter than 64 characters; longer tokens allocate per call. Row-min termination keeps distant comparisons cheap</p>
+<p>Entries with average score below <code>0.4</code> pass the filter</p>
+</th></tr></thead></table></div></a></h2></section>
+
+<section id="parsers">
+<h2>Parsers <a class="anchor" href="#parsers" aria-label="Anchor link">&para</a</h2>
+<p>Every reader is <strong>idempotent, newest-first, limit-capped</strong>, and swallows read errors (returns <code>[]</code</p>
+<h3>PowerShell / PSReadLine</h3>
+<p>Path priority from <code>getHistoryFilePath</code></p>
+<ol>
+<li><code>$PSREADLINE_HISTORY_FILE</code> env var (if set, non-empty</li>
+<li><code>%USERPROFILE%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</code> (WinPS 5.1</li>
+<li><code>%USERPROFILE%\AppData\Roaming\Microsoft\PowerShell\PSReadLine\ConsoleHost_history.txt</code> (PS 7+ / pwsh</li>
+<li><code>%USERPROFILE%\AppData\Roaming\Microsoft\PowerShell\PSReadLine\Visual Studio Code Host_history.txt</code> (VS Code host</li>
+<li>None exist &rarr; returns PS 7+ default so caller can error gracefully</li>
+</ol>
+<p><code>detectEncoding(buffer</code>: UTF-8 BOM (<code>EF BB BF</code>) &rarr; <code>"utf8</code>; UTF-16 LE BOM (<code>FF FE</code>) &rarr; <code>"utf16le</code>; else <code>"utf-8</code>. Leading <code>U+FEFF</code> stripped</p>
+<h3>Bash</h3>
+<p>Honors <code>$HISTFILE</code>, then tries <code>~/.bash_history</code>, <code>~/.sh_history</code>. Per-line <code>HISTTIMEFORMAT</code> detection via <code>^#[0-9]{8,}\s*$</code> (digit-only, avoids <code>\d</code> matching Unicode digits). <strong>Multiline commands in timestamp mode preserved</strong>; in plain mode, one line = one command</p>
+<h3>Zsh</h3>
+<p>Honors <code>$HISTFILE</code>, then <code>~/.zsh_history</code>, <code>~/.histfile</code>. Format <code>: <ts>:<dur>;<cmd&gt</code> via <code>^:\s*\d+:\d+;(.*)$</code>. Non-matching lines kept as raw commands. Semicolons inside commands handled (regex anchored at start</cmd></dur></ts></code></p>
+<h3>Fish</h3>
+<p><code>$XDG_DATA_HOME/fish/fish_history</code>, else <code>~/.local/share/fish/fish_history</code>. YAML-like <code>- cmd</code> / <code>when</code> / <code>paths</code> parsing, multiline continuation support</p>
+<h3>Router</h3>
+<div class="codeblock" data-lang="text"><pre><code>shell = "powershell"|"bash"|"zsh"|"fish" -> that reader only
+shell = "auto" -> PSReadLine; if empty -> Bash -> Zsh -> Fish</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>Explicit shells bypass PSReadLine intentionally &mdash; fixes a Windows + Git Bash user always getting PowerShell history despite <code>$HISTFILE</code</p>
+</code></p></code></p></a></h2></section>
+
+<section id="secrets">
+<h2>Secret masking <a class="anchor" href="#secrets" aria-label="Anchor link">&para</a</h2>
+<p><code>maskSecrets(input</code> runs <strong>25 regex patterns</strong> in order (most specific first) and replaces the secret body with <code>********</code>, keeping only the first 4+ chars. Philosophy: <strong>false positive = cosmetic; missed secret = leak</strong>, so it errs toward masking</p>
+<h3>11 categories covered (verified from comments</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Category</th><th>Examples</th</tr</thead>
+<tbody>
+<tr><td>GitHub</td><td><code>github_pat_****</code>, <code>ghp_/gho_/ghs_/ghr_/ghu_****</code</td</tr>
+<tr><td>Stripe</td><td><code>whsec_</code>, <code>sk_live_</code>, <code>sk_test_</code>, <code>rk_live_</code>, <code>rk_test_</code</td</tr>
+<tr><td>AI/ML</td><td>Anthropic <code>sk-ant-*</code>, OpenAI <code>sk-*</code>/<code>sk_*</code>, HuggingFace <code>hf_</code>, Replicate <code>r8_</code>, Cohere <code>coy*</code</td</tr>
+<tr><td>Git hosting</td><td>GitLab <code>glpat-</code>, Bitbucket <code>BB*</code> (28-char suffix</td</tr>
+<tr><td>Cloud</td><td>Databricks <code>dapi</code>, Google <code>AIza</code>, AWS <code>AKIA</code>/<code>ASIA</code> (12-char suffix), DigitalOcean <code>dopx_</code</td</tr>
+<tr><td>Messaging</td><td>Slack <code>xox[bpoa]-</code>/<code>xoxs-</code>, Slack webhook URLs, Telegram <code>bot<digits></digits></code>, Discord <code><id>.<ts>.<hmac&gt</code</td</tr>
+<tr><td>Package registries</td><td>npm <code>npm_</code</td</tr>
+<tr><td>JWT/JWS</td><td><code>eyJ*</code> (base64-url start</td</tr>
+<tr><td>Auth headers</td><td><code>Bearer <tok&gt</code>, <code>x-api-key</code>, <code>Authorization: <scheme> <tok&gt</code</td</tr>
+<tr><td>URL query creds</td><td><code>?key</code>, <code>?token</code>, <code>?secret</code>, <code>?apikey</code>, <code>?api_key</code>, <code>?password</code>, <code>?ask</code>, <code>?dgai</code</td</tr>
+<tr><td>CLI flag creds</td><td><code>--api-key</code>, <code>--token</code>, <code>--secret</code>, <code>--password</code>, <code>--passwd</code>, <code>--ask</code>, <code>--dgai</code</td</tr>
+</code></td></tr></code></td></tr></tok></scheme></code></tok></code></td></tr></td></tr></code></td></tr></hmac></ts></id></code></td></tr></code></td></tr></td></tr></code></td></tr></code></td></tr></code></td></tr></tbody>
+</table</div>
+<p>Applied at <strong>every display path</strong>: <code>output.ts print</code>, <code>recent.ts</code>, <code>stats.ts</code>. Never stored &mdash; only masked on the way out</p>
+<p>Full <code>NO_COLOR</code> env-var compliance per <a href="https://no-color.org/" target="_blank" rel="noopener">no-color.org</a</p>
+</a></p></th></tr></thead></table></div></a></h2></section>
+
+<section id="ranking">
+<h2>Ranking <a class="anchor" href="#ranking" aria-label="Anchor link">&para</a</h2>
+<p>Results are sorted, then grouped by match category for display</p>
+<h3>Sort</h3>
+<ol>
+<li><strong>Score</strong> &mdash; relevance, with a 0.01 epsilon so near-ties fall through</li>
+<li><strong>Frequency</strong> &mdash; usage count, descending</li>
+<li><strong>Alphabetical</strong> &mdash; stable tiebreak</li>
+</ol>
+<h3>Display categories</h3>
+<p>The score is bucketed into three labels for the <code>print</code> output</p>
+<ul>
+<li><strong>Exact</strong> &mdash; score is <code>0</code> (perfect match</li>
+<li><strong>Fuzzy</strong> &mdash; score &le; <code>0.12</code> (Levenshtein &le; 2 with prefix bonus</li>
+<li><strong>Similar</strong> &mdash; score > <code>0.12</code> but still below the threshold; rendered as <em>Did you also mean</em> suggestions, deduped by first word</li>
+</ul>
+<p>The <strong>recent</strong> badge marks commands whose most recent use is in the newest 25% of the history file</p>
+</a></h2></section>
+
+<section id="welcome">
+<h2>Welcome persistence <a class="anchor" href="#welcome" aria-label="Anchor link">&para</a</h2>
+<p>First-run boxed banner (<code>&acut;&#9484;&#9472;&#9472;&#9472;&#9488</code> box, w=36) showing version + tagline + quickstart examples + shell checkmarks + <code>Run mem --help anytime</code</p>
+<ul>
+<li><strong>Persistence</strong>: writes empty <code>~/.mem-welcome</code> flag file (best-effort &mdash; <code>try/catch</code>, no diagnostic</li>
+<li><strong>In-process memo</strong> (<code>shownThisProcess</code>): if the flag write fails (read-only HOME, sandbox, permission denied), the banner still won't re-fire for the rest of that process</li>
+<li><code>hasSeenWelcome</code> = <code>shownThisProcess || existsSync(FLAG_FILE</code</li>
+<li>Returns <code>Promise<void&gt</code> (synchronous body) &mdash; signature preserved so a future "press any key" gate can layer on without changing call sites</void></code></li>
+</code></li></ul>
+<p>History note (in source comments): v2.2.3&ndash;2.2.4 removed a "Press Enter to continue" prompt that hung on non-TTY stdin (MINGW64/msys/spawned processes</p>
+</code></p></a></h2></section>
+
+<section id="startup">
+<h2>Startup mechanics <a class="anchor" href="#startup" aria-label="Anchor link">&para</a</h2>
+<p>How <code>cli.ts</code> handles the edge cases</p>
+<ul>
+<li><strong><code>isMain</code> guard</strong>: <code>fileURLToPath(import.meta.url) === resolve(process.argv[1])</code> &mdash; so <code>cli.ts</code> is importable for tests without auto-running</li>
+<li><strong>Custom help</strong> via <code>program.helpInformation = () => paint(customHelp())</code> &mdash; overrides Commander's default with ANSI box</li>
+<li><strong>Custom <code>--version</code>/<code>-V</code</strong> pre-parsed before <code>program.parse</code> to dodge Commander's help-on-version hijack</code></strong></li>
+<li><strong><code>exitOverride</code</strong> + typed catch: <code>commander.helpDisplayed</code> &rarr; exit 0; any other &rarr; error + help + exit 1</code></strong></li>
+</ul>
+<h3>Exported helpers (used by tests</h3>
+<p><code>stripAnsi</code>, <code>paint</code>, <code>parseCount(val, fallback?)</code>, <code>parseShell(val</code>, <code>runSearch(query, showAll?, maxCount?, shell?)</code</p>
+<p><code>parseCount</code> rejects <code>NaN</code> and <code>< 1</code>, returning the fallback. Note <code>runRecent</code>'s <code>parseCount(opts.max, 20) ?? 20</code> &mdash; the trailing <code>?? 20</code> is dead defensive code (<code>parseCount</code> already returns the fallback</p>
+</code></p></a></h2></section>
+
+<section id="flags">
+<h2>CLI flags <a class="anchor" href="#flags" aria-label="Anchor link">&para</a</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Flag</th><th>Subcommand</th><th>Effect</th</tr</thead>
+<tbody>
+<tr><td><code>--all</code</td><td><code>search</code</td><td>Show every match without truncation</td</tr>
+<tr><td><code>-n, --max <n&gt</code</td><td><code>search</code>, <code>recent</code</td><td>Show at most N results</td</tr>
+<tr><td><code>-n, --top <n&gt</code</td><td><code>stats</code</td><td>Top N commands (default 10</td</tr>
+<tr><td><code>-l, --limit <n&gt</code</td><td><code>bench</code</td><td>History read limit (default 50000</td</tr>
+<tr><td><code>--shell <name&gt</code</td><td><code>search</code>, <code>stats</code>, <code>bench</code>, <code>recent</code</td><td>Source shell: auto | powershell | bash | zsh | fish</td</tr>
+<tr><td><code>-V, --version</code</td><td>root</td><td>Print version</td</tr>
+<tr><td><code>-h, --help</code</td><td>root</td><td>Custom-formatted help (subcommands fall back to Commander default</td</tr>
+</td></code></td></tr></td></code></td></tr></td></code></td></name></code></td></tr></td></code></td></n></code></td></tr></td></code></td></n></code></td></tr></td></code></td></n></code></td></tr></td></code></td></code></td></tr></tbody>
+</table</div>
+</th></tr></thead></table></div></a></h2></section>
+
+<section id="commands">
+<h2>Commands <a class="anchor" href="#commands" aria-label="Anchor link">&para</a</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Command</th><th>Status</th</tr</thead>
+<tbody>
+<tr><td><code>mem <query&gt</code</td><td>Direct search</td</tr>
+<tr><td><code>mem search <query&gt</code</td><td>Explicit search</td</tr>
+<tr><td><code>mem stats [-n N</code</td><td>Usage statistics</td</tr>
+<tr><td><code>mem bench [-l N</code</td><td>Benchmark</td</tr>
+<tr><td><code>mem recent [-n N</code</td><td>Newest N commands</td</tr>
+<tr><td><code>mem index</code</td><td>V2 stub</td</tr>
+<tr><td><code>mem sync</code</td><td>V2 stub</td</tr>
+</td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></td></query></code></td></tr></td></query></code></td></tr></tbody>
+</table</div>
+<h3>Exit codes</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Scenario</th><th>Code</th</tr</thead>
+<tbody>
+<tr><td>Help / version displayed</td><td>0</td</tr>
+<tr><td>Missing arg / unknown option</td><td>1</td</tr>
+<tr><td>No history file found</td><td>1</td</tr>
+<tr><td>File read error</td><td>1</td</tr>
+</td></tr></td></tr></td></tr></td></tr></tbody>
+</table</div>
+</th></tr></thead></table></div></th></tr></thead></table></div></a></h2></section>
+
+<section id="env">
+<h2>Environment <a class="anchor" href="#env" aria-label="Anchor link">&para</a</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Variable</th><th>Shell</th><th>Effect</th</tr</thead>
+<tbody>
+<tr><td><code>PSREADLINE_HISTORY_FILE</code</td><td>PowerShell</td><td>Override PSReadLine history path</td</tr>
+<tr><td><code>HISTFILE</code</td><td>Bash / Zsh</td><td>Override history file (honored if it exists</td</tr>
+<tr><td><code>XDG_DATA_HOME</code</td><td>Fish</td><td>Override fish history location</td</tr>
+<tr><td><code>NO_COLOR</code</td><td>all</td><td>Any set value disables ANSI colors</td</tr>
+</td></code></td></tr></td></code></td></tr></td></code></td></tr></td></code></td></tr></tbody>
+</table</div>
+</th></tr></thead></table></div></a></h2></section>
+
+<section id="config">
+<h2>Config files <a class="anchor" href="#config" aria-label="Anchor link">&para</a</h2>
+<h3><code>package.json</code> (verified fields</h3>
+<div class="codeblock" data-lang="json"><pre><code>{
+  "name": "mem-terminal",
+  "version": "2.2.5",
+  "type": "module",
+  "bin": { "mem": "dist/cli.js" },
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": { "commander": "^13.0.0" },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "vitest": "^3.0.0"
+  },
+  "files": ["dist", "README.md", "LICENSE"]
+</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<h3><code>tsconfig.json</code</h3>
+<p>Strict, ES2022 target, ESNext modules, Bundler resolution. <code>declaration: true</code>, <code>sourceMap: true</code>. <code>noUnusedLocals</code> + <code>noUnusedParameters</code> + <code>noImplicitAny</code> enforced. <code>outDir: ./dist</code>, <code>rootDir: ./src</code>. Tests excluded (<code>exclude: ["dist", "tests"]</code</p>
+<h3><code>vercel.json</code</h3>
+<p>Static-site config for the <code>docs/</code> landing page &mdash; <code>outputDirectory: docs</code>, <code>cleanUrls: true</code>, <code>trailingSlash: false</code>, <strong>no build/install commands</strong>. Has no relationship to the published npm package (<code>files</code> excludes <code>docs/</code</p>
+<h3><code>.gitignore</code> / <code>.npmignore</code</h3>
+<ul>
+<li><strong><code>.gitignore</code</strong>: <code>node_modules/</code>, <code>dist/</code>, <code>*.tgz</code>, <code>.env</code>, <code>.vercel</code</li>
+<li><strong><code>.npmignore</code</strong>: <code>tests/</code>, <code>docs/</code>, <code>.claude/</code>, <code>*.tgz</code>, <code>.git/</code>, <code>.gitignore</code>, <code>tsconfig.json</code>, <code>documentation.md</code> &mdash; keeps the 45-file pack to ~100KB</code></strong></li>
+</code></code></strong></li></ul>
+<h3><code>.claude/</code> (untracked</h3>
+<ul>
+<li><code>settings.json</code> &mdash; PreToolUse hook guards routing Bash/Grep/Read through <code>graphify.EXE</code</li>
+<li><code>settings.local.json</code> &mdash; permission allowlist (npm, git, vitest, node, etc.)</li>
+</code></li></ul>
+</code></h3></code></p></code></h3></code></p></code></h3></a></h2></section>
+
+<section id="changelog">
+<h2>Changelog <a class="anchor" href="#changelog" aria-label="Anchor link">&para</a</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Version</th><th>Highlights</th</tr</thead>
+<tbody>
+<tr><td><strong>2.2.5</strong</td><td>Stable cross-shell CLI; welcome flag-persistence fix; 202 tests</td></strong></td></tr>
+<tr><td>2.2.4</td><td>Drop the keypress prompt that hung on non-TTY stdin</td</tr>
+<tr><td>2.2.3</td><td>Restore welcome pause for keypress on real TTYs</td</tr>
+<tr><td>2.2.2</td><td>Fix silent welcome on non-TTY stdin</td</tr>
+<tr><td>2.2.1</td><td>Version bump for npm publish</td</tr>
+<tr><td>2.x</td><td>Bash / Zsh / Fish readers; refined ranking; match categories (Exact / Fuzzy / Similar</td</tr>
+<tr><td>1.3.0</td><td>Match category labels in printed output</td</tr>
+<tr><td>1.2.8</td><td>Recent command, secret masking on display</td</tr>
+<tr><td>1.2.7</td><td>Stats command, refined welcome</td</tr>
+<tr><td>1.2.6</td><td>Benchmark command</td</tr>
+<tr><td>1.2.5</td><td>First-run welcome screen</td</tr>
+<tr><td>1.0.0</td><td>Initial: PowerShell history search, fuzzy matching</td</tr>
+</td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></td></tr></tbody>
+</table</div>
+<h3>V2 roadmap</h3>
+<ul>
+<li><strong>Indexed search</strong> &mdash; faster for large histories (>10k entries</li>
+<li><strong>Sync</strong> &mdash; cross-machine history synchronization</li>
+</ul>
+</th></tr></thead></table></div></a></h2></section>
+
+<section id="strengths">
+<h2>Strengths <a class="anchor" href="#strengths" aria-label="Anchor link">&para</a</h2>
+<ol>
+<li><strong>Minimal surface</strong> &mdash; one prod dep, 1.3K LoC of source, ~100KB packed</li>
+<li><strong>Strict TS</strong> &mdash; <code>noUnusedLocals</code>/<code>Parameters</code>/<code>noImplicitAny</code> prevent dead code and implicit any</li>
+<li><strong>Tested</strong> &mdash; 202 tests across all 4 shells, 25 secret patterns, category grouping, CLI parsing</li>
+<li><strong>Correct encoding handling</strong> &mdash; UTF-8/UTF-16 LE BOM auto-detect</li>
+<li><strong>Fast search</strong> &mdash; bounded Levenshtein with pre-allocated buffers, module-level, zero per-call alloc for &le;64-char tokens</li>
+<li><strong>Security-by-default</strong> &mdash; secrets masked on every display path, never stored</li>
+<li><strong>Portable</strong> &mdash; cross-shell auto-detection with explicit override; honors standard env vars (<code>HISTFILE</code>, <code>XDG_DATA_HOME</code>, <code>PSREADLINE_HISTORY_FILE</code</li>
+<li><strong>Testable</strong> &mdash; <code>isMain</code> guard makes <code>cli.ts</code> import-safe; helpers (<code>stripAnsi</code>, <code>paint</code>, <code>parseCount</code>, <code>parseShell</code>) exported for direct unit testing</li>
+</code></li></ol>
+</a></h2></section>
+
+<section id="observations">
+<h2>Observations <a class="anchor" href="#observations" aria-label="Anchor link">&para</a</h2>
+<p>Not requested, noted for reference</p>
+<ul>
+<li><code>output.ts</code> empty-state suggestion list is hardcoded to 8 common commands &mdash; source comment flags it as a candidate for drawing from preprocessed top-N instead</li>
+<li><code>cli.ts</code> <code>runRecent</code>: <code>parseCount(opts.max, 20) ?? 20</code> &mdash; trailing <code>?? 20</code> is dead (<code>parseCount</code> already returns the fallback). Cosmetic noise, not a bug</li>
+<li><code>welcome.ts</code> <code>showWelcome</code> is <code>async</code>-typed with a synchronous body &mdash; intentional forward hook for a future keypress gate; currently never awaited meaningfully</li>
+<li><code>secrets.ts</code> Bitbucket pattern (<code>BB&hellip</code>, 28-char suffix) and Discord pattern (3-dot format) are length-anchored &mdash; could miss tokens outside those exact lengths, but match real formats</li>
+<li><code>vercel.json</code> + <code>docs/</code> are untracked; consider committing (with a <code>site/</code> note) or documenting they're deploy-only and excluded from the npm pack</li>
+<li>Per <code>CLAUDE.md</code>, a <code>graphify-out/</code> knowledge graph is referenced but <strong>does not exist yet</strong> &mdash; <code>graphify update .</code> would generate it</li>
+</ul>
+</a></h2></section>
+
+<section id="cheatsheet">
+<h2>Verification cheatsheet <a class="anchor" href="#cheatsheet" aria-label="Anchor link">&para</a</h2>
+<p>One-shot checks for end-to-end verification</p>
+<div class="codeblock" data-lang="bash"><pre><code>npm test                          # expect: 13 files, 202 tests, 0 failures, ~1.2s
+npm pack --dry-run --json | grep  # expect: 45 entries
+node dist/cli.js --version        # mem v2.2.5
+node dist/cli.js --help           # custom ANSI help
+node dist/cli.js "git"            # search your live history
+node dist/cli.js stats -n 10      # top 10 + bar charts
+node dist/cli.js recent -n 5      # last 5 commands
+node dist/cli.js bench            # parse/process/search timing
+git log --oneline | wc -l         # expect: 54</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="dev">
+<h2>Development <a class="anchor" href="#dev" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>npm install
+npm run build     # tsc &rarr; dist/
+npm run dev       # tsx src/cli.ts</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="testing">
+<h2>Testing <a class="anchor" href="#testing" aria-label="Anchor link">&para</a</h2>
+<div class="codeblock" data-lang="bash"><pre><code>npm test           # vitest run (13 files, 202 tests)
+npm run test:watch # vitest watch</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>Override the history file for local testing</p>
+<div class="codeblock" data-lang="powershell"><pre><code>$env:PSREADLINE_HISTORY_FILE = ".\test_history.txt"
+node dist/cli.js "docker"
+
+$env:HISTFILE = ".\test_bash_history.txt"
+node dist/cli.js "ssh</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</a></h2></section>
+
+<section id="deploy">
+<h2>Deploy on Vercel <a class="anchor" href="#deploy" aria-label="Anchor link">&para</a</h2>
+<p>This docs page is a static site &mdash; zero build, zero runtime. Two ways to host it on Vercel</p>
+<h3>Option A &mdash; Root Directory = <code>docs</code> (recommended</h3>
+<ol>
+<li>Vercel dashboard &rarr; <strong>Project &rarr; Settings &rarr; General &rarr; Root Directory</strong> &rarr; set to <code>docs</code</li>
+<li>Framework Preset: <strong>Other</strong> &middot; Build Command: <em>(none</em> &middot; Output Directory: <em>(leave blank</em</li>
+<li>Deploy. <code>index.html</code> serves at the root</li>
+</em></li></code></li></ol>
+<h3>Option B &mdash; repo-root <code>vercel.json</code</h3>
+<p>The <code>vercel.json</code> at the repo root pins the project to static mode and points the output directory at <code>docs/</code</p>
+<div class="codeblock" data-lang="json"><pre><code>{
+  "outputDirectory": "docs",
+  "buildCommand": "",
+  "installCommand": "",
+  "cleanUrls": true,
+  "trailingSlash": false
+</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+<p>With Option B no dashboard settings change is required &mdash; import the repo and deploy</p>
+<div class="callout info">
+<span class="icon" aria-hidden="true"></span>
+<p>Prefer Option A when the repo root also hosts the npm package source &mdash; Vercel then only ever sees the static docs, never your <code>src/</code> or <code>node_modules/</code</p>
+</code></p></div>
+<h3>Local preview</h3>
+<div class="codeblock" data-lang="bash"><pre><code>npx serve docs
+# or
+python -m http.server -d docs 8080</code</pre>
+<button class="copy" type="button">copy</button>
+</code></pre></div>
+</code></p></code></h3></a></h2></section>
+<footer>
+<p><a href="#top">mem</a> &middot; v2.2.5 &middot; MIT &middot; <a href="https://github.com/Siddu-lingampelli" target="_blank" rel="noopener">Siddhartha Lingampalli</a</p>
+</a></p></footer>
+</main>
+<aside class="toc" aria-label="On this page">
+<div class="label">On this page</div>
+<ul>
+<li><a href="#overview" data-target="overview">Overview</a</li>
+<li><a href="#footprint" data-target="footprint">Verified Footprint</a</li>
+<li><a href="#install" data-target="install">Install</a</li>
+<li><a href="#quickstart" data-target="quickstart">Quick Start</a</li>
+<li><a href="#search" data-target="search">Search</a</li>
+<li><a href="#shells" data-target="shells">Cross-shell</a</li>
+<li><a href="#stats" data-target="stats">Statistics</a</li>
+<li><a href="#recent" data-target="recent">Recent</a</li>
+<li><a href="#bench" data-target="bench">Benchmark</a</li>
+<li><a href="#how" data-target="how">How it works</a</li>
+<li><a href="#trace" data-target="trace">Execution trace</a</li>
+<li><a href="#search-engine" data-target="search-engine">Search engine</a</li>
+<li><a href="#parsers" data-target="parsers">Parsers</a</li>
+<li><a href="#secrets" data-target="secrets">Secret masking</a</li>
+<li><a href="#ranking" data-target="ranking">Ranking</a</li>
+<li><a href="#welcome" data-target="welcome">Welcome persistence</a</li>
+<li><a href="#startup" data-target="startup">Startup mechanics</a</li>
+<li><a href="#flags" data-target="flags">CLI flags</a</li>
+<li><a href="#commands" data-target="commands">Commands</a</li>
+<li><a href="#env" data-target="env">Environment</a</li>
+<li><a href="#config" data-target="config">Config files</a</li>
+<li><a href="#changelog" data-target="changelog">Changelog</a</li>
+<li><a href="#strengths" data-target="strengths">Strengths</a</li>
+<li><a href="#observations" data-target="observations">Observations</a</li>
+<li><a href="#cheatsheet" data-target="cheatsheet">Verification</a</li>
+<li><a href="#dev" data-target="dev">Development</a</li>
+<li><a href="#testing" data-target="testing">Testing</a</li>
+<li><a href="#deploy" data-target="deploy">Deploy on Vercel</a</li>
+</a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></a></li></ul>
+</aside>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

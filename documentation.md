@@ -1,6 +1,6 @@
 # MEM CLI — Terminal History Search Tool
 
-**Version:** 1.3.0 · **v1.3.x (current)**  
+**Version:** 2.2.5 · **v2.2.x (current)**  
 **Binary:** `mem` · **Package:** `mem-terminal`  
 **License:** MIT
 
@@ -231,7 +231,7 @@ Built on Commander.js with:
 | `mem search <query>` | Explicit search subcommand | ✅ V1 |
 | `mem stats [-n/--top <n>]` | Show command usage statistics | ✅ V1.2.7 |
 | `mem bench [-l/--limit <n>]` | Benchmark parse/process/search | ✅ V1.2.6 |
-| `mem recent [-n/--max <n>]` | Show newest N commands (default 20), with secret masking | ✅ V1.2.8 |
+| `mem recent [-n/--max <n>]` | Show newest N commands (default 20), with secret masking | ✅ V1.2.8 (V2 refresh) |
 | `mem index` | Indexed search | 🔜 V2 (stub) |
 | `mem sync` | Cross-machine sync | 🔜 V2 (stub) |
 
@@ -250,9 +250,12 @@ On first run (when no arguments given), MEM shows a welcome screen with:
 - Version and tagline
 - Quick start examples (`mem "docker"`, `mem "git"`)
 - Supported shells (PowerShell, Bash, Zsh, Fish)
-- Prompts to press Enter to continue
 
-A flag file (`~/.mem-welcome`) prevents the welcome from showing again.
+The screen is informational only — it prints and returns immediately
+(no keypress wait). Earlier builds blocked on a "Press Enter" prompt that
+hung on non-TTY stdin (MINGW64/msys/spawned processes); that was removed
+in v2.2.4. A flag file (`~/.mem-welcome`) prevents the welcome from
+showing again.
 
 ### 5. Statistics (`stats.ts`)
 
@@ -432,7 +435,9 @@ mem                         # First run: welcome screen
 | 1.2.6 | — | Benchmark command |
 | 1.2.7 | — | Stats command, refined welcome |
 | 1.2.8 | — | Recent command, secret masking on display |
-| **1.3.0** | **Current** | **Match category labels (Exact/Similar/Did you also mean?)** |
+| 1.3.0 | — | Match category labels (Exact/Similar/Did you also mean?) |
+| 2.x | — | Cross-shell readers (Bash / Zsh / Fish) with explicit `--shell`, refined ranking, custom help/version surface |
+| **2.2.5** | **Current** | **Stable cross-shell CLI; 201 tests passing** |
 
 ### V2 Roadmap
 

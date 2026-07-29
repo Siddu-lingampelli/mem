@@ -2,3 +2,8 @@ node_modules/
 dist/
 *.tgz
 .env
+
+.vercel
+
+# Claude Code local config (hooks, perms, schedulers)
+.claude/
