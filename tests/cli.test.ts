@@ -49,6 +49,26 @@ describe("parseCount", () => {
     expect(parseCount("0", 7)).toBe(7);
   });
 
+  it("rejects decimals (parseInt would silently truncate)", () => {
+    expect(parseCount("1.5")).toBeUndefined();
+    expect(parseCount("1.5", 99)).toBe(99);
+  });
+
+  it("rejects scientific notation", () => {
+    expect(parseCount("5e2")).toBeUndefined();
+    expect(parseCount("1e10", 1)).toBe(1);
+  });
+
+  it("rejects trailing garbage", () => {
+    expect(parseCount("5abc")).toBeUndefined();
+    expect(parseCount("5abc", 5)).toBe(5);
+  });
+
+  it("rejects leading sign", () => {
+    expect(parseCount("+5")).toBeUndefined();
+    expect(parseCount("+5", 5)).toBe(5);
+  });
+
   it("returns fallback for undefined", () => {
     expect(parseCount(undefined)).toBeUndefined();
     expect(parseCount(undefined, 42)).toBe(42);
@@ -87,7 +107,9 @@ describe("stripAnsi", () => {
 
   it("strips true-color SGR codes (\\x1b[38;2;R;G;Bm)", () => {
     expect(stripAnsi("\x1b[38;2;255;0;0mred\x1b[0m")).toBe("red");
-    expect(stripAnsi("\x1b[38;2;0;255;0m\x1b[48;2;0;0;255mgreen on blue\x1b[0m")).toBe("green on blue");
+    expect(stripAnsi("\x1b[38;2;0;255;0m\x1b[48;2;0;0;255mgreen on blue\x1b[0m")).toBe(
+      "green on blue",
+    );
   });
 
   it("strips non-SGR escape sequences (\\x1b[K, \\x1b[H, \\x1b[?25l, etc.)", () => {
@@ -178,7 +200,9 @@ describe("runSearch", () => {
 
   it("calls print with results, query, and default showAll/maxCount", () => {
     const entries = [{ command: "docker ps" }, { command: "git status" }];
-    const results = [{ command: "docker ps", score: 0.2, count: 1, recent: true, category: "fuzzy" }];
+    const results = [
+      { command: "docker ps", score: 0.2, count: 1, recent: true, category: "fuzzy" },
+    ];
 
     mockReadHistory.mockReturnValue(entries);
     mockSearch.mockReturnValue(results);
@@ -213,7 +237,9 @@ describe("runSearch", () => {
 
   it("does not call process.exit on normal flow", () => {
     mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
-    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
+    mockSearch.mockReturnValue([
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+    ]);
 
     runSearch("docker");
 
@@ -222,7 +248,9 @@ describe("runSearch", () => {
 
   it("passes through to print with correct query string", () => {
     mockReadHistory.mockReturnValue([{ command: "npm run build" }]);
-    mockSearch.mockReturnValue([{ command: "npm run build", score: 0, count: 2, recent: false, category: "exact" }]);
+    mockSearch.mockReturnValue([
+      { command: "npm run build", score: 0, count: 2, recent: false, category: "exact" },
+    ]);
 
     runSearch("npm build");
 
@@ -247,10 +275,7 @@ describe("runSearch", () => {
 
     runSearch("docker");
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Error reading history:",
-      "permission denied",
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Error reading history:", "permission denied");
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
 });
@@ -269,6 +294,19 @@ describe("parseShell", () => {
   it("falls back to auto for invalid names", () => {
     expect(parseShell("nu")).toBe("auto");
     expect(parseShell("")).toBe("auto");
+  });
+
+  it("accepts any casing", () => {
+    expect(parseShell("Bash")).toBe("bash");
+    expect(parseShell("ZSH")).toBe("zsh");
+    expect(parseShell("Powershell")).toBe("powershell");
+    expect(parseShell("POWERSHELL")).toBe("powershell");
+    expect(parseShell("Fish")).toBe("fish");
+  });
+
+  it("accepts pwsh as alias for powershell", () => {
+    expect(parseShell("pwsh")).toBe("powershell");
+    expect(parseShell("PWSH")).toBe("powershell");
   });
 });
 
@@ -294,7 +332,9 @@ describe("runSearch shell selection", () => {
 
   it("passes explicit shell to readHistory", () => {
     mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
-    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
+    mockSearch.mockReturnValue([
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+    ]);
 
     runSearch("docker", false, undefined, "bash");
 
@@ -303,7 +343,9 @@ describe("runSearch shell selection", () => {
 
   it("defaults shell to auto when omitted", () => {
     mockReadHistory.mockReturnValue([{ command: "docker ps" }]);
-    mockSearch.mockReturnValue([{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }]);
+    mockSearch.mockReturnValue([
+      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
+    ]);
 
     runSearch("docker");
 

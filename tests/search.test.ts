@@ -82,11 +82,7 @@ describe("search", () => {
 
 describe("preprocess noise filtering (isNoise)", () => {
   it("filters out self-prefixed commands like 'mem search ...'", () => {
-    const entries = [
-      entry("mem search docker"),
-      entry("mem stats"),
-      entry("docker ps"),
-    ];
+    const entries = [entry("mem search docker"), entry("mem stats"), entry("docker ps")];
     const result = preprocess(entries);
     expect(result).toHaveLength(1);
     expect(result[0].command).toBe("docker ps");
@@ -131,7 +127,7 @@ describe("match categories", () => {
   it("fuzzy match returns category 'fuzzy'", () => {
     const results = search(entries, "docer compose");
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.category === "fuzzy")).toBe(true);
+    expect(results.some((r) => r.category === "fuzzy")).toBe(true);
   });
 
   it("all-as-hits (empty query) returns category 'exact'", () => {

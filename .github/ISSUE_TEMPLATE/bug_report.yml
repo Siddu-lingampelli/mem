@@ -1,0 +1,84 @@
+name: Bug Report
+description: Report incorrect behaviour, crashes, or unexpected output.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please include the output of `mem --version` and the platform/Node
+        version where the bug reproduces. Redact any secrets before pasting.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      placeholder: |
+        `mem search "docker"` returned no results, but the command `docker ps`
+        is in my history.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal command + history sample (redacted) that triggers the bug.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: `mem --version`
+      placeholder: "2.2.6"
+
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version (`node --version`)
+      placeholder: "v20.11.0"
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+    options:
+      - Windows 11
+      - Windows 10
+      - macOS 14 (Sonoma)
+      - macOS 13 (Ventura)
+      - Ubuntu 24.04
+      - Ubuntu 22.04
+      - Other (specify below)
+
+  - type: dropdown
+    id: shell
+    attributes:
+      label: History source shell
+    options:
+      - PowerShell (PSReadLine)
+      - Bash
+      - Zsh
+      - Fish
+      - Auto-detected
+      - Other
+
+  - type: input
+    id: size
+    attributes:
+      label: Approx. history file size
+      placeholder: "2.3 MB"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack traces
+      description: If you got a stack trace, paste it here. Set `DEBUG=1` for verbose output.

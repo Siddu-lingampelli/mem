@@ -16,13 +16,17 @@ export function runStats(top = 10, shell: ShellSource = "auto"): void {
   const unique = cached.length;
 
   // Sort by count descending, take top N
-  const sorted = [...cached].sort((a, b) => b.count - a.count || a.command.localeCompare(b.command));
+  const sorted = [...cached].sort(
+    (a, b) => b.count - a.count || a.command.localeCompare(b.command),
+  );
   const shown = sorted.slice(0, top);
 
   console.log(`\n${c(`mem stats`, BOLD)}`);
 
   // Summary line
-  console.log(`${c("History", DIM)}  ${total.toLocaleString()} commands (${unique.toLocaleString()} unique)`);
+  console.log(
+    `${c("History", DIM)}  ${total.toLocaleString()} commands (${unique.toLocaleString()} unique)`,
+  );
   if (shell !== "auto") console.log(`${c("Shell", DIM)}   ${shellLabel(shell)}`);
 
   // Top commands

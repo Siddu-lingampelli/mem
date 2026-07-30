@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: lint + typecheck + test + build (${{ matrix.os }} · node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ["18", "20", "22"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prettier check
+        run: npm run lint
+
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+        run: npm run coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: npm pack dry-run
+        run: npm pack --dry-run
+
+      - name: Smoke run --version
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+        run: node dist/cli.js --version
+
+      - name: Upload coverage artifact
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-node${{ matrix.node }}
+          path: coverage
+          retention-days: 7
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -30,10 +30,7 @@ describe("runRecent", () => {
   });
 
   it("shows correct count in header", () => {
-    mockReadHistory.mockReturnValue([
-      { command: "git status" },
-      { command: "docker ps" },
-    ]);
+    mockReadHistory.mockReturnValue([{ command: "git status" }, { command: "docker ps" }]);
 
     const out: string[] = [];
     const spy = vi.spyOn(console, "log").mockImplementation((msg) => out.push(msg));
@@ -72,7 +69,7 @@ describe("runRecent", () => {
 
   it("respects the N parameter", () => {
     mockReadHistory.mockReturnValue(
-      Array.from({ length: 10 }, (_, i) => ({ command: `cmd${i + 1}` }))
+      Array.from({ length: 10 }, (_, i) => ({ command: `cmd${i + 1}` })),
     );
 
     const out: string[] = [];
@@ -103,9 +100,7 @@ describe("runRecent", () => {
   });
 
   it("handles single entry gracefully", () => {
-    mockReadHistory.mockReturnValue([
-      { command: "git status" },
-    ]);
+    mockReadHistory.mockReturnValue([{ command: "git status" }]);
 
     const out: string[] = [];
     const spy = vi.spyOn(console, "log").mockImplementation((msg) => out.push(msg));

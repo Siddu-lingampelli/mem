@@ -21,17 +21,20 @@ export function shellLabel(s: ShellSource): string {
   return "auto";
 }
 
+export type Encoding = "utf-8" | "utf16le";
+
 /**
  * Detects BOM (Byte Order Mark) in buffer and returns the appropriate encoding.
- * Returns the correct encoding for UTF-8 BOM, UTF-16 LE BOM, or defaults to utf-8.
+ * Defaults to UTF-8 (no BOM). UTF-16 LE BOM is detected and returned as
+ * `utf16le`. Returns the canonical encoding string for `Buffer.toString()`.
  */
-export function detectEncoding(buffer: Buffer): "utf-8" | "utf8" | "utf16le" {
+export function detectEncoding(buffer: Buffer): Encoding {
   // UTF-8 BOM: EF BB BF
-  if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
-    return "utf8";
+  if (buffer.length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
+    return "utf-8";
   }
   // UTF-16 LE BOM: FF FE
-  if (buffer.length >= 2 && buffer[0] === 0xFF && buffer[1] === 0xFE) {
+  if (buffer.length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
     return "utf16le";
   }
   return "utf-8";
@@ -44,7 +47,7 @@ export function readPsReadLineHistory(limit = 2000): HistoryEntry[] {
     const buffer = readFileSync(path);
     const encoding = detectEncoding(buffer);
     let raw = buffer.toString(encoding);
-    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
     const lines = raw.split(/\r?\n/);
 
     const entries: HistoryEntry[] = [];

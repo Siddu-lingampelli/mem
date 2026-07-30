@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { join } from "path";
-import { mkdtempSync, existsSync, writeFileSync, rmSync } from "fs";
+import { mkdtempSync, existsSync, writeFileSync, rmSync, symlinkSync, readFileSync } from "fs";
 import { tmpdir } from "os";
 
 let TMPDIR: string;
@@ -77,4 +77,21 @@ describe("welcome", () => {
     await showWelcome("2.2.5");
     expect(hasSeenWelcome()).toBe(true);
   });
+
+  it.skipIf(process.platform === "win32")(
+    "does NOT follow a symlink at the flag path (would overwrite target)",
+    async () => {
+      // Windows often denies symlink creation in test sandboxes (EPERM
+      // without SeCreateSymbolicLinkPrivilege). The symlink guard itself
+      // is platform-agnostic — skipping the test on win32 keeps CI green.
+      const target = join(TMPDIR, "real-target.txt");
+      const originalContents = "ORIGINAL CONTENTS — must not be replaced.";
+      writeFileSync(target, originalContents, "utf-8");
+      symlinkSync(target, FLAG);
+      resetWelcomeState();
+      await showWelcome("2.2.5");
+      expect(readFileSync(target, "utf-8")).toBe(originalContents);
+      expect(existsSync(FLAG)).toBe(true);
+    },
+  );
 });

@@ -7,10 +7,7 @@ import type { HistoryEntry } from "./types.js";
  * Candidate Zsh history file locations.
  * Honors HISTFILE env var, then tries defaults.
  */
-const CANDIDATES: string[] = [
-  ".zsh_history",
-  ".histfile",
-];
+const CANDIDATES: string[] = [".zsh_history", ".histfile"];
 
 /** Regex: matches ": <digits>:<digits>;<cmd>" */
 const ZSH_LINE_RE = /^:\s*\d+:\d+;(.*)$/;
@@ -70,7 +67,9 @@ export function readZshHistory(limit = 2000): HistoryEntry[] {
 
   try {
     const buffer = readFileSync(path);
-    const raw = buffer.toString("utf-8");
+    let raw = buffer.toString("utf-8");
+    // Strip leading U+FEFF if Node didn't already drop the UTF-8 BOM
+    if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
     return parseZshHistory(raw, limit);
   } catch {
     return [];

@@ -36,7 +36,7 @@ describe("print grouped by category", () => {
       { command: "docker compose", score: 0, count: 2, recent: false, category: "exact" },
     ];
     print(results, "docker");
-    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
     expect(output).toContain("2 matches");
     expect(output).not.toContain("Similar");
     expect(output).not.toContain("Did you also mean?");
@@ -50,7 +50,7 @@ describe("print grouped by category", () => {
       { command: "claude doctor", score: 0.05, count: 3, recent: false, category: "fuzzy" },
     ];
     print(results, "docker");
-    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
     expect(output).toContain("2 matches");
     expect(output).toContain("Similar");
     spy.mockRestore();
@@ -63,18 +63,16 @@ describe("print grouped by category", () => {
       { command: "hermes doctor", score: 0.25, count: 1, recent: false, category: "similar" },
     ];
     print(results, "docker");
-    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
     expect(output).toContain("Did you also mean?");
     spy.mockRestore();
   });
 
   it("omits empty sections", () => {
     const spy = vi.spyOn(console, "log");
-    const results = [
-      { command: "docker ps", score: 0, count: 1, recent: true, category: "exact" },
-    ];
+    const results = [{ command: "docker ps", score: 0, count: 1, recent: true, category: "exact" }];
     print(results, "docker");
-    const output = spy.mock.calls.flatMap(c => String(c)).join(" ");
+    const output = spy.mock.calls.flatMap((c) => String(c)).join(" ");
     expect(output).not.toContain("Similar");
     expect(output).not.toContain("Did you also mean?");
     spy.mockRestore();

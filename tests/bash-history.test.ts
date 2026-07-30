@@ -50,7 +50,9 @@ describe("readBashHistory", () => {
 
   it("returns empty array on read error", () => {
     mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockImplementation(() => { throw new Error("EACCES"); });
+    mockReadFileSync.mockImplementation(() => {
+      throw new Error("EACCES");
+    });
     const result = readBashHistory();
     expect(result).toEqual([]);
   });
@@ -118,9 +120,9 @@ describe("readBashHistory", () => {
   it("parses mixed format: first non-timestamp lines as plain mode, then timestamp lines trigger boundary detection", () => {
     mockExistsSync.mockReturnValue(true);
     const content = [
-      "git status",          // plain
-      "docker ps",           // plain
-      "#1712345678",         // first timestamp → switches to boundary mode
+      "git status", // plain
+      "docker ps", // plain
+      "#1712345678", // first timestamp → switches to boundary mode
       "echo hello",
       "#1712345680",
       "echo world",
@@ -141,7 +143,7 @@ describe("readBashHistory", () => {
     mockExistsSync.mockReturnValue(true);
     const content = [
       "git status",
-      "#1234",  // too few digits (only 4) — not a timestamp
+      "#1234", // too few digits (only 4) — not a timestamp
       "docker ps",
     ].join("\n");
     mockReadFileSync.mockReturnValue(Buffer.from(content, "utf-8"));

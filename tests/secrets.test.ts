@@ -12,53 +12,63 @@ describe("maskSecrets", () => {
   // ── GitHub tokens ──────────────────────────────────────────
   describe("GitHub tokens", () => {
     it("masks github_pat_ fine-grained PATs", () => {
-      expect(maskSecrets("git clone https://github_pat_11ABCdefGHIjkLMNOP_qrstuvwxyz890123@github.com/repo"))
-        .toContain("github_pat_11AB********");
+      expect(
+        maskSecrets(
+          "git clone https://github_pat_11ABCdefGHIjkLMNOP_qrstuvwxyz890123@github.com/repo",
+        ),
+      ).toContain("github_pat_11AB********");
     });
 
     it("masks ghp_ classic PATs", () => {
-      expect(maskSecrets("ghp_abc123def456ghi789jkl012mno345pqr678stu901vwx234"))
-        .toContain("ghp_abc1********");
+      expect(maskSecrets("ghp_abc123def456ghi789jkl012mno345pqr678stu901vwx234")).toContain(
+        "ghp_abc1********",
+      );
     });
 
     it("masks gho_ OAuth tokens", () => {
-      expect(maskSecrets("gho_abc123def456ghi789jkl012mno345"))
-        .toContain("gho_abc1********");
+      expect(maskSecrets("gho_abc123def456ghi789jkl012mno345")).toContain("gho_abc1********");
     });
 
     it("masks ghs_ SSH tokens", () => {
-      expect(maskSecrets("ghs_abc123def456ghi789"))
-        .toContain("ghs_abc1********");
+      expect(maskSecrets("ghs_abc123def456ghi789")).toContain("ghs_abc1********");
     });
 
     it("masks ghu_ user tokens", () => {
-      expect(maskSecrets("ghu_abc123def456ghi789jkl012mno345pqr678"))
-        .toContain("ghu_abc1********");
+      expect(maskSecrets("ghu_abc123def456ghi789jkl012mno345pqr678")).toContain("ghu_abc1********");
     });
 
     it("masks ghr_ refresh tokens", () => {
-      expect(maskSecrets("ghr_abc123def456ghi789jkl012mno345pqr678stu901"))
-        .toContain("ghr_abc1********");
+      expect(maskSecrets("ghr_abc123def456ghi789jkl012mno345pqr678stu901")).toContain(
+        "ghr_abc1********",
+      );
     });
   });
 
   // ── AI / ML platform keys ──────────────────────────────────
   describe("AI / ML platform keys", () => {
     it("masks Anthropic sk-ant- keys", () => {
-      expect(maskSecrets("export ANTHROPIC_API_KEY=sk-ant-abc123def456ghi789jkl012"))
-        .toContain("sk-ant********");
+      // Real Anthropic keys are 90+ chars; use realistic length here.
+      expect(
+        maskSecrets(
+          "export ANTHROPIC_API_KEY=sk-ant-abc123def456ghi789jkl012mno345pqr678stu901vwx234ABCDEFGHIJKLMNOPQR",
+        ),
+      ).toContain("sk-ant-********");
     });
 
     it("masks OpenAI-style sk- keys", () => {
-      // sk- followed by 3-4 alnum chars captured: sk-abc1 (4 chars captured)
-      expect(maskSecrets("openai api key sk-abc123def456ghi789jkl012"))
-        .toContain("sk-abc1********");
+      // Real OpenAI keys are 50+ chars; use realistic length.
+      expect(
+        maskSecrets(
+          "openai api key sk-abc123def456ghi789jkl012mno345pqr678stu901vwx234ABCDEFGHIJKLMNOPQR",
+        ),
+      ).toContain("sk-********");
     });
 
     it("masks sk_ prefixed keys", () => {
-      // sk_ followed by 4 alnum chars captured: sk_abc1
-      expect(maskSecrets("export OPENAI_API_KEY=sk_abc123def456ghi789"))
-        .toContain("sk_abc1********");
+      // sk_ + 4 alnum captured: sk_ followed by 24+ chars
+      expect(
+        maskSecrets("export OPENAI_API_KEY=sk_abc123def456ghi789jkl012mno345pqr678stu901vwx234"),
+      ).toContain("sk_********");
     });
 
     it("masks Hugging Face hf_ tokens", () => {
@@ -83,14 +93,21 @@ describe("maskSecrets", () => {
   // ── Git hosting tokens ─────────────────────────────────────
   describe("Git hosting tokens", () => {
     it("masks GitLab glpat- tokens", () => {
-      expect(maskSecrets("git clone https://gitlab.com?private_token=glpat-abc123def456ghi789"))
-        .toContain("glpat-abc1********");
+      // Real GitLab PATs are 26+ chars total.
+      expect(
+        maskSecrets(
+          "git clone https://gitlab.com?private_token=glpat-abc123def456ghi789jkl012mno345pqr678",
+        ),
+      ).toContain("glpat-********");
     });
 
     it("masks Bitbucket BB tokens", () => {
       // BB + 4 alnum captured: BBabcd . Mask: BBabcd********
-      expect(maskSecrets("git clone https://x-token-auth:BBabcdEFGHIJKLMNOPQRSTUVWXYZ012345@bitbucket.org/repo"))
-        .toContain("BBabcd********");
+      expect(
+        maskSecrets(
+          "git clone https://x-token-auth:BBabcdEFGHIJKLMNOPQRSTUVWXYZ012345@bitbucket.org/repo",
+        ),
+      ).toContain("BBabcd********");
     });
   });
 
@@ -106,56 +123,76 @@ describe("maskSecrets", () => {
     it("masks Google AIza keys", () => {
       // AIza + 4 alnum/underscore/hyphen captured: AIzaSyAB
       // Use standalone key (not after ?key= to avoid URL param pattern)
-      expect(maskSecrets("AIzaSyABCdefGHIjklMNOpqrSTUvwxYZ1234567"))
-        .toContain("AIzaSyAB********");
+      expect(maskSecrets("AIzaSyABCdefGHIjklMNOpqrSTUvwxYZ1234567")).toContain("AIzaSyAB********");
     });
 
     it("masks AWS AKIA access keys", () => {
-      expect(maskSecrets("aws configure set aws_access_key_id AKIAIOSFODNN7EXAMPLE"))
-        .toContain("AKIAIOSF********");
+      expect(maskSecrets("aws configure set aws_access_key_id AKIAIOSFODNN7EXAMPLE")).toContain(
+        "AKIAIOSF********",
+      );
     });
 
     it("masks AWS ASIA access keys", () => {
-      expect(maskSecrets("ASIAIOSFODNN7EXAMPLE"))
-        .toContain("ASIAIOSF********");
+      expect(maskSecrets("ASIAIOSFODNN7EXAMPLE")).toContain("ASIAIOSF********");
     });
 
     it("masks DigitalOcean dopx_ tokens", () => {
-      expect(maskSecrets("doctl auth init --access-token dopx_abc123def456ghi789jkl012mno345"))
-        .toContain("dopx_abc1********");
+      expect(
+        maskSecrets("doctl auth init --access-token dopx_abc123def456ghi789jkl012mno345"),
+      ).toContain("dopx_abc1********");
     });
   });
 
   // ── Stripe keys ────────────────────────────────────────────
   describe("Stripe keys", () => {
     it("masks whsec_ webhook secrets", () => {
-      expect(maskSecrets("stripe listen --webhook-secret whsec_abc123def456ghi789jkl012mno345pqr678stu901"))
-        .toContain("whsec_abc1********");
+      // Real Stripe webhook secrets are 100+ chars.
+      expect(
+        maskSecrets(
+          "stripe listen --webhook-secret whsec_aaaa1234bbbb5678cccc9012dddd3456eeee7890ffff1234aaaa5678bbbb9012cccc",
+        ),
+      ).toContain("whsec_********");
     });
 
     it("masks sk_live_ secret keys", () => {
-      // sk_live_ + 4 alnum captured. Note: the generic sk- pattern at line 41
-      // may match first: sk-live_... -> sk-liv******** . Then sk_live_ pattern
-      // won't find a match. So just verify the value is masked.
-      const result = maskSecrets("stripe " + SK_LIVE + "aaaa1234bbbb5678cccc");
-      expect(result).not.toContain("aaaa1234bbbb5678cccc");
+      // Real Stripe keys are 100+ chars; use realistic length.
+      const result = maskSecrets(
+        "stripe " +
+          SK_LIVE +
+          "aaaa1234bbbb5678cccc9012dddd3456eeee7890ffff1234aaaa5678bbbb9012cccc",
+      );
+      expect(result).not.toContain("aaaa1234bbbb5678cccc9012dddd3456");
       expect(result).toContain("********");
     });
 
     it("masks sk_test_ test secret keys", () => {
-      const result = maskSecrets("stripe " + SK_TEST + "aaaa1234bbbb5678");
-      expect(result).not.toContain("aaaa1234bbbb5678");
+      const result = maskSecrets(
+        "stripe " +
+          SK_TEST +
+          "aaaa1234bbbb5678cccc9012dddd3456eeee7890ffff1234aaaa5678bbbb9012cccc",
+      );
+      expect(result).not.toContain("aaaa1234bbbb5678cccc9012dddd3456");
       expect(result).toContain("********");
     });
 
     it("masks rk_live_ restricted keys", () => {
-      expect(maskSecrets("stripe " + RK_LIVE + "aaaa1234bbbb5678ccccdddd"))
-        .toContain(RK_LIVE + "aaaa********");
+      expect(
+        maskSecrets(
+          "stripe " +
+            RK_LIVE +
+            "aaaa1234bbbb5678cccc9012dddd3456eeee7890ffff1234aaaa5678bbbb9012cccc",
+        ),
+      ).toContain(RK_LIVE + "********");
     });
 
     it("masks rk_test_ test restricted keys", () => {
-      expect(maskSecrets("stripe " + RK_TEST + "aaaa1234bbbb5678"))
-        .toContain(RK_TEST + "aaaa********");
+      expect(
+        maskSecrets(
+          "stripe " +
+            RK_TEST +
+            "aaaa1234bbbb5678cccc9012dddd3456eeee7890ffff1234aaaa5678bbbb9012cccc",
+        ),
+      ).toContain(RK_TEST + "********");
     });
   });
 
@@ -163,33 +200,39 @@ describe("maskSecrets", () => {
   describe("Messaging tokens", () => {
     it("masks Slack xoxb bot tokens", () => {
       // xoxb- + next 4 chars of [-A-Za-z0-9] captured: xoxb-abc1
-      expect(maskSecrets("xoxb-abc123def456-ghi789jkl012-mno345pqr678stu901vwx234"))
-        .toContain("xoxb-abc1********");
+      expect(maskSecrets("xoxb-abc123def456-ghi789jkl012-mno345pqr678stu901vwx234")).toContain(
+        "xoxb-abc1********",
+      );
     });
 
     it("masks Slack xoxp user tokens", () => {
-      expect(maskSecrets("xoxp-abc123def456-ghi789jkl012-mno345pqr678stu901vwx234"))
-        .toContain("xoxp-abc1********");
+      expect(maskSecrets("xoxp-abc123def456-ghi789jkl012-mno345pqr678stu901vwx234")).toContain(
+        "xoxp-abc1********",
+      );
     });
 
     it("masks Slack xoxa app-level tokens", () => {
-      expect(maskSecrets("xoxa-abc123def456-ghi789"))
-        .toContain("xoxa-abc1********");
+      expect(maskSecrets("xoxa-abc123def456-ghi789")).toContain("xoxa-abc1********");
     });
 
     it("masks Slack xoxs session tokens", () => {
-      expect(maskSecrets("xoxs-abc123def456ghi789jkl012mno345pqr678stu901"))
-        .toContain("xoxs-abc********");
+      expect(maskSecrets("xoxs-abc123def456ghi789jkl012mno345pqr678stu901")).toContain(
+        "xoxs-abc********",
+      );
     });
 
     it("masks Slack webhook URLs", () => {
-      expect(maskSecrets("https://hooks.slack.com/services/T00/B000/abc123def456ghi789jkl012"))
-        .toContain("hooks.slack.com/services/T00/B000/********");
+      expect(
+        maskSecrets("https://hooks.slack.com/services/T00/B000/abc123def456ghi789jkl012"),
+      ).toContain("hooks.slack.com/services/T00/B000/********");
     });
 
     it("masks Telegram bot tokens", () => {
-      expect(maskSecrets("https://api.telegram.org/bot1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ12345678/sendMessage"))
-        .toContain("bot1234567890:ABCd********");
+      expect(
+        maskSecrets(
+          "https://api.telegram.org/bot1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ12345678/sendMessage",
+        ),
+      ).toContain("bot1234567890:ABCd********");
     });
 
     it("masks Discord bot tokens", () => {
@@ -198,14 +241,29 @@ describe("maskSecrets", () => {
       expect(result).toContain("********");
       expect(result).not.toContain("abc123def456ghi789jkl012mno345pqr678");
     });
+
+    it("does NOT mask git checkout <sha>.<sha>.<sha> as Discord token", () => {
+      // The HMAC segment is 16 chars, below the 27-char minimum for real
+      // Discord HMACs. Version-string-style commands must pass through.
+      const cmd = "git checkout a1b2c3d4e5f6789012345678.abcdef.1234567890abcdef";
+      expect(maskSecrets(cmd)).toBe(cmd);
+    });
+
+    it("does NOT mask npm version strings as Discord tokens", () => {
+      const cmd = "1.0.0";
+      expect(maskSecrets(cmd)).toBe(cmd);
+    });
   });
 
   // ── Package registries ─────────────────────────────────────
   describe("Package registry tokens", () => {
     it("masks npm_ tokens", () => {
       // npm_ + 4 alnum captured: npm_abcD
-      expect(maskSecrets("npm set //registry.npmjs.org/:_authToken=npm_abcDefghijKlmnopqrSTUvwxYZ123456"))
-        .toContain("npm_abcD********");
+      expect(
+        maskSecrets(
+          "npm set //registry.npmjs.org/:_authToken=npm_abcDefghijKlmnopqrSTUvwxYZ123456",
+        ),
+      ).toContain("npm_abcD********");
     });
   });
 
@@ -213,20 +271,27 @@ describe("maskSecrets", () => {
   describe("JWT tokens", () => {
     it("masks JWTs starting with eyJ", () => {
       // eyJ + 4 chars captured: eyJhbGc
-      expect(maskSecrets("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.R5a-bX-_8uG6V9WQcZBVqN7zGf4pLmNsK2tYx0DqEnI"))
-        .toContain("eyJhbGc********");
+      expect(
+        maskSecrets(
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.R5a-bX-_8uG6V9WQcZBVqN7zGf4pLmNsK2tYx0DqEnI",
+        ),
+      ).toContain("eyJhbGc********");
     });
   });
 
   // ── Authorization headers ──────────────────────────────────
   describe("Authorization headers", () => {
     it("masks Bearer tokens", () => {
-      const result = maskSecrets('curl -H "Authorization: Bearer abc123def456ghi789jkl012mno345pqr678stu901" https://api.example.com');
+      const result = maskSecrets(
+        'curl -H "Authorization: Bearer abc123def456ghi789jkl012mno345pqr678stu901" https://api.example.com',
+      );
       expect(result).not.toContain("abc123def456ghi789jkl012mno345pqr678stu901");
     });
 
     it("masks x-api-key headers", () => {
-      const result = maskSecrets('curl -H "x-api-key: abc123def456ghi789jkl012" https://api.example.com');
+      const result = maskSecrets(
+        'curl -H "x-api-key: abc123def456ghi789jkl012" https://api.example.com',
+      );
       expect(result).toContain("********");
     });
 
@@ -234,7 +299,10 @@ describe("maskSecrets", () => {
       // The Bearer-specific pattern (line 93) runs first and masks the token.
       // The Authorization-with-scheme pattern (line 97) only matches unmasked tokens.
       // Both mask the secret — this test verifies secrets are hidden either way.
-      const result = maskSecrets('curl -H "Authorization: Bearer abc123def456" https://api.example.com');
+      // Body length ≥20 chars to pass the minimum-length threshold.
+      const result = maskSecrets(
+        'curl -H "Authorization: Bearer abc123def456ghi789jkl012mno345pqr678stu901vwx234" https://api.example.com',
+      );
       expect(result).not.toContain("abc123def456");
       expect(result).toContain("********");
     });
@@ -293,7 +361,9 @@ describe("maskSecrets", () => {
     });
 
     it("leaves git commands unchanged", () => {
-      expect(maskSecrets("git commit -m 'fix: critical bug'")).toBe("git commit -m 'fix: critical bug'");
+      expect(maskSecrets("git commit -m 'fix: critical bug'")).toBe(
+        "git commit -m 'fix: critical bug'",
+      );
     });
 
     it("leaves npm commands unchanged", () => {
@@ -305,11 +375,33 @@ describe("maskSecrets", () => {
     });
 
     it("leaves URLs without credentials unchanged", () => {
-      expect(maskSecrets("curl https://api.example.com/v1/users")).toBe("curl https://api.example.com/v1/users");
+      expect(maskSecrets("curl https://api.example.com/v1/users")).toBe(
+        "curl https://api.example.com/v1/users",
+      );
     });
 
     it("leaves short tokens alone (under min prefix length)", () => {
       expect(maskSecrets("sk")).toBe("sk");
+    });
+
+    // Lock in the false-positive protection. These identifiers used to be
+    // silently masked; tightening body length minimums blocks them while
+    // still masking realistic-length real secrets.
+    it("does not mask snake_case identifiers with sk_/hf_/dapi_/glpat- prefixes", () => {
+      const inputs = [
+        "use sk_finance",
+        "use hf_format",
+        "dapiformat",
+        "glpat-classic",
+        "sk-protocol",
+        "sk-dev-foo",
+        "dapiHelper",
+        "github_pat_internal",
+        "ghp_abc123def456", // 16 chars total, body 7
+      ];
+      for (const t of inputs) {
+        expect(maskSecrets(t)).toBe(t);
+      }
     });
   });
 
@@ -328,7 +420,8 @@ describe("maskSecrets", () => {
     });
 
     it("masks multiple secrets in the same command", () => {
-      const input = "aws configure set aws_access_key_id AKIAIOSFODNN7EXAMPLE && curl -H 'Authorization: Bearer abc123def456' https://api.example.com";
+      const input =
+        "aws configure set aws_access_key_id AKIAIOSFODNN7EXAMPLE && curl -H 'Authorization: Bearer abc123def456ghi789jkl012mno345pqr678stu901vwx234' https://api.example.com";
       const result = maskSecrets(input);
       expect(result).not.toContain("AKIAIOSFODNN7EXAMPLE");
       expect(result).not.toContain("abc123def456");
@@ -338,7 +431,9 @@ describe("maskSecrets", () => {
   // ── Specific real-world patterns ───────────────────────────
   describe("real-world usage patterns", () => {
     it("masks token in 'export VAR=token' format", () => {
-      const result = maskSecrets("export GITHUB_TOKEN=ghp_abc123def456ghi789jkl012mno345pqr678stu901");
+      const result = maskSecrets(
+        "export GITHUB_TOKEN=ghp_abc123def456ghi789jkl012mno345pqr678stu901",
+      );
       expect(result).toContain("ghp_abc1********");
     });
 
@@ -353,7 +448,7 @@ describe("maskSecrets", () => {
   describe("robustness", () => {
     it("never throws on normal-ish input", () => {
       expect(() => maskSecrets("")).not.toThrow();
-      expect(() => maskSecrets("🔥 emoji & \t\n weird \"chars\"")).not.toThrow();
+      expect(() => maskSecrets('🔥 emoji & \t\n weird "chars"')).not.toThrow();
     });
 
     it("returns a string always", () => {

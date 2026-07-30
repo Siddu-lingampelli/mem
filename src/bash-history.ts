@@ -7,10 +7,7 @@ import type { HistoryEntry } from "./types.js";
  * Candidate .bash_history file locations, in priority order.
  * Covers Linux, macOS, Git Bash on Windows.
  */
-const CANDIDATES: string[] = [
-  ".bash_history",
-  ".sh_history",
-];
+const CANDIDATES: string[] = [".bash_history", ".sh_history"];
 
 /** Regex: ASCII-only digits (avoid \d matching Unicode digits). */
 const TS_RE = /^#[0-9]{8,}\s*$/;
@@ -86,7 +83,9 @@ export function readBashHistory(limit = 2000): HistoryEntry[] {
 
   try {
     const buffer = readFileSync(path);
-    const raw = buffer.toString("utf-8");
+    let raw = buffer.toString("utf-8");
+    // Strip leading U+FEFF if Node didn't already drop the UTF-8 BOM
+    if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
     return parseBashHistory(raw, limit);
   } catch {
     return [];

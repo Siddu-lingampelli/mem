@@ -4,6 +4,18 @@ dist/
 .env
 
 .vercel
+coverage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
 
 # Claude Code local config (hooks, perms, schedulers)
 .claude/
+
+# Internal Claude Code reference (not for public repo)
+CLAUDE_PROJECT_REFERENCE.md

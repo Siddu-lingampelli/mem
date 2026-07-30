@@ -1,0 +1,49 @@
+name: Feature Request
+description: Suggest a new command, option, or behaviour.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the use case first — what are you trying to do that `mem`
+        doesn't do today? Implementation details can come later.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      placeholder: |
+        I want to find commands I ran last Friday afternoon. `mem recent`
+        gives me the last N but there's no time filter.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should the user invoke this? Sketch the CLI surface.
+      placeholder: |
+        `mem search "docker" --since "2026-07-25" --until "2026-07-25T17:00"`
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you consider? Why is this option best?
+
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking changes?
+      description: Does this break existing flag names, output format, or config?
+
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Engagement
+      options:
+        - label: I'm willing to submit a PR for this
