@@ -4,6 +4,14 @@ All notable changes to `mem-terminal` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.9] - 2026-07-30
+
+### Fixed
+
+- CI: Prettier `--check` was failing on Windows runners because the GitHub-hosted Windows image has `core.autocrlf=true`, which converts committed LF to CRLF on checkout. Combined fix:
+  - `.prettierrc.json`: `endOfLine` switched from `"lf"` to `"auto"` so Prettier accepts whatever line endings the OS produces.
+  - Added `.gitattributes` to force `eol=lf` on commit, so future commits store files as LF regardless of origin OS. Existing Windows scripts (`.bat`, `.cmd`, `.ps1`) keep CRLF.
+
 ## [2.2.8] - 2026-07-30
 
 ### Added
