@@ -4,6 +4,13 @@ All notable changes to `mem-terminal` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.8] - 2026-07-30
+
+### Added
+
+- `mem doctor [--json]` — diagnose runtime environment, every history file path mem knows about (PSReadLine, Bash, Zsh, Fish), secret-mask self-test (5 realistic-length fixtures), search smoke test, and the welcome-flag state. Outputs text or JSON. Exit codes: 0 = all ok, 1 = any fail, 2 = any warn.
+- `RED` ANSI export in `src/ansi.ts`.
+
 ## [2.2.7] - 2026-07-30
 
 ### Added

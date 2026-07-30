@@ -9,6 +9,7 @@ import { runBench } from "./bench.js";
 import { runStats } from "./stats.js";
 import { runRecent } from "./recent.js";
 import { hasSeenWelcome, showWelcome } from "./welcome.js";
+import { runDoctor, renderDoctorText, renderDoctorJson, doctorExitCode } from "./doctor.js";
 import { RESET, BOLD, DIM, CYAN } from "./ansi.js";
 
 // Resolve the package version from package.json so the binary and the
@@ -121,6 +122,7 @@ function customHelp(): string {
       `${BOLD}stats${RESET}             Show command usage statistics`,
       `${BOLD}bench${RESET}             Benchmark history parsing and search`,
       `${BOLD}recent${RESET} [-n N]     Show newest N commands (default 20)`,
+      `${BOLD}doctor${RESET}            Diagnose environment, paths, and mask self-test`,
       `${BOLD}index${RESET}             ${DIM}(coming in V2)${RESET}`,
       `${BOLD}sync${RESET}              ${DIM}(coming in V2)${RESET}`,
     ].join("\n"),
@@ -204,6 +206,17 @@ recentCmd
     runRecent(opts.max ? parseCount(opts.max, 20) : 20, parseShell(opts.shell));
   });
 
+const doctorCmd = new Command("doctor");
+doctorCmd
+  .description("Diagnose environment, history paths, and secret-mask self-test")
+  .option("--json", "Output machine-readable JSON")
+  .action((opts: { json?: boolean }) => {
+    const report = runDoctor();
+    const out = opts.json ? renderDoctorJson(report) : renderDoctorText(report);
+    console.log(out);
+    process.exit(doctorExitCode(report));
+  });
+
 // Stub commands for V2 preview
 function stub(name: string): Command {
   const cmd = new Command(name);
@@ -221,6 +234,7 @@ program
   .addCommand(benchCmd)
   .addCommand(statsCmd)
   .addCommand(recentCmd)
+  .addCommand(doctorCmd)
   .addCommand(stub("index"))
   .addCommand(stub("sync"))
   .argument("[query]", "Search query")
