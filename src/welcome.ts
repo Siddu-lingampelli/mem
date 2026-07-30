@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, lstatSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { colorize as c } from "./output.js";
@@ -62,8 +62,14 @@ export function showWelcome(version: string): Promise<void> {
   // Best-effort: on read-only HOME / sandbox / permission denied, the
   // in-memory memo above still suppresses the banner for the rest of this
   // process.
+  // Symlink guard: writeFileSync follows symlinks, so a `~/.mem-welcome`
+  // symlink to (e.g.) `~/.bashrc` would overwrite the target. Only proceed
+  // when the path is missing or a regular file.
   try {
-    writeFileSync(flagFile(), "", "utf-8");
+    const path = flagFile();
+    if (!existsSync(path) || !lstatSync(path).isSymbolicLink()) {
+      writeFileSync(path, "", "utf-8");
+    }
   } catch {
     // No diagnostic; the welcome already printed and won't repeat this run.
   }
@@ -72,4 +78,3 @@ export function showWelcome(version: string): Promise<void> {
   // rippling into the caller signature in cli.ts.
   return Promise.resolve();
 }
-

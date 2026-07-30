@@ -25,7 +25,9 @@ beforeEach(() => {
 
 describe("readHistory", () => {
   it("parses PSReadLine format and returns newest first", () => {
-    vi.mocked(readFileSync).mockReturnValue("npm run build\ngit push\nnpm test\ndocker compose up\n");
+    vi.mocked(readFileSync).mockReturnValue(
+      "npm run build\ngit push\nnpm test\ndocker compose up\n",
+    );
 
     const entries = readHistory();
     expect(entries).toHaveLength(4);
@@ -54,7 +56,9 @@ describe("readHistory", () => {
   });
 
   it("returns empty array when readFileSync throws", () => {
-    vi.mocked(readFileSync).mockImplementation(() => { throw new Error("read error"); });
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error("read error");
+    });
     vi.mocked(existsSync).mockReturnValue(true);
     expect(readHistory()).toEqual([]);
   });
@@ -62,12 +66,12 @@ describe("readHistory", () => {
 
 describe("detectEncoding", () => {
   it("detects UTF-8 BOM (EF BB BF)", () => {
-    const buf = Buffer.from([0xEF, 0xBB, 0xBF, 0x61]);
-    expect(detectEncoding(buf)).toBe("utf8");
+    const buf = Buffer.from([0xef, 0xbb, 0xbf, 0x61]);
+    expect(detectEncoding(buf)).toBe("utf-8");
   });
 
   it("detects UTF-16 LE BOM (FF FE)", () => {
-    const buf = Buffer.from([0xFF, 0xFE, 0x61, 0x00]);
+    const buf = Buffer.from([0xff, 0xfe, 0x61, 0x00]);
     expect(detectEncoding(buf)).toBe("utf16le");
   });
 
@@ -79,7 +83,7 @@ describe("detectEncoding", () => {
 
 describe("BOM handling", () => {
   it("strips leading U+FEFF BOM character from readHistory content", () => {
-    const bom = Buffer.from([0xEF, 0xBB, 0xBF]); // UTF-8 BOM
+    const bom = Buffer.from([0xef, 0xbb, 0xbf]); // UTF-8 BOM
     const content = Buffer.from("npm run build\ngit push\n", "utf-8");
     vi.mocked(readFileSync).mockReturnValue(Buffer.concat([bom, content]));
 
@@ -87,7 +91,7 @@ describe("BOM handling", () => {
     expect(entries).toHaveLength(2);
     // No command should contain the BOM character
     // Use ﻿ to check BOM character is absent from decoded commands
-    const bomChar = String.fromCharCode(0xFEFF);
+    const bomChar = String.fromCharCode(0xfeff);
     expect(entries.every((e) => !e.command.includes(bomChar))).toBe(true);
     // Commands are newest-first
     expect(entries[0].command).toBe("git push");

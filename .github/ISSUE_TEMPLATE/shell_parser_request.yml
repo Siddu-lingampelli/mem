@@ -1,0 +1,71 @@
+name: Shell Parser Request
+description: Request support for a new shell's history format.
+title: "[shell] Add support for: "
+labels: ["enhancement", "shell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when you want `mem` to natively read the history of a shell
+        it doesn't currently support (e.g. `nu`, `tcsh`, `elvish`, `oil`).
+
+  - type: input
+    id: shell
+    attributes:
+      label: Shell name
+      placeholder: "nu"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Shell version (`<shell> --version`)
+      placeholder: "0.91.0"
+
+  - type: input
+    id: history-path
+    attributes:
+      label: Default history file location
+      placeholder: "~/.local/share/nushell/history.txt"
+    validations:
+      required: true
+
+  - type: textarea
+    id: format
+    attributes:
+      label: Format description
+      description: Plain or extended? Timestamps? Multi-line? Show 5–10 example lines (redact any secrets).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: encoding
+    attributes:
+      label: File encoding
+    options:
+      - UTF-8
+      - UTF-16 LE
+      - UTF-16 BE
+      - Other (describe in format section)
+    validations:
+      required: true
+
+  - type: textarea
+    id: env-vars
+    attributes:
+      label: Relevant environment variables
+      description: Variables affecting history location or behaviour (e.g. HISTFILE, XDG_DATA_HOME).
+
+  - type: textarea
+    id: special-cases
+    attributes:
+      label: Special cases
+      description: Things to watch for (extended-history markers, continuation lines, embedded NULs).
+
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Engagement
+      options:
+        - label: I'm willing to submit a PR for this

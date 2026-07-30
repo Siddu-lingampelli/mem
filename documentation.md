@@ -24,21 +24,23 @@
 
 ### Technology Stack
 
-| Layer | Technology | Version | Purpose |
-|-------|-----------|---------|---------|
-| Runtime | Node.js | 18+ | Cross-platform execution |
-| Language | TypeScript | 5.7+ | Strict-typed, modern ES2022 |
-| CLI Framework | Commander.js | ^13.0.0 | Argument parsing & help system |
-| Search Engine | Custom Levenshtein | — | No external deps for search |
-| Testing | Vitest | ^3.0.0 | Modern JavaScript testing framework |
-| Build Tool | TypeScript Compiler | — | Type checking & compilation |
+| Layer         | Technology          | Version | Purpose                             |
+| ------------- | ------------------- | ------- | ----------------------------------- |
+| Runtime       | Node.js             | 18+     | Cross-platform execution            |
+| Language      | TypeScript          | 5.7+    | Strict-typed, modern ES2022         |
+| CLI Framework | Commander.js        | ^13.0.0 | Argument parsing & help system      |
+| Search Engine | Custom Levenshtein  | —       | No external deps for search         |
+| Testing       | Vitest              | ^3.0.0  | Modern JavaScript testing framework |
+| Build Tool    | TypeScript Compiler | —       | Type checking & compilation         |
 
 ### Dependencies
 
 **Production (1 dep):**
+
 - `commander` ^13.0.0 — CLI argument parsing
 
 **Development (3 deps):**
+
 - `typescript` ^5.7.0 — Language compiler
 - `tsx` ^4.19.0 — TypeScript execution for dev
 - `vitest` ^3.0.0 — Test runner
@@ -98,12 +100,14 @@ The primary history reader (`history.ts`) targets PSReadLine history files in th
 4. `%USERPROFILE%/AppData/Roaming/Microsoft/PowerShell/PSReadLine/Visual Studio Code Host_history.txt` — VS Code integrated PowerShell
 
 **Encoding auto-detection:**
+
 - UTF-8 BOM (`EF BB BF`) → decoded as UTF-8
 - UTF-16 LE BOM (`FF FE`) → decoded as UTF-16 LE
 - No BOM → default UTF-8
 - Leading BOM character (`U+FEFF`) stripped if present
 
 **Reading algorithm:**
+
 1. Get file path from env var or candidate list
 2. Read entire file into Buffer
 3. Detect BOM → decode with appropriate encoding
@@ -123,37 +127,43 @@ If no PSReadLine history file exists, the reader falls back through:
 MEM uses a **custom, zero-dependency search engine** (not Fuse.js) built on:
 
 #### Preprocessing (`preprocess()`)
+
 - **Deduplication**: Case-insensitive dedup of identical commands; each keeps a usage count
 - **Noise filtering**: Filters out `mem`, `history`, `clear`, `cls`, `exit`, single-char commands, and non-alphanumeric-only commands
 - **Tokenization**: Splits commands into lowercase alphanumeric tokens
 - **Sorting**: Preserves original history order (newest-first)
 
 #### Scoring (`scoreCmd()`)
+
 Each query word is scored against each cached entry:
 
-| Match Type | Penalty | Example |
-|-----------|---------|---------|
-| Exact token match | 0.0 | `compose` in `docker compose` |
-| Levenshtein distance 1 | 0.05 | `docer` → `docker` |
-| Levenshtein distance 2 | 0.12 | `docor` → `docker` |
-| Token prefix match | 0.15 | `com` → `compose` |
-| Query prefix match | 0.10 | `doc` → `docker` |
-| Token substring | 0.25 | `ai` in `claim` |
-| Command prefix | 0.35 | `git` in `git push` |
-| Command global substring | 0.50 | `run` in `npm run build` |
+| Match Type               | Penalty | Example                       |
+| ------------------------ | ------- | ----------------------------- |
+| Exact token match        | 0.0     | `compose` in `docker compose` |
+| Levenshtein distance 1   | 0.05    | `docer` → `docker`            |
+| Levenshtein distance 2   | 0.12    | `docor` → `docker`            |
+| Token prefix match       | 0.15    | `com` → `compose`             |
+| Query prefix match       | 0.10    | `doc` → `docker`              |
+| Token substring          | 0.25    | `ai` in `claim`               |
+| Command prefix           | 0.35    | `git` in `git push`           |
+| Command global substring | 0.50    | `run` in `npm run build`      |
 
 **Levenshtein implementation:**
+
 - Bounded to distance 2 (early exit on length gap > 2)
 - Two-row DP with pre-allocated buffers (no allocations during search)
 - Row-min early termination
 
 #### Threshold & Sorting
+
 - Entries with average score below 0.4 pass the filter
 - Sorted by: score (epsilon 0.01) → frequency (desc) → alphabetical
 - Empty query or `"all"` / `"*"` / `"everything"` keywords return all entries
 
 #### Performance Architecture
+
 `preprocess()` + `searchCached()` separation enables:
+
 - One-time preprocessing of history entries
 - Multiple queries against the same preprocessed data (used by `bench.ts`)
 - O(n) per query with lightweight scoring
@@ -162,21 +172,23 @@ Each query word is scored against each cached entry:
 
 #### ANSI Color System
 
-| Escape Code | Usage |
-|------------|-------|
-| `\x1b[0m` | Reset |
-| `\x1b[1m` | Bold (matched words) |
-| `\x1b[2m` | Dim (separators, non-matching parts, metadata) |
-| `\x1b[32m` | Green (match count header) |
-| `\x1b[33m` | Yellow (empty-state suggestions) |
-| `\x1b[35m` | Magenta (highlighted matched words) |
-| `\x1b[36m` | Cyan (version number) |
+| Escape Code | Usage                                          |
+| ----------- | ---------------------------------------------- |
+| `\x1b[0m`   | Reset                                          |
+| `\x1b[1m`   | Bold (matched words)                           |
+| `\x1b[2m`   | Dim (separators, non-matching parts, metadata) |
+| `\x1b[32m`  | Green (match count header)                     |
+| `\x1b[33m`  | Yellow (empty-state suggestions)               |
+| `\x1b[35m`  | Magenta (highlighted matched words)            |
+| `\x1b[36m`  | Cyan (version number)                          |
 
 #### Color control
+
 - **`NO_COLOR`**: Any non-empty value suppresses all colors (per [no-color.org](https://no-color.org/))
 - **TTY detection**: Colors off when stdout is not a TTY (e.g., piped to file)
 
 #### Display behavior
+
 - Default: shows top 20 matches with usage count and recency badge
 - `--all` flag: shows every match without truncation
 - `-n/--max <n>`: shows at most N results
@@ -188,29 +200,29 @@ Each query word is scored against each cached entry:
 
 When displaying results, known API key / token patterns are automatically masked:
 
-| Pattern | Provider |
-|---------|----------|
-| `github_pat_*` | GitHub fine-grained PAT |
-| `gh[pousr]_*` | GitHub classic tokens |
-| `sk-ant-*` | Anthropic |
-| `sk-*`, `sk_*` | OpenAI / API keys |
-| `hf_*` | Hugging Face |
-| `glpat-*` | GitLab PAT |
-| `dapi*` | Databricks |
-| `npm_*` | npm token |
-| `AIza*` | Google API |
-| `AKIA*`, `ASIA*` | AWS access keys |
-| `eyJ*` | JWT tokens |
-| `xox[bpoa]-*`, `xoxs-*` | Slack tokens |
-| `whsec_*`, `sk_live_*`, `rk_live_*` | Stripe |
-| `dopx_*` | DigitalOcean |
-| `bot<digits>:*` | Telegram |
-| `r8_*` | Replicate |
-| `coy*` | Cohere |
-| `BB*` | Bitbucket |
-| Bearer / Authorization headers | Generic auth |
-| URL query params (`?key=`, `?token=`, `?secret=`, etc.) | URL-based credentials |
-| CLI flags (`--api-key`, `--token`, `--secret`, etc.) | CLI credentials |
+| Pattern                                                 | Provider                |
+| ------------------------------------------------------- | ----------------------- |
+| `github_pat_*`                                          | GitHub fine-grained PAT |
+| `gh[pousr]_*`                                           | GitHub classic tokens   |
+| `sk-ant-*`                                              | Anthropic               |
+| `sk-*`, `sk_*`                                          | OpenAI / API keys       |
+| `hf_*`                                                  | Hugging Face            |
+| `glpat-*`                                               | GitLab PAT              |
+| `dapi*`                                                 | Databricks              |
+| `npm_*`                                                 | npm token               |
+| `AIza*`                                                 | Google API              |
+| `AKIA*`, `ASIA*`                                        | AWS access keys         |
+| `eyJ*`                                                  | JWT tokens              |
+| `xox[bpoa]-*`, `xoxs-*`                                 | Slack tokens            |
+| `whsec_*`, `sk_live_*`, `rk_live_*`                     | Stripe                  |
+| `dopx_*`                                                | DigitalOcean            |
+| `bot<digits>:*`                                         | Telegram                |
+| `r8_*`                                                  | Replicate               |
+| `coy*`                                                  | Cohere                  |
+| `BB*`                                                   | Bitbucket               |
+| Bearer / Authorization headers                          | Generic auth            |
+| URL query params (`?key=`, `?token=`, `?secret=`, etc.) | URL-based credentials   |
+| CLI flags (`--api-key`, `--token`, `--secret`, etc.)    | CLI credentials         |
 
 Only the first 4+ characters of the secret are shown; the rest is replaced with `********`.
 
@@ -219,34 +231,36 @@ Only the first 4+ characters of the secret are shown; the rest is replaced with 
 #### Architecture
 
 Built on Commander.js with:
+
 - **Custom help system**: Overrides Commander's default with a beautifully formatted ANSI-styled help page
 - **Custom version handling**: Pre-parses `--version`/`-V` before Commander runs (to avoid help hijacking)
 - **Overridden exit handling**: `exitOverride()` with typed error codes
 
 #### Available Commands
 
-| Command | Description | Status |
-|---------|-------------|--------|
-| `mem <query>` | Direct search (positional argument) | ✅ V1 |
-| `mem search <query>` | Explicit search subcommand | ✅ V1 |
-| `mem stats [-n/--top <n>]` | Show command usage statistics | ✅ V1.2.7 |
-| `mem bench [-l/--limit <n>]` | Benchmark parse/process/search | ✅ V1.2.6 |
-| `mem recent [-n/--max <n>]` | Show newest N commands (default 20), with secret masking | ✅ V1.2.8 (V2 refresh) |
-| `mem index` | Indexed search | 🔜 V2 (stub) |
-| `mem sync` | Cross-machine sync | 🔜 V2 (stub) |
+| Command                      | Description                                              | Status                 |
+| ---------------------------- | -------------------------------------------------------- | ---------------------- |
+| `mem <query>`                | Direct search (positional argument)                      | ✅ V1                  |
+| `mem search <query>`         | Explicit search subcommand                               | ✅ V1                  |
+| `mem stats [-n/--top <n>]`   | Show command usage statistics                            | ✅ V1.2.7              |
+| `mem bench [-l/--limit <n>]` | Benchmark parse/process/search                           | ✅ V1.2.6              |
+| `mem recent [-n/--max <n>]`  | Show newest N commands (default 20), with secret masking | ✅ V1.2.8 (V2 refresh) |
+| `mem index`                  | Indexed search                                           | 🔜 V2 (stub)           |
+| `mem sync`                   | Cross-machine sync                                       | 🔜 V2 (stub)           |
 
 #### Error Handling
 
-| Scenario | Exit Code | Behavior |
-|----------|-----------|----------|
-| `--help` displayed | 0 | Clean exit |
-| Missing argument / unknown option | 1 | Error message + help output |
-| No history file found | 1 | "No history found." |
-| File read error | 1 | "Error reading history: <message>" |
+| Scenario                          | Exit Code | Behavior                           |
+| --------------------------------- | --------- | ---------------------------------- |
+| `--help` displayed                | 0         | Clean exit                         |
+| Missing argument / unknown option | 1         | Error message + help output        |
+| No history file found             | 1         | "No history found."                |
+| File read error                   | 1         | "Error reading history: <message>" |
 
 #### Welcome Screen (`welcome.ts`)
 
 On first run (when no arguments given), MEM shows a welcome screen with:
+
 - Version and tagline
 - Quick start examples (`mem "docker"`, `mem "git"`)
 - Supported shells (PowerShell, Bash, Zsh, Fish)
@@ -260,6 +274,7 @@ showing again.
 ### 5. Statistics (`stats.ts`)
 
 The `mem stats` command provides:
+
 - **Summary**: Total commands and unique commands count
 - **Top commands**: Sorted by frequency, with ASCII bar charts
 - Example output:
@@ -275,6 +290,7 @@ The `mem stats` command provides:
 ### 6. Benchmark (`bench.ts`)
 
 The `mem bench` command measures performance:
+
 - **Parse**: Time to read history file
 - **Process**: Time to dedupe, tokenize, and index
 - **Search**: Time to run 5 benchmark queries (git, docker, npm, ssh, node)
@@ -284,23 +300,23 @@ The `mem bench` command measures performance:
 
 ## ✨ Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Instant Search** | Fuzzy matching of command history with keyword input |
-| **Case Insensitive** | Works with any capitalization |
-| **Partial Matching** | Finds commands containing search terms |
-| **Typo Tolerance** | Handles misspelled commands via Levenshtein distance |
-| **Deduplication** | Identical commands merged with usage count |
-| **Relevance Ranking** | Most relevant matches first (score → frequency → alpha) |
-| **Rich Output** | ANSI-formatted results with word highlighting |
-| **Secret Masking** | Automatic API key/token redaction on display |
-| **Cross-Shell** | PowerShell, Bash, Zsh, Fish — auto-detected |
-| **No Color Mode** | Full `NO_COLOR` spec compliance |
-| **First-Run Welcome** | Helpful intro on initial launch |
-| **Subcommands** | `mem search`, `mem stats`, `mem bench` |
-| **Benchmarking** | Built-in performance measurement |
-| **Encoding Detection** | Auto-detects UTF-8, UTF-16 LE BOM |
-| **Statistics** | Command usage frequency analysis |
+| Feature                | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| **Instant Search**     | Fuzzy matching of command history with keyword input    |
+| **Case Insensitive**   | Works with any capitalization                           |
+| **Partial Matching**   | Finds commands containing search terms                  |
+| **Typo Tolerance**     | Handles misspelled commands via Levenshtein distance    |
+| **Deduplication**      | Identical commands merged with usage count              |
+| **Relevance Ranking**  | Most relevant matches first (score → frequency → alpha) |
+| **Rich Output**        | ANSI-formatted results with word highlighting           |
+| **Secret Masking**     | Automatic API key/token redaction on display            |
+| **Cross-Shell**        | PowerShell, Bash, Zsh, Fish — auto-detected             |
+| **No Color Mode**      | Full `NO_COLOR` spec compliance                         |
+| **First-Run Welcome**  | Helpful intro on initial launch                         |
+| **Subcommands**        | `mem search`, `mem stats`, `mem bench`                  |
+| **Benchmarking**       | Built-in performance measurement                        |
+| **Encoding Detection** | Auto-detects UTF-8, UTF-16 LE BOM                       |
+| **Statistics**         | Command usage frequency analysis                        |
 
 ---
 
@@ -321,20 +337,20 @@ npm run prepublishOnly  # build before npm publish
 
 The test suite covers **13 test files** with comprehensive scenarios:
 
-| Test File | What It Tests |
-|-----------|--------------|
-| `tests/history.test.ts` | PSReadLine parsing, empty lines, missing file, limit enforcement |
-| `tests/search.test.ts` | Exact match, fuzzy match, empty/all keywords, dedup, scoring |
+| Test File                    | What It Tests                                                      |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `tests/history.test.ts`      | PSReadLine parsing, empty lines, missing file, limit enforcement   |
+| `tests/search.test.ts`       | Exact match, fuzzy match, empty/all keywords, dedup, scoring       |
 | `tests/bash-history.test.ts` | Plain mode, HISTTIMEFORMAT, CRLF, multiline, limit, error handling |
-| `tests/zsh-history.test.ts` | Zsh format parsing, semicolons in commands, CRLF, limit |
-| `tests/fish-history.test.ts` | Fish YAML format, multiline commands, paths blocks, limit |
-| `tests/output.test.ts` | Empty results display, formatted match display |
-| `tests/bench.test.ts` | Benchmark output or empty-state message |
-| `tests/utils.test.ts` | Environment variable path resolution |
-| `tests/welcome.test.ts` | Flag file detection, rendered content verification |
-| `tests/stats.test.ts` | Statistics output, top-N, empty history, bar charts |
-| `tests/secrets.test.ts` | Secret masking for 30+ token patterns, no false positives |
-| `tests/recent.test.ts` | Recent command ordering, N param, secret masking |
+| `tests/zsh-history.test.ts`  | Zsh format parsing, semicolons in commands, CRLF, limit            |
+| `tests/fish-history.test.ts` | Fish YAML format, multiline commands, paths blocks, limit          |
+| `tests/output.test.ts`       | Empty results display, formatted match display                     |
+| `tests/bench.test.ts`        | Benchmark output or empty-state message                            |
+| `tests/utils.test.ts`        | Environment variable path resolution                               |
+| `tests/welcome.test.ts`      | Flag file detection, rendered content verification                 |
+| `tests/stats.test.ts`        | Statistics output, top-N, empty history, bar charts                |
+| `tests/secrets.test.ts`      | Secret masking for 30+ token patterns, no false positives          |
+| `tests/recent.test.ts`       | Recent command ordering, N param, secret masking                   |
 
 ### Override History File for Testing
 
@@ -428,16 +444,16 @@ mem                         # First run: welcome screen
 
 ## 📊 Version History
 
-| Version | Date | Highlights |
-|---------|------|------------|
-| 1.0.0 | — | Initial release: PowerShell history search, fuzzy matching |
-| 1.2.5 | — | First-run welcome screen |
-| 1.2.6 | — | Benchmark command |
-| 1.2.7 | — | Stats command, refined welcome |
-| 1.2.8 | — | Recent command, secret masking on display |
-| 1.3.0 | — | Match category labels (Exact/Similar/Did you also mean?) |
-| 2.x | — | Cross-shell readers (Bash / Zsh / Fish) with explicit `--shell`, refined ranking, custom help/version surface |
-| **2.2.5** | **Current** | **Stable cross-shell CLI; 201 tests passing** |
+| Version   | Date        | Highlights                                                                                                    |
+| --------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
+| 1.0.0     | —           | Initial release: PowerShell history search, fuzzy matching                                                    |
+| 1.2.5     | —           | First-run welcome screen                                                                                      |
+| 1.2.6     | —           | Benchmark command                                                                                             |
+| 1.2.7     | —           | Stats command, refined welcome                                                                                |
+| 1.2.8     | —           | Recent command, secret masking on display                                                                     |
+| 1.3.0     | —           | Match category labels (Exact/Similar/Did you also mean?)                                                      |
+| 2.x       | —           | Cross-shell readers (Bash / Zsh / Fish) with explicit `--shell`, refined ranking, custom help/version surface |
+| **2.2.5** | **Current** | **Stable cross-shell CLI; 201 tests passing**                                                                 |
 
 ### V2 Roadmap
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/Siddu-lingampelli/mem-pro/discussions
+    about: For open-ended questions and ideas.
+  - name: Security reports
+    url: ./SECURITY.md
+    about: See SECURITY.md — please do not file security bugs as issues.

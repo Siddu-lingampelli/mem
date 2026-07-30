@@ -1,0 +1,23 @@
+name: Question
+description: Ask how to use `mem`, or how something works.
+title: "[question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For bug reports and feature requests please use the other templates.
+        Use this for "how do I" questions about usage or behaviour.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: Commands run, docs read, flags attempted. The more context the better.

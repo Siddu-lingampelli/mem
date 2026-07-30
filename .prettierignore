@@ -1,0 +1,12 @@
+node_modules
+dist
+.vercel
+package-lock.json
+*.tgz
+coverage
+
+# GitHub-specific YAML files: prettier does not parse the GitHub
+# issue-template / workflow schema and treats backticks inside
+# `label:` strings as YAML start markers. CI still validates
+# structure via the workflow-runner.
+.github/

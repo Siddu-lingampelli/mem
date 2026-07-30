@@ -1,5 +1,10 @@
 # mem
 
+[![CI](https://github.com/Siddu-lingampelli/mem-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Siddu-lingampelli/mem-pro/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Siddu-lingampelli/mem-pro/branch/main/graph/badge.svg)](https://codecov.io/gh/Siddu-lingampelli/mem-pro)
+[![npm version](https://badge.fury.io/js/mem-terminal.svg)](https://www.npmjs.com/package/mem-terminal)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 Never lose a terminal command again. Search your PowerShell, Bash, Zsh, or Fish history instantly using keywords. No cloud. No setup.
 
 ```bash

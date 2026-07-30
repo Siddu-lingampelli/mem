@@ -10,7 +10,9 @@ export function useColor(): boolean {
   return process.stdout.isTTY === true;
 }
 
-export function colorize(text: string, code: string) { return useColor() ? `${code}${text}${RESET}` : text; }
+export function colorize(text: string, code: string) {
+  return useColor() ? `${code}${text}${RESET}` : text;
+}
 const dim = (s: string) => colorize(s, DIM);
 const green = (s: string) => colorize(s, GREEN);
 const yellow = (s: string) => colorize(s, YELLOW);
@@ -31,10 +33,13 @@ export function highlightCmd(cmd: string, query: string): string {
   const q = query.trim().toLowerCase();
   if (!q || q === "*" || ALL_KEYWORDS.includes(q)) return useColor() ? dim(cmd) : cmd;
 
-  const words = q.split(/[^a-z0-9]+/).filter(Boolean).filter(w => w.length >= 2);
+  const words = q
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .filter((w) => w.length >= 2);
   if (words.length === 0) return useColor() ? dim(cmd) : cmd;
 
-  const pattern = words.map(w => `(${esc(w)})`).join("|");
+  const pattern = words.map((w) => `(${esc(w)})`).join("|");
   const re = new RegExp(pattern, "gi");
 
   if (!useColor()) return cmd.replace(re, "$&");
@@ -84,25 +89,21 @@ export function print(
 ): void {
   if (results.length === 0) {
     const q = query.trim().toLowerCase();
-    if (q && q !== "all" && q !== "*") {
+    // Match the ALL_KEYWORDS in src/search.ts so all three ("all", "*",
+    // "everything") short-circuit to the same "no history" path.
+    const isAllQuery = q === "all" || q === "*" || q === "everything";
+    if (q && !isAllQuery) {
       console.log(yellow("No matching commands."));
       console.log(dim(`  Try: mem "${q.slice(0, 12)}"`));
       // Suggest commands sharing a 2-char prefix with the query.
-      // Don't recommend the query itself — fall back to it only when nothing
-      // else shares the prefix (the sugg list is short and dominated by short words).
+      // Don't recommend the query itself — fall back to other picks.
       const sugg = ["docker", "git", "npm", "cd", "ls", "ssh", "curl", "node"];
       const prefix2 = q.slice(0, 2);
-      const filtered = sugg.filter(s =>
-        s !== q &&
-        !s.includes(q) &&
-        (s.includes(prefix2) || q.includes(s.slice(0, 2)))
+      const filtered = sugg.filter(
+        (s) => s !== q && !s.includes(q) && (s.includes(prefix2) || q.includes(s.slice(0, 2))),
       );
-      // ponytail: hardcoded sugg is short; refine to a richer dict when the
-      // first 2-char prefix matches nothing relevant in practice.
-      const picks =
-        filtered.length > 0 ? filtered.slice(0, 3)
-        : (sugg.includes(q) ? [q] : sugg.slice(0, 3));
-      console.log(dim(`  Try: ${picks.map(s => `mem "${s}"`).join(", ")}`));
+      const picks = filtered.length > 0 ? filtered.slice(0, 3) : sugg.slice(0, 3);
+      console.log(dim(`  Try: ${picks.map((s) => `mem "${s}"`).join(", ")}`));
     } else {
       console.log("No history found.");
     }
@@ -131,9 +132,7 @@ export function print(
   if (durationMs !== undefined) {
     headerParts.push(dim(`${durationMs}ms`));
   }
-  const suffix = total > limit && !showAll
-    ? dim(` — showing top ${limit}`)
-    : "";
+  const suffix = total > limit && !showAll ? dim(` — showing top ${limit}`) : "";
   console.log(`\n${headerParts.join(" • ")}${suffix}`);
 
   if (total > limit && !showAll) {

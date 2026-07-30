@@ -1,256 +1,368 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mem — Terminal History Search</title>
-<meta name="description" content="Search your terminal history instantly. Fuzzy search for PowerShell, Bash, Zsh, Fish. No cloud. No setup.">
-<meta name="theme-color" content="#131010">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="styles.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%274%27 fill=%27%23131010%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27monospace%27 font-size=%2718%27 font-weight=%27500%27 fill=%27%2379b8ff%27 text-anchor=%27middle%3Em%3C/text%3E%3C/svg%3E">
-</head>
-<body>
-<header class="topbar">
-  <button class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="sidebar"></button>
-  <a href="#top" class="brand" aria-label="mem home">
-    <span class="logo" aria-hidden="true">m</span>
-    <span class="brand-text">mem</span>
-    <span class="badge">v2.2.6</span>
-  </a>
-  <span class="spacer"></span>
-  <div class="search" id="search-btn" role="button" tabindex="0" aria-label="Open search">
-    <span>Jump to section</span>
-    <span class="kbd">Ctrl+K</span>
-  </div>
-</header>
-<div class="mobile-overlay" id="overlay"></div>
-
-<div class="layout">
-  <nav class="sidebar" id="sidebar" aria-label="Primary">
-    <div class="nav-group">
-      <div class="label">Getting Started</div>
-      <ul>
-        <li><a href="#why" data-target="why">Why mem?</a></li>
-        <li><a href="#install" data-target="install">Install</a></li>
-        <li><a href="#demo" data-target="demo">Demo</a></li>
-        <li><a href="#quickstart" data-target="quickstart">Quick Start</a></li>
-      </ul>
-    </div>
-    <div class="nav-group">
-      <div class="label">Features</div>
-      <ul>
-        <li><a href="#features" data-target="features">Features</a></li>
-        <li><a href="#shells" data-target="shells">Cross-shell</a></li>
-        <li><a href="#secrets" data-target="secrets">Secret masking</a></li>
-      </ul>
-    </div>
-    <div class="nav-group">
-      <div class="label">Usage</div>
-      <ul>
-        <li><a href="#search" data-target="search">Search</a></li>
-        <li><a href="#stats" data-target="stats">Statistics</a></li>
-        <li><a href="#recent" data-target="recent">Recent</a></li>
-        <li><a href="#bench" data-target="bench">Benchmark</a></li>
-      </ul>
-    </div>
-    <div class="nav-group">
-      <div class="label">Reference</div>
-      <ul>
-        <li><a href="#cli" data-target="cli">CLI reference</a></li>
-        <li><a href="#env" data-target="env">Environment</a></li>
-      </ul>
-    </div>
-    <div class="nav-group">
-      <div class="label">Advanced</div>
-      <ul>
-        <li><a href="#how" data-target="how">How it works</a></li>
-        <li><a href="#search-engine" data-target="search-engine">Search engine</a></li>
-        <li><a href="#parsers" data-target="parsers">History parsers</a></li>
-        <li><a href="#scoring" data-target="scoring">Scoring &amp; ranking</a></li>
-        <li><a href="#output" data-target="output">Output &amp; colors</a></li>
-      </ul>
-    </div>
-    <div class="nav-group">
-      <div class="label">Develop</div>
-      <ul>
-        <li><a href="#dev" data-target="dev">Development</a></li>
-        <li><a href="#testing" data-target="testing">Testing</a></li>
-        <li><a href="#changelog" data-target="changelog">Changelog</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <main class="content" id="top">
-    <!-- ── HERO ─────────────────────────────────────────────── -->
-    <section class="hero" id="hero">
-      <div class="hero-eyebrow">Terminal history, searched.</div>
-      <h1 class="hero-title">Never lose a terminal command.</h1>
-      <p class="hero-sub">
-        <code>mem</code> searches your shell history across PowerShell, Bash, Zsh, and Fish — instantly, fuzzy, locally. No cloud. No setup.
-      </p>
-      <div class="hero-actions">
-        <a class="btn-primary btn-cta" href="#install">npm install -g mem-terminal</a>
-        <a class="btn-primary" href="#demo">See it in action →</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mem — Terminal History Search</title>
+    <meta
+      name="description"
+      content="Search your terminal history instantly. Fuzzy search for PowerShell, Bash, Zsh, Fish. No cloud. No setup."
+    />
+    <meta name="theme-color" content="#131010" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%274%27 fill=%27%23131010%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27monospace%27 font-size=%2718%27 font-weight=%27500%27 fill=%27%2379b8ff%27 text-anchor=%27middle%3Em%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <button
+        class="menu-btn"
+        id="menu-btn"
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="sidebar"
+      ></button>
+      <a href="#top" class="brand" aria-label="mem home">
+        <span class="logo" aria-hidden="true">m</span>
+        <span class="brand-text">mem</span>
+        <span class="badge">v2.2.6</span>
+      </a>
+      <span class="spacer"></span>
+      <div class="search" id="search-btn" role="button" tabindex="0" aria-label="Open search">
+        <span>Jump to section</span>
+        <span class="kbd">Ctrl+K</span>
       </div>
+    </header>
+    <div class="mobile-overlay" id="overlay"></div>
 
-      <!-- Animated terminal mockup -->
-      <div class="terminal" id="demo">
-        <div class="terminal-bar">
-          <span class="dot dot-r"></span>
-          <span class="dot dot-y"></span>
-          <span class="dot dot-g"></span>
-          <span class="terminal-title">pwsh · ~</span>
+    <div class="layout">
+      <nav class="sidebar" id="sidebar" aria-label="Primary">
+        <div class="nav-group">
+          <div class="label">Getting Started</div>
+          <ul>
+            <li><a href="#why" data-target="why">Why mem?</a></li>
+            <li><a href="#install" data-target="install">Install</a></li>
+            <li><a href="#demo" data-target="demo">Demo</a></li>
+            <li><a href="#quickstart" data-target="quickstart">Quick Start</a></li>
+          </ul>
         </div>
-        <div class="terminal-body" id="terminal-body">
-          <div class="t-line" data-step="1"><span class="t-prompt">$</span> <span class="t-cmd" data-cmd="mem &quot;docker compose&quot;"></span></div>
-          <div class="t-out" data-step="2" data-delay="700"></div>
-          <div class="t-line" data-step="3"><span class="t-prompt">$</span> <span class="t-cmd" data-cmd="mem stats --shell bash"></span></div>
-          <div class="t-out" data-step="4" data-delay="600"></div>
-          <div class="t-line" data-step="5"><span class="t-prompt">$</span> <span class="t-cmd" data-cmd="mem recent -n 3"></span></div>
-          <div class="t-cursor" data-step="6"></div>
+        <div class="nav-group">
+          <div class="label">Features</div>
+          <ul>
+            <li><a href="#features" data-target="features">Features</a></li>
+            <li><a href="#shells" data-target="shells">Cross-shell</a></li>
+            <li><a href="#secrets" data-target="secrets">Secret masking</a></li>
+          </ul>
         </div>
-      </div>
-    </section>
+        <div class="nav-group">
+          <div class="label">Usage</div>
+          <ul>
+            <li><a href="#search" data-target="search">Search</a></li>
+            <li><a href="#stats" data-target="stats">Statistics</a></li>
+            <li><a href="#recent" data-target="recent">Recent</a></li>
+            <li><a href="#bench" data-target="bench">Benchmark</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <div class="label">Reference</div>
+          <ul>
+            <li><a href="#cli" data-target="cli">CLI reference</a></li>
+            <li><a href="#env" data-target="env">Environment</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <div class="label">Advanced</div>
+          <ul>
+            <li><a href="#how" data-target="how">How it works</a></li>
+            <li><a href="#search-engine" data-target="search-engine">Search engine</a></li>
+            <li><a href="#parsers" data-target="parsers">History parsers</a></li>
+            <li><a href="#scoring" data-target="scoring">Scoring &amp; ranking</a></li>
+            <li><a href="#output" data-target="output">Output &amp; colors</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <div class="label">Develop</div>
+          <ul>
+            <li><a href="#dev" data-target="dev">Development</a></li>
+            <li><a href="#testing" data-target="testing">Testing</a></li>
+            <li><a href="#changelog" data-target="changelog">Changelog</a></li>
+          </ul>
+        </div>
+      </nav>
 
-    <!-- ── WHY ──────────────────────────────────────────────── -->
-    <section id="why">
-      <h2>Why mem?</h2>
-      <p>You run hundreds of commands a day. Some you remember. Most you don't. <code>mem</code> finds them in milliseconds.</p>
-      <div class="cards">
-        <div class="card">
-          <div class="h"><span class="ico">⚡</span> Instant</div>
-          <p>Fuzzy keyword search across your entire shell history. Typo-tolerant. Sub-100ms on most machines.</p>
-        </div>
-        <div class="card">
-          <div class="h"><span class="ico">🔒</span> Private</div>
-          <p>Reads files you already have. Never uploads. API keys and tokens auto-masked in output.</p>
-        </div>
-        <div class="card">
-          <div class="h"><span class="ico">🌐</span> Cross-shell</div>
-          <p>PowerShell, Bash, Zsh, Fish — auto-detected, with explicit override when needed.</p>
-        </div>
-        <div class="card">
-          <div class="h"><span class="ico">📦</span> Tiny</div>
-          <p>One runtime dependency. ~30 kB installed. No daemon, no service, no background process.</p>
-        </div>
-      </div>
-    </section>
+      <main class="content" id="top">
+        <!-- ── HERO ─────────────────────────────────────────────── -->
+        <section class="hero" id="hero">
+          <div class="hero-eyebrow">Terminal history, searched.</div>
+          <h1 class="hero-title">Never lose a terminal command.</h1>
+          <p class="hero-sub">
+            <code>mem</code> searches your shell history across PowerShell, Bash, Zsh, and Fish —
+            instantly, fuzzy, locally. No cloud. No setup.
+          </p>
+          <div class="hero-actions">
+            <a class="btn-primary btn-cta" href="#install">npm install -g mem-terminal</a>
+            <a class="btn-primary" href="#demo">See it in action →</a>
+          </div>
 
-    <!-- ── INSTALL ──────────────────────────────────────────── -->
-    <section id="install">
-      <h2>Install</h2>
-      <p>Requires <strong>Node.js 18+</strong> and any shell with a history file.</p>
-      <div class="codeblock" data-lang="bash"><pre><code>npm install -g mem-terminal</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <p>Verify:</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem --version
+          <!-- Animated terminal mockup -->
+          <div class="terminal" id="demo">
+            <div class="terminal-bar">
+              <span class="dot dot-r"></span>
+              <span class="dot dot-y"></span>
+              <span class="dot dot-g"></span>
+              <span class="terminal-title">pwsh · ~</span>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+              <div class="t-line" data-step="1">
+                <span class="t-prompt">$</span>
+                <span class="t-cmd" data-cmd='mem "docker compose"'></span>
+              </div>
+              <div class="t-out" data-step="2" data-delay="700"></div>
+              <div class="t-line" data-step="3">
+                <span class="t-prompt">$</span>
+                <span class="t-cmd" data-cmd="mem stats --shell bash"></span>
+              </div>
+              <div class="t-out" data-step="4" data-delay="600"></div>
+              <div class="t-line" data-step="5">
+                <span class="t-prompt">$</span>
+                <span class="t-cmd" data-cmd="mem recent -n 3"></span>
+              </div>
+              <div class="t-cursor" data-step="6"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── WHY ──────────────────────────────────────────────── -->
+        <section id="why">
+          <h2>Why mem?</h2>
+          <p>
+            You run hundreds of commands a day. Some you remember. Most you don't.
+            <code>mem</code> finds them in milliseconds.
+          </p>
+          <div class="cards">
+            <div class="card">
+              <div class="h"><span class="ico">⚡</span> Instant</div>
+              <p>
+                Fuzzy keyword search across your entire shell history. Typo-tolerant. Sub-100ms on
+                most machines.
+              </p>
+            </div>
+            <div class="card">
+              <div class="h"><span class="ico">🔒</span> Private</div>
+              <p>
+                Reads files you already have. Never uploads. API keys and tokens auto-masked in
+                output.
+              </p>
+            </div>
+            <div class="card">
+              <div class="h"><span class="ico">🌐</span> Cross-shell</div>
+              <p>
+                PowerShell, Bash, Zsh, Fish — auto-detected, with explicit override when needed.
+              </p>
+            </div>
+            <div class="card">
+              <div class="h"><span class="ico">📦</span> Tiny</div>
+              <p>
+                One runtime dependency. ~30 kB installed. No daemon, no service, no background
+                process.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── INSTALL ──────────────────────────────────────────── -->
+        <section id="install">
+          <h2>Install</h2>
+          <p>Requires <strong>Node.js 18+</strong> and any shell with a history file.</p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>npm install -g mem-terminal</code></pre>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <p>Verify:</p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem --version
 # mem v2.2.6</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+        </section>
 
-    <!-- ── QUICK START ──────────────────────────────────────── -->
-    <section id="quickstart">
-      <h2>Quick Start</h2>
-      <div class="codeblock" data-lang="bash"><pre><code>mem "docker compose"          # direct search
+        <!-- ── QUICK START ──────────────────────────────────────── -->
+        <section id="quickstart">
+          <h2>Quick Start</h2>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem "docker compose"          # direct search
 mem search "npm run build"    # explicit subcommand
 mem stats                     # command usage statistics
 mem bench                     # benchmark parse &amp; search
 mem recent                    # last 20 commands
 mem --help                    # full help</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <div class="callout info">
-        <span class="icon" aria-hidden="true">i</span>
-        <p>On the first bare <code>mem</code> run, a welcome banner prints once and a flag file (<code>~/.mem-welcome</code>) is written so it never re-fires. Later bare <code>mem</code> shows the help page.</p>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <div class="callout info">
+            <span class="icon" aria-hidden="true">i</span>
+            <p>
+              On the first bare <code>mem</code> run, a welcome banner prints once and a flag file
+              (<code>~/.mem-welcome</code>) is written so it never re-fires. Later bare
+              <code>mem</code> shows the help page.
+            </p>
+          </div>
+        </section>
 
-    <!-- ── FEATURES ─────────────────────────────────────────── -->
-    <section id="features">
-      <h2>Features</h2>
-      <ul>
-        <li><strong>Fuzzy match</strong> — typo-tolerant with bounded Levenshtein distance</li>
-        <li><strong>Relevance ranking</strong> — score → frequency → alphabetical</li>
-        <li><strong>Deduplication</strong> — identical commands merged with usage count</li>
-        <li><strong>Recency badge</strong> — recent commands highlighted</li>
-        <li><strong>Match categories</strong> — Exact / Similar / "Did you also mean?"</li>
-        <li><strong>Secret masking</strong> — 25+ token patterns auto-redacted on display</li>
-        <li><strong>Cross-shell</strong> — PowerShell, Bash, Zsh, Fish auto-detected</li>
-        <li><strong>BOM-aware</strong> — UTF-8 / UTF-16 LE history files</li>
-        <li><strong>NO_COLOR</strong> — respects the no-color.org standard</li>
-        <li><strong>Zero config</strong> — works out of the box</li>
-      </ul>
-    </section>
+        <!-- ── FEATURES ─────────────────────────────────────────── -->
+        <section id="features">
+          <h2>Features</h2>
+          <ul>
+            <li><strong>Fuzzy match</strong> — typo-tolerant with bounded Levenshtein distance</li>
+            <li><strong>Relevance ranking</strong> — score → frequency → alphabetical</li>
+            <li><strong>Deduplication</strong> — identical commands merged with usage count</li>
+            <li><strong>Recency badge</strong> — recent commands highlighted</li>
+            <li><strong>Match categories</strong> — Exact / Similar / "Did you also mean?"</li>
+            <li><strong>Secret masking</strong> — 25+ token patterns auto-redacted on display</li>
+            <li><strong>Cross-shell</strong> — PowerShell, Bash, Zsh, Fish auto-detected</li>
+            <li><strong>BOM-aware</strong> — UTF-8 / UTF-16 LE history files</li>
+            <li><strong>NO_COLOR</strong> — respects the no-color.org standard</li>
+            <li><strong>Zero config</strong> — works out of the box</li>
+          </ul>
+        </section>
 
-    <!-- ── SEARCH (user-facing) ─────────────────────────────── -->
-    <section id="search">
-      <h2>Search</h2>
-      <p>Results are deduplicated, ranked by relevance, and annotated with usage frequency and recency.</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem "git"
+        <!-- ── SEARCH (user-facing) ─────────────────────────────── -->
+        <section id="search">
+          <h2>Search</h2>
+          <p>
+            Results are deduplicated, ranked by relevance, and annotated with usage frequency and
+            recency.
+          </p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem "git"
 # → 16 matches (showing top 20)
 #   git status              • used 12× • recent
 #   git push origin main    • used 8×
 #   git commit -m "fix"</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <p>Use <code>--all</code> for every match, or <code>-n / --max</code> for a custom limit:</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem "git" --all                # show all matches
+            <button class="copy" type="button">copy</button>
+          </div>
+          <p>
+            Use <code>--all</code> for every match, or <code>-n / --max</code> for a custom limit:
+          </p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem "git" --all                # show all matches
 mem "docker" -n 5              # show only 5 results</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+        </section>
 
-    <!-- ── CROSS-SHELL ──────────────────────────────────────── -->
-    <section id="shells">
-      <h2>Cross-shell history</h2>
-      <p>By default <code>mem</code> reads your <strong>PowerShell / PSReadLine</strong> history (common on Windows). If you use Bash, Zsh, or Fish (e.g. Git Bash on Windows), pick the source shell explicitly.</p>
-      <div class="pills" role="list">
-        <span class="pill" role="listitem">auto</span>
-        <span class="pill" role="listitem">powershell</span>
-        <span class="pill" role="listitem">bash</span>
-        <span class="pill" role="listitem">zsh</span>
-        <span class="pill" role="listitem">fish</span>
-      </div>
-      <div class="codeblock" data-lang="bash"><pre><code>mem search "git" --shell bash    # read .bash_history
+        <!-- ── CROSS-SHELL ──────────────────────────────────────── -->
+        <section id="shells">
+          <h2>Cross-shell history</h2>
+          <p>
+            By default <code>mem</code> reads your <strong>PowerShell / PSReadLine</strong> history
+            (common on Windows). If you use Bash, Zsh, or Fish (e.g. Git Bash on Windows), pick the
+            source shell explicitly.
+          </p>
+          <div class="pills" role="list">
+            <span class="pill" role="listitem">auto</span>
+            <span class="pill" role="listitem">powershell</span>
+            <span class="pill" role="listitem">bash</span>
+            <span class="pill" role="listitem">zsh</span>
+            <span class="pill" role="listitem">fish</span>
+          </div>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem search "git" --shell bash    # read .bash_history
 mem search "git" --shell zsh     # read .zsh_history
 mem search "git" --shell fish    # read fish_history
 mem stats        --shell bash
 mem recent       --shell zsh
 mem bench        --shell fish</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <p><strong>auto</strong> prefers PSReadLine, then falls back Bash → Zsh → Fish. Explicit shell names bypass PSReadLine entirely — fixes the case where a Windows user with Git Bash always got the PSReadLine history regardless of <code>HISTFILE</code>.</p>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <p>
+            <strong>auto</strong> prefers PSReadLine, then falls back Bash → Zsh → Fish. Explicit
+            shell names bypass PSReadLine entirely — fixes the case where a Windows user with Git
+            Bash always got the PSReadLine history regardless of <code>HISTFILE</code>.
+          </p>
+        </section>
 
-    <!-- ── SECRET MASKING (promoted) ────────────────────────── -->
-    <section id="secrets">
-      <h2>Secret masking</h2>
-      <p>API keys, tokens, and passwords in your history are <strong>automatically masked</strong> on every display path. Only the first 4+ characters are shown; the rest is replaced with <code>********</code>.</p>
-      <p>Philosophy: <em>a false positive is a cosmetic annoyance; a missed secret is a leak.</em> So <code>mem</code> errs on the side of masking.</p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Category</th><th>Examples masked</th></tr></thead>
-        <tbody>
-          <tr><td>GitHub</td><td><code>github_pat_…</code>, <code>ghp_…</code>, <code>gho_…</code></td></tr>
-          <tr><td>AI providers</td><td><code>sk-ant-…</code> (Anthropic), <code>sk-…</code> (OpenAI), <code>hf_…</code> (HuggingFace)</td></tr>
-          <tr><td>Stripe</td><td><code>sk_live_…</code>, <code>sk_test_…</code>, <code>whsec_…</code></td></tr>
-          <tr><td>Cloud</td><td><code>AKIA…</code> (AWS), <code>AIza…</code> (Google), <code>glpat-…</code> (GitLab)</td></tr>
-          <tr><td>Messaging</td><td><code>xoxb-…</code> (Slack), Telegram bot tokens, Discord tokens</td></tr>
-          <tr><td>Auth headers</td><td><code>Bearer …</code>, <code>Authorization: …</code>, <code>x-api-key: …</code></td></tr>
-          <tr><td>URL params</td><td><code>?key=…</code>, <code>?token=…</code>, <code>?secret=…</code></td></tr>
-          <tr><td>CLI flags</td><td><code>--api-key …</code>, <code>--token …</code>, <code>--password …</code></td></tr>
-        </tbody>
-      </table></div>
-      <p>25+ patterns. Applied to every command shown by <code>search</code>, <code>stats</code>, and <code>recent</code>. Never stored — only masked on the way out.</p>
-    </section>
+        <!-- ── SECRET MASKING (promoted) ────────────────────────── -->
+        <section id="secrets">
+          <h2>Secret masking</h2>
+          <p>
+            API keys, tokens, and passwords in your history are
+            <strong>automatically masked</strong> on every display path. Only the first 4+
+            characters are shown; the rest is replaced with <code>********</code>.
+          </p>
+          <p>
+            Philosophy:
+            <em>a false positive is a cosmetic annoyance; a missed secret is a leak.</em> So
+            <code>mem</code> errs on the side of masking.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Examples masked</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>GitHub</td>
+                  <td><code>github_pat_…</code>, <code>ghp_…</code>, <code>gho_…</code></td>
+                </tr>
+                <tr>
+                  <td>AI providers</td>
+                  <td>
+                    <code>sk-ant-…</code> (Anthropic), <code>sk-…</code> (OpenAI),
+                    <code>hf_…</code> (HuggingFace)
+                  </td>
+                </tr>
+                <tr>
+                  <td>Stripe</td>
+                  <td><code>sk_live_…</code>, <code>sk_test_…</code>, <code>whsec_…</code></td>
+                </tr>
+                <tr>
+                  <td>Cloud</td>
+                  <td>
+                    <code>AKIA…</code> (AWS), <code>AIza…</code> (Google),
+                    <code>glpat-…</code> (GitLab)
+                  </td>
+                </tr>
+                <tr>
+                  <td>Messaging</td>
+                  <td><code>xoxb-…</code> (Slack), Telegram bot tokens, Discord tokens</td>
+                </tr>
+                <tr>
+                  <td>Auth headers</td>
+                  <td>
+                    <code>Bearer …</code>, <code>Authorization: …</code>, <code>x-api-key: …</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>URL params</td>
+                  <td><code>?key=…</code>, <code>?token=…</code>, <code>?secret=…</code></td>
+                </tr>
+                <tr>
+                  <td>CLI flags</td>
+                  <td>
+                    <code>--api-key …</code>, <code>--token …</code>, <code>--password …</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            25+ patterns. Applied to every command shown by <code>search</code>, <code>stats</code>,
+            and <code>recent</code>. Never stored — only masked on the way out.
+          </p>
+        </section>
 
-    <!-- ── STATS / RECENT / BENCH (user-facing) ─────────────── -->
-    <section id="stats">
-      <h2>Statistics</h2>
-      <p>See which commands you use most.</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem stats                      # top 10 most-used commands
+        <!-- ── STATS / RECENT / BENCH (user-facing) ─────────────── -->
+        <section id="stats">
+          <h2>Statistics</h2>
+          <p>See which commands you use most.</p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem stats                      # top 10 most-used commands
 mem stats -n 20                # top 20 with ASCII bar charts
 # mem stats
 # History  1,234 commands (567 unique)
@@ -258,100 +370,241 @@ mem stats -n 20                # top 20 with ASCII bar charts
 #   1. git status                   45 ████████████████████
 #   2. docker compose up -d         32 ██████████████
 #   3. npm run build                28 ████████████</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+        </section>
 
-    <section id="recent">
-      <h2>Recent</h2>
-      <p>Show the newest N commands. All secrets masked.</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem recent                     # last 20 commands
+        <section id="recent">
+          <h2>Recent</h2>
+          <p>Show the newest N commands. All secrets masked.</p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem recent                     # last 20 commands
 mem recent -n 5                # last 5
 mem recent --max 100           # last 100</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+        </section>
 
-    <section id="bench">
-      <h2>Benchmark</h2>
-      <p>Measure parse, preprocess, and search performance against your real history.</p>
-      <div class="codeblock" data-lang="bash"><pre><code>mem bench                      # measure parse/process/search
+        <section id="bench">
+          <h2>Benchmark</h2>
+          <p>Measure parse, preprocess, and search performance against your real history.</p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem bench                      # measure parse/process/search
 mem bench -l 100000            # custom history limit</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Phase</th><th>What it measures</th></tr></thead>
-        <tbody>
-          <tr><td><code>Parser</code></td><td>Read + decode history file (BOM-aware)</td></tr>
-          <tr><td><code>Process</code></td><td>Deduplicate, tokenize, noise-filter, index</td></tr>
-          <tr><td><code>Search</code></td><td>5 queries against pre-processed data (git, docker, npm, ssh, node)</td></tr>
-          <tr><td><code>Total</code></td><td>Aggregate wall-clock time</td></tr>
-        </tbody>
-      </table></div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>What it measures</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>Parser</code></td>
+                  <td>Read + decode history file (BOM-aware)</td>
+                </tr>
+                <tr>
+                  <td><code>Process</code></td>
+                  <td>Deduplicate, tokenize, noise-filter, index</td>
+                </tr>
+                <tr>
+                  <td><code>Search</code></td>
+                  <td>5 queries against pre-processed data (git, docker, npm, ssh, node)</td>
+                </tr>
+                <tr>
+                  <td><code>Total</code></td>
+                  <td>Aggregate wall-clock time</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- ── CLI REFERENCE ────────────────────────────────────── -->
-    <section id="cli">
-      <h2>CLI reference</h2>
-      <h3>Commands</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Command</th><th>Description</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td><code>mem &lt;query&gt;</code></td><td>Direct search (positional argument)</td><td>✅</td></tr>
-          <tr><td><code>mem search &lt;query&gt;</code></td><td>Explicit search subcommand</td><td>✅</td></tr>
-          <tr><td><code>mem stats</code></td><td>Show command usage statistics</td><td>✅</td></tr>
-          <tr><td><code>mem bench</code></td><td>Benchmark parse/process/search speed</td><td>✅</td></tr>
-          <tr><td><code>mem recent</code></td><td>Show newest N commands (default 20)</td><td>✅</td></tr>
-          <tr><td><code>mem index</code></td><td>Indexed search (coming in V2)</td><td>🔜</td></tr>
-          <tr><td><code>mem sync</code></td><td>Cross-machine sync (coming in V2)</td><td>🔜</td></tr>
-        </tbody>
-      </table></div>
-      <h3>Flags</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Flag</th><th>Applies to</th><th>Effect</th></tr></thead>
-        <tbody>
-          <tr><td><code>--all</code></td><td><code>search</code></td><td>Show every match without truncation</td></tr>
-          <tr><td><code>-n, --max &lt;n&gt;</code></td><td><code>search</code>, <code>recent</code></td><td>Show at most N results</td></tr>
-          <tr><td><code>-n, --top &lt;n&gt;</code></td><td><code>stats</code></td><td>Top N commands (default 10)</td></tr>
-          <tr><td><code>-l, --limit &lt;n&gt;</code></td><td><code>bench</code></td><td>History read limit (default 50000)</td></tr>
-          <tr><td><code>--shell &lt;name&gt;</code></td><td>subcommands</td><td>Source shell: auto, powershell, bash, zsh, fish</td></tr>
-          <tr><td><code>-V, --version</code></td><td>root</td><td>Print version</td></tr>
-          <tr><td><code>-h, --help</code></td><td>root</td><td>Help page</td></tr>
-        </tbody>
-      </table></div>
-      <h3>Exit codes</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Scenario</th><th>Code</th></tr></thead>
-        <tbody>
-          <tr><td>Help / version displayed</td><td>0</td></tr>
-          <tr><td>Missing argument / unknown option</td><td>1</td></tr>
-          <tr><td>No history file found</td><td>1</td></tr>
-          <tr><td>File read error</td><td>1</td></tr>
-        </tbody>
-      </table></div>
-    </section>
+        <!-- ── CLI REFERENCE ────────────────────────────────────── -->
+        <section id="cli">
+          <h2>CLI reference</h2>
+          <h3>Commands</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Command</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>mem &lt;query&gt;</code></td>
+                  <td>Direct search (positional argument)</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem search &lt;query&gt;</code></td>
+                  <td>Explicit search subcommand</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem stats</code></td>
+                  <td>Show command usage statistics</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem bench</code></td>
+                  <td>Benchmark parse/process/search speed</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem recent</code></td>
+                  <td>Show newest N commands (default 20)</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem index</code></td>
+                  <td>Indexed search (coming in V2)</td>
+                  <td>🔜</td>
+                </tr>
+                <tr>
+                  <td><code>mem sync</code></td>
+                  <td>Cross-machine sync (coming in V2)</td>
+                  <td>🔜</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Flags</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Flag</th>
+                  <th>Applies to</th>
+                  <th>Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>--all</code></td>
+                  <td><code>search</code></td>
+                  <td>Show every match without truncation</td>
+                </tr>
+                <tr>
+                  <td><code>-n, --max &lt;n&gt;</code></td>
+                  <td><code>search</code>, <code>recent</code></td>
+                  <td>Show at most N results</td>
+                </tr>
+                <tr>
+                  <td><code>-n, --top &lt;n&gt;</code></td>
+                  <td><code>stats</code></td>
+                  <td>Top N commands (default 10)</td>
+                </tr>
+                <tr>
+                  <td><code>-l, --limit &lt;n&gt;</code></td>
+                  <td><code>bench</code></td>
+                  <td>History read limit (default 50000)</td>
+                </tr>
+                <tr>
+                  <td><code>--shell &lt;name&gt;</code></td>
+                  <td>subcommands</td>
+                  <td>Source shell: auto, powershell, bash, zsh, fish</td>
+                </tr>
+                <tr>
+                  <td><code>-V, --version</code></td>
+                  <td>root</td>
+                  <td>Print version</td>
+                </tr>
+                <tr>
+                  <td><code>-h, --help</code></td>
+                  <td>root</td>
+                  <td>Help page</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Exit codes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Help / version displayed</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Missing argument / unknown option</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>No history file found</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>File read error</td>
+                  <td>1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- ── ENVIRONMENT ──────────────────────────────────────── -->
-    <section id="env">
-      <h2>Environment variables</h2>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Variable</th><th>Shell</th><th>Effect</th></tr></thead>
-        <tbody>
-          <tr><td><code>PSREADLINE_HISTORY_FILE</code></td><td>PowerShell</td><td>Override PSReadLine history path</td></tr>
-          <tr><td><code>HISTFILE</code></td><td>Bash / Zsh</td><td>Override history file path</td></tr>
-          <tr><td><code>XDG_DATA_HOME</code></td><td>Fish</td><td>Override fish history location</td></tr>
-          <tr><td><code>NO_COLOR</code></td><td>all</td><td>Any set value disables ANSI colors</td></tr>
-        </tbody>
-      </table></div>
-    </section>
+        <!-- ── ENVIRONMENT ──────────────────────────────────────── -->
+        <section id="env">
+          <h2>Environment variables</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Shell</th>
+                  <th>Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>PSREADLINE_HISTORY_FILE</code></td>
+                  <td>PowerShell</td>
+                  <td>Override PSReadLine history path</td>
+                </tr>
+                <tr>
+                  <td><code>HISTFILE</code></td>
+                  <td>Bash / Zsh</td>
+                  <td>Override history file path</td>
+                </tr>
+                <tr>
+                  <td><code>XDG_DATA_HOME</code></td>
+                  <td>Fish</td>
+                  <td>Override fish history location</td>
+                </tr>
+                <tr>
+                  <td><code>NO_COLOR</code></td>
+                  <td>all</td>
+                  <td>Any set value disables ANSI colors</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- ─── ADVANCED: collapsed by default ──────────────────── -->
+        <!-- ─── ADVANCED: collapsed by default ──────────────────── -->
 
-    <section id="how" class="advanced">
-      <details>
-        <summary><h2>How it works</h2></summary>
-        <p><code>mem</code> reads your terminal history file, runs a token-aware fuzzy search with bounded Levenshtein distance, and prints grouped, color-coded results with secrets masked.</p>
-        <div class="codeblock" data-lang="text"><pre><code>cli.ts
+        <section id="how" class="advanced">
+          <details>
+            <summary><h2>How it works</h2></summary>
+            <p>
+              <code>mem</code> reads your terminal history file, runs a token-aware fuzzy search
+              with bounded Levenshtein distance, and prints grouped, color-coded results with
+              secrets masked.
+            </p>
+            <div class="codeblock" data-lang="text">
+              <pre><code>cli.ts
   └─ isMain guard → runs only when executed, not imported
   └─ program.parse()
        └─ positional "query" → runSearch()
@@ -372,210 +625,467 @@ runSearch()
        ├─ maskSecrets()            # hide API keys, tokens
        ├─ highlightCmd()           # bold+magenta matched words
        └─ group: Exact → Similar → "Did you also mean?"</code></pre>
-        <button class="copy" type="button">copy</button>
-        </div>
-        <p>The key optimization: <code>preprocess()</code> runs once; <code>searchCached()</code> is O(n) per query and reusable. The <code>bench</code> command exploits this to run 5 queries over one cached set.</p>
-      </details>
-    </section>
+              <button class="copy" type="button">copy</button>
+            </div>
+            <p>
+              The key optimization: <code>preprocess()</code> runs once;
+              <code>searchCached()</code> is O(n) per query and reusable. The
+              <code>bench</code> command exploits this to run 5 queries over one cached set.
+            </p>
+          </details>
+        </section>
 
-    <section id="parsers" class="advanced">
-      <details>
-        <summary><h2>History parsers</h2></summary>
-        <p>Every reader is idempotent, newest-first, limit-capped, and swallows read errors (returns <code>[]</code>).</p>
-        <h3>PowerShell / PSReadLine</h3>
-        <p>Path priority:</p>
-        <ol>
-          <li><code>$PSREADLINE_HISTORY_FILE</code> env var (if set and non-empty)</li>
-          <li><code>%USERPROFILE%\...\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</code> (WinPS 5.1)</li>
-          <li><code>%USERPROFILE%\...\PowerShell\PSReadLine\ConsoleHost_history.txt</code> (PS 7+)</li>
-          <li><code>%USERPROFILE%\...\PSReadLine\Visual Studio Code Host_history.txt</code> (VS Code)</li>
-        </ol>
-        <p><strong>Encoding:</strong> Auto-detects UTF-8 BOM (<code>EF BB BF</code>), UTF-16 LE BOM (<code>FF FE</code>), or falls back to UTF-8. Leading <code>U+FEFF</code> character is stripped.</p>
-        <h3>Bash</h3>
-        <p>Honors <code>$HISTFILE</code>, then tries <code>~/.bash_history</code>, <code>~/.sh_history</code>. Supports both plain mode (one command per line) and <code>HISTTIMEFORMAT</code> mode (lines prefixed with <code>#[0-9]{8,}</code>). Multiline commands in timestamp mode are preserved.</p>
-        <h3>Zsh</h3>
-        <p>Honors <code>$HISTFILE</code>, then <code>~/.zsh_history</code>, <code>~/.histfile</code>. Parses the extended history format: <code>: &lt;timestamp&gt;:&lt;duration&gt;;&lt;command&gt;</code>. Non-matching lines are kept as raw commands.</p>
-        <h3>Fish</h3>
-        <p>Reads from <code>$XDG_DATA_HOME/fish/fish_history</code>, else <code>~/.local/share/fish/fish_history</code>. Parses the YAML-like format with <code>- cmd:</code>, <code>when:</code>, and <code>paths:</code> fields, including multiline command continuation.</p>
-      </details>
-    </section>
+        <section id="parsers" class="advanced">
+          <details>
+            <summary><h2>History parsers</h2></summary>
+            <p>
+              Every reader is idempotent, newest-first, limit-capped, and swallows read errors
+              (returns <code>[]</code>).
+            </p>
+            <h3>PowerShell / PSReadLine</h3>
+            <p>Path priority:</p>
+            <ol>
+              <li><code>$PSREADLINE_HISTORY_FILE</code> env var (if set and non-empty)</li>
+              <li>
+                <code>%USERPROFILE%\...\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</code>
+                (WinPS 5.1)
+              </li>
+              <li>
+                <code>%USERPROFILE%\...\PowerShell\PSReadLine\ConsoleHost_history.txt</code> (PS 7+)
+              </li>
+              <li>
+                <code>%USERPROFILE%\...\PSReadLine\Visual Studio Code Host_history.txt</code> (VS
+                Code)
+              </li>
+            </ol>
+            <p>
+              <strong>Encoding:</strong> Auto-detects UTF-8 BOM (<code>EF BB BF</code>), UTF-16 LE
+              BOM (<code>FF FE</code>), or falls back to UTF-8. Leading
+              <code>U+FEFF</code> character is stripped.
+            </p>
+            <h3>Bash</h3>
+            <p>
+              Honors <code>$HISTFILE</code>, then tries <code>~/.bash_history</code>,
+              <code>~/.sh_history</code>. Supports both plain mode (one command per line) and
+              <code>HISTTIMEFORMAT</code> mode (lines prefixed with <code>#[0-9]{8,}</code>).
+              Multiline commands in timestamp mode are preserved.
+            </p>
+            <h3>Zsh</h3>
+            <p>
+              Honors <code>$HISTFILE</code>, then <code>~/.zsh_history</code>,
+              <code>~/.histfile</code>. Parses the extended history format:
+              <code>: &lt;timestamp&gt;:&lt;duration&gt;;&lt;command&gt;</code>. Non-matching lines
+              are kept as raw commands.
+            </p>
+            <h3>Fish</h3>
+            <p>
+              Reads from <code>$XDG_DATA_HOME/fish/fish_history</code>, else
+              <code>~/.local/share/fish/fish_history</code>. Parses the YAML-like format with
+              <code>- cmd:</code>, <code>when:</code>, and <code>paths:</code> fields, including
+              multiline command continuation.
+            </p>
+          </details>
+        </section>
 
-    <section id="search-engine" class="advanced">
-      <details>
-        <summary><h2>Search engine</h2></summary>
-        <p>A custom, zero-dependency engine (no Fuse.js). Two phases:</p>
-        <h3>Preprocess</h3>
-        <ul>
-          <li><strong>Deduplication:</strong> Case-insensitive; identical commands merged with usage count</li>
-          <li><strong>Noise filter:</strong> Drops <code>mem</code>, <code>history</code>, <code>clear</code>, <code>cls</code>, <code>exit</code>, single-character commands, non-alphanumeric-only commands</li>
-          <li><strong>Tokenization:</strong> Lowercase alphanumeric split on <code>[^a-z0-9]+</code></li>
-          <li><strong>Index:</strong> Newest-first order preserved</li>
-        </ul>
-        <h3>Scoring</h3>
-        <p>Each query word is scored against each cached entry's tokens. Lower score = better match.</p>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Match type</th><th>Penalty</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td>Exact token</td><td>0.00</td><td><code>compose</code> in <code>docker compose</code></td></tr>
-            <tr><td>Levenshtein distance 1</td><td>0.05</td><td><code>docer</code> → <code>docker</code></td></tr>
-            <tr><td>Levenshtein distance 2</td><td>0.12</td><td><code>docor</code> → <code>docker</code></td></tr>
-            <tr><td>Query prefix</td><td>0.10</td><td><code>doc</code> → <code>docker</code></td></tr>
-            <tr><td>Token prefix</td><td>0.15</td><td><code>com</code> → <code>compose</code></td></tr>
-            <tr><td>Token substring</td><td>0.25</td><td><code>ai</code> in <code>claim</code></td></tr>
-            <tr><td>Command prefix</td><td>0.35</td><td><code>git</code> in <code>git push</code></td></tr>
-            <tr><td>Command global substring</td><td>0.50</td><td><code>run</code> in <code>npm run build</code></td></tr>
-          </tbody>
-        </table></div>
-        <h3>Bounded Levenshtein</h3>
-        <p>Swift-exits when <code>|a.length − b.length| &gt; maxDist</code> (returns no-match immediately). Two-row DP with pre-allocated buffers for tokens ≤64 chars — zero per-call allocation on the hot path. Row-min early termination keeps distant comparisons cheap. Only invoked for query words ≥4 characters.</p>
-        <h3>Threshold &amp; sort</h3>
-        <p>Entries with average score below <strong>0.4</strong> pass the filter. Sorted by: score (epsilon 0.01) → frequency descending → alphabetical. Empty query or <code>"all"</code>, <code>"*"</code>, <code>"everything"</code> keywords return all entries.</p>
-      </details>
-    </section>
+        <section id="search-engine" class="advanced">
+          <details>
+            <summary><h2>Search engine</h2></summary>
+            <p>A custom, zero-dependency engine (no Fuse.js). Two phases:</p>
+            <h3>Preprocess</h3>
+            <ul>
+              <li>
+                <strong>Deduplication:</strong> Case-insensitive; identical commands merged with
+                usage count
+              </li>
+              <li>
+                <strong>Noise filter:</strong> Drops <code>mem</code>, <code>history</code>,
+                <code>clear</code>, <code>cls</code>, <code>exit</code>, single-character commands,
+                non-alphanumeric-only commands
+              </li>
+              <li>
+                <strong>Tokenization:</strong> Lowercase alphanumeric split on
+                <code>[^a-z0-9]+</code>
+              </li>
+              <li><strong>Index:</strong> Newest-first order preserved</li>
+            </ul>
+            <h3>Scoring</h3>
+            <p>
+              Each query word is scored against each cached entry's tokens. Lower score = better
+              match.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Match type</th>
+                    <th>Penalty</th>
+                    <th>Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Exact token</td>
+                    <td>0.00</td>
+                    <td><code>compose</code> in <code>docker compose</code></td>
+                  </tr>
+                  <tr>
+                    <td>Levenshtein distance 1</td>
+                    <td>0.05</td>
+                    <td><code>docer</code> → <code>docker</code></td>
+                  </tr>
+                  <tr>
+                    <td>Levenshtein distance 2</td>
+                    <td>0.12</td>
+                    <td><code>docor</code> → <code>docker</code></td>
+                  </tr>
+                  <tr>
+                    <td>Query prefix</td>
+                    <td>0.10</td>
+                    <td><code>doc</code> → <code>docker</code></td>
+                  </tr>
+                  <tr>
+                    <td>Token prefix</td>
+                    <td>0.15</td>
+                    <td><code>com</code> → <code>compose</code></td>
+                  </tr>
+                  <tr>
+                    <td>Token substring</td>
+                    <td>0.25</td>
+                    <td><code>ai</code> in <code>claim</code></td>
+                  </tr>
+                  <tr>
+                    <td>Command prefix</td>
+                    <td>0.35</td>
+                    <td><code>git</code> in <code>git push</code></td>
+                  </tr>
+                  <tr>
+                    <td>Command global substring</td>
+                    <td>0.50</td>
+                    <td><code>run</code> in <code>npm run build</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3>Bounded Levenshtein</h3>
+            <p>
+              Swift-exits when <code>|a.length − b.length| &gt; maxDist</code> (returns no-match
+              immediately). Two-row DP with pre-allocated buffers for tokens ≤64 chars — zero
+              per-call allocation on the hot path. Row-min early termination keeps distant
+              comparisons cheap. Only invoked for query words ≥4 characters.
+            </p>
+            <h3>Threshold &amp; sort</h3>
+            <p>
+              Entries with average score below <strong>0.4</strong> pass the filter. Sorted by:
+              score (epsilon 0.01) → frequency descending → alphabetical. Empty query or
+              <code>"all"</code>, <code>"*"</code>, <code>"everything"</code> keywords return all
+              entries.
+            </p>
+          </details>
+        </section>
 
-    <section id="scoring" class="advanced">
-      <details>
-        <summary><h2>Scoring &amp; ranking</h2></summary>
-        <h3>Display categories</h3>
-        <p>The aggregate score is bucketed into three labels:</p>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Category</th><th>Score range</th><th>Display</th></tr></thead>
-          <tbody>
-            <tr><td>Exact</td><td><code>0</code></td><td>Listed under "Exact"</td></tr>
-            <tr><td>Fuzzy</td><td><code>0 &lt; score ≤ 0.12</code></td><td>Listed under "Similar"</td></tr>
-            <tr><td>Similar</td><td><code>0.12 &lt; score &lt; 0.4</code></td><td>Listed under "Did you also mean?" (deduped by first word, max 5)</td></tr>
-          </tbody>
-        </table></div>
-        <h3>Recency badge</h3>
-        <p>Commands whose most recent use is in the newest 25% of the history file get a <strong>"recent"</strong> badge. The threshold is <code>max(1, floor(totalEntries × 0.25))</code>.</p>
-        <h3>Metadata per result</h3>
-        <p>Each result shows usage count (if &gt;1), shell source (if explicitly selected), and recency — all in dimmed text.</p>
-      </details>
-    </section>
+        <section id="scoring" class="advanced">
+          <details>
+            <summary><h2>Scoring &amp; ranking</h2></summary>
+            <h3>Display categories</h3>
+            <p>The aggregate score is bucketed into three labels:</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Score range</th>
+                    <th>Display</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Exact</td>
+                    <td><code>0</code></td>
+                    <td>Listed under "Exact"</td>
+                  </tr>
+                  <tr>
+                    <td>Fuzzy</td>
+                    <td><code>0 &lt; score ≤ 0.12</code></td>
+                    <td>Listed under "Similar"</td>
+                  </tr>
+                  <tr>
+                    <td>Similar</td>
+                    <td><code>0.12 &lt; score &lt; 0.4</code></td>
+                    <td>Listed under "Did you also mean?" (deduped by first word, max 5)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3>Recency badge</h3>
+            <p>
+              Commands whose most recent use is in the newest 25% of the history file get a
+              <strong>"recent"</strong> badge. The threshold is
+              <code>max(1, floor(totalEntries × 0.25))</code>.
+            </p>
+            <h3>Metadata per result</h3>
+            <p>
+              Each result shows usage count (if &gt;1), shell source (if explicitly selected), and
+              recency — all in dimmed text.
+            </p>
+          </details>
+        </section>
 
-    <section id="output" class="advanced">
-      <details>
-        <summary><h2>Output &amp; colors</h2></summary>
-        <p>Color gate: if <code>NO_COLOR</code> is set (any value), all ANSI is disabled. Otherwise, colors activate when stdout is a TTY. Piped output is plain text.</p>
-        <h3>ANSI palette</h3>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Code</th><th>Usage</th></tr></thead>
-          <tbody>
-            <tr><td><code>\x1b[0m</code></td><td>Reset</td></tr>
-            <tr><td><code>\x1b[1m</code></td><td>Bold (matched words)</td></tr>
-            <tr><td><code>\x1b[2m</code></td><td>Dim (separators, metadata, non-matching parts)</td></tr>
-            <tr><td><code>\x1b[32m</code></td><td>Green (match count header)</td></tr>
-            <tr><td><code>\x1b[33m</code></td><td>Yellow (empty-state suggestions)</td></tr>
-            <tr><td><code>\x1b[35m</code></td><td>Magenta (highlighted matched words)</td></tr>
-            <tr><td><code>\x1b[36m</code></td><td>Cyan (version number, help accents)</td></tr>
-          </tbody>
-        </table></div>
-      </details>
-    </section>
+        <section id="output" class="advanced">
+          <details>
+            <summary><h2>Output &amp; colors</h2></summary>
+            <p>
+              Color gate: if <code>NO_COLOR</code> is set (any value), all ANSI is disabled.
+              Otherwise, colors activate when stdout is a TTY. Piped output is plain text.
+            </p>
+            <h3>ANSI palette</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Usage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>\x1b[0m</code></td>
+                    <td>Reset</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[1m</code></td>
+                    <td>Bold (matched words)</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[2m</code></td>
+                    <td>Dim (separators, metadata, non-matching parts)</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[32m</code></td>
+                    <td>Green (match count header)</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[33m</code></td>
+                    <td>Yellow (empty-state suggestions)</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[35m</code></td>
+                    <td>Magenta (highlighted matched words)</td>
+                  </tr>
+                  <tr>
+                    <td><code>\x1b[36m</code></td>
+                    <td>Cyan (version number, help accents)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
 
-    <!-- ── DEVELOPMENT ──────────────────────────────────────── -->
-    <section id="dev">
-      <h2>Development</h2>
-      <div class="codeblock" data-lang="bash"><pre><code>npm install
+        <!-- ── DEVELOPMENT ──────────────────────────────────────── -->
+        <section id="dev">
+          <h2>Development</h2>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>npm install
 npm run build     # tsc → dist/
 npm run dev       # tsx src/cli.ts (hot reload)
 npm start         # node dist/cli.js
 npm test          # vitest run — 202 tests</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-      <p>Override history file for local testing:</p>
-      <div class="codeblock" data-lang="powershell"><pre><code>$env:PSREADLINE_HISTORY_FILE = ".\test_history.txt"
+            <button class="copy" type="button">copy</button>
+          </div>
+          <p>Override history file for local testing:</p>
+          <div class="codeblock" data-lang="powershell">
+            <pre><code>$env:PSREADLINE_HISTORY_FILE = ".\test_history.txt"
 node dist/cli.js "docker"
 
 $env:HISTFILE = ".\test_bash_history.txt"
 node dist/cli.js "ssh"</code></pre>
-      <button class="copy" type="button">copy</button>
-      </div>
-    </section>
+            <button class="copy" type="button">copy</button>
+          </div>
+        </section>
 
-    <section id="testing">
-      <h2>Testing</h2>
-      <p>202 tests across 13 files, ~1.2s.</p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>File</th><th>Tests</th></tr></thead>
-        <tbody>
-          <tr><td><code>cli.test.ts</code></td><td>33</td></tr>
-          <tr><td><code>output.test.ts</code></td><td>37</td></tr>
-          <tr><td><code>search.test.ts</code></td><td>17</td></tr>
-          <tr><td><code>secrets.test.ts</code></td><td>58</td></tr>
-          <tr><td><code>history.test.ts</code></td><td>12</td></tr>
-          <tr><td><code>bash-history.test.ts</code></td><td>11</td></tr>
-          <tr><td><code>fish-history.test.ts</code></td><td>8</td></tr>
-          <tr><td><code>zsh-history.test.ts</code></td><td>8</td></tr>
-          <tr><td><code>recent.test.ts</code></td><td>6</td></tr>
-          <tr><td><code>stats.test.ts</code></td><td>6</td></tr>
-          <tr><td><code>welcome.test.ts</code></td><td>4</td></tr>
-          <tr><td><code>utils.test.ts</code></td><td>1</td></tr>
-          <tr><td><code>bench.test.ts</code></td><td>1</td></tr>
-          <tr><td><strong>Total</strong></td><td><strong>202</strong></td></tr>
-        </tbody>
-      </table></div>
-    </section>
+        <section id="testing">
+          <h2>Testing</h2>
+          <p>202 tests across 13 files, ~1.2s.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Tests</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>cli.test.ts</code></td>
+                  <td>33</td>
+                </tr>
+                <tr>
+                  <td><code>output.test.ts</code></td>
+                  <td>37</td>
+                </tr>
+                <tr>
+                  <td><code>search.test.ts</code></td>
+                  <td>17</td>
+                </tr>
+                <tr>
+                  <td><code>secrets.test.ts</code></td>
+                  <td>58</td>
+                </tr>
+                <tr>
+                  <td><code>history.test.ts</code></td>
+                  <td>12</td>
+                </tr>
+                <tr>
+                  <td><code>bash-history.test.ts</code></td>
+                  <td>11</td>
+                </tr>
+                <tr>
+                  <td><code>fish-history.test.ts</code></td>
+                  <td>8</td>
+                </tr>
+                <tr>
+                  <td><code>zsh-history.test.ts</code></td>
+                  <td>8</td>
+                </tr>
+                <tr>
+                  <td><code>recent.test.ts</code></td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td><code>stats.test.ts</code></td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td><code>welcome.test.ts</code></td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td><code>utils.test.ts</code></td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td><code>bench.test.ts</code></td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td><strong>Total</strong></td>
+                  <td><strong>202</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <section id="changelog">
-      <h2>Changelog</h2>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Version</th><th>Highlights</th></tr></thead>
-        <tbody>
-          <tr><td><strong>2.2.6</strong></td><td>Docs redesign (hero-first), ANSI consolidated to <code>ansi.ts</code>, version sync fix, Stripe pattern ordering fix, test isolation, postcss patched</td></tr>
-          <tr><td><strong>2.2.5</strong></td><td>Stable cross-shell CLI; welcome flag-persistence fix; 202 tests</td></tr>
-          <tr><td>2.2.4</td><td>Drop keypress prompt that hung on non-TTY stdin</td></tr>
-          <tr><td>2.2.3</td><td>Restore welcome pause for keypress on real TTYs</td></tr>
-          <tr><td>2.2.2</td><td>Fix silent welcome on non-TTY stdin</td></tr>
-          <tr><td>2.2.1</td><td>Version bump for npm publish</td></tr>
-          <tr><td>2.x</td><td>Bash / Zsh / Fish readers; refined ranking; match categories</td></tr>
-          <tr><td>1.3.0</td><td>Match category labels in printed output</td></tr>
-          <tr><td>1.2.8</td><td>Recent command, secret masking on display</td></tr>
-          <tr><td>1.2.7</td><td>Stats command, refined welcome</td></tr>
-          <tr><td>1.2.6</td><td>Benchmark command</td></tr>
-          <tr><td>1.0.0</td><td>Initial: PowerShell history search, fuzzy matching</td></tr>
-        </tbody>
-      </table></div>
-      <h3>V2 roadmap</h3>
-      <ul>
-        <li><strong>Indexed search</strong> — faster for large histories (&gt;10k entries)</li>
-        <li><strong>Sync</strong> — cross-machine history synchronization</li>
-      </ul>
-    </section>
+        <section id="changelog">
+          <h2>Changelog</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Highlights</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>2.2.6</strong></td>
+                  <td>
+                    Docs redesign (hero-first), ANSI consolidated to <code>ansi.ts</code>, version
+                    sync fix, Stripe pattern ordering fix, test isolation, postcss patched
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>2.2.5</strong></td>
+                  <td>Stable cross-shell CLI; welcome flag-persistence fix; 202 tests</td>
+                </tr>
+                <tr>
+                  <td>2.2.4</td>
+                  <td>Drop keypress prompt that hung on non-TTY stdin</td>
+                </tr>
+                <tr>
+                  <td>2.2.3</td>
+                  <td>Restore welcome pause for keypress on real TTYs</td>
+                </tr>
+                <tr>
+                  <td>2.2.2</td>
+                  <td>Fix silent welcome on non-TTY stdin</td>
+                </tr>
+                <tr>
+                  <td>2.2.1</td>
+                  <td>Version bump for npm publish</td>
+                </tr>
+                <tr>
+                  <td>2.x</td>
+                  <td>Bash / Zsh / Fish readers; refined ranking; match categories</td>
+                </tr>
+                <tr>
+                  <td>1.3.0</td>
+                  <td>Match category labels in printed output</td>
+                </tr>
+                <tr>
+                  <td>1.2.8</td>
+                  <td>Recent command, secret masking on display</td>
+                </tr>
+                <tr>
+                  <td>1.2.7</td>
+                  <td>Stats command, refined welcome</td>
+                </tr>
+                <tr>
+                  <td>1.2.6</td>
+                  <td>Benchmark command</td>
+                </tr>
+                <tr>
+                  <td>1.0.0</td>
+                  <td>Initial: PowerShell history search, fuzzy matching</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>V2 roadmap</h3>
+          <ul>
+            <li><strong>Indexed search</strong> — faster for large histories (&gt;10k entries)</li>
+            <li><strong>Sync</strong> — cross-machine history synchronization</li>
+          </ul>
+        </section>
 
-    <footer>
-      <p><a href="#top">mem</a> · v2.2.6 · MIT · <a href="https://github.com/Siddu-lingampelli" target="_blank" rel="noopener">Siddhartha Lingampalli</a></p>
-    </footer>
-  </main>
+        <footer>
+          <p>
+            <a href="#top">mem</a> · v2.2.6 · MIT ·
+            <a href="https://github.com/Siddu-lingampelli" target="_blank" rel="noopener"
+              >Siddhartha Lingampalli</a
+            >
+          </p>
+        </footer>
+      </main>
 
-  <aside class="toc" aria-label="On this page">
-    <div class="label">On this page</div>
-    <ul>
-      <li><a href="#why" data-target="why">Why mem?</a></li>
-      <li><a href="#install" data-target="install">Install</a></li>
-      <li><a href="#demo" data-target="demo">Demo</a></li>
-      <li><a href="#quickstart" data-target="quickstart">Quick Start</a></li>
-      <li><a href="#features" data-target="features">Features</a></li>
-      <li><a href="#search" data-target="search">Search</a></li>
-      <li><a href="#shells" data-target="shells">Cross-shell</a></li>
-      <li><a href="#secrets" data-target="secrets">Secret masking</a></li>
-      <li><a href="#stats" data-target="stats">Statistics</a></li>
-      <li><a href="#recent" data-target="recent">Recent</a></li>
-      <li><a href="#bench" data-target="bench">Benchmark</a></li>
-      <li><a href="#cli" data-target="cli">CLI reference</a></li>
-      <li><a href="#env" data-target="env">Environment</a></li>
-      <li><a href="#how" data-target="how">How it works</a></li>
-      <li><a href="#parsers" data-target="parsers">Parsers</a></li>
-      <li><a href="#search-engine" data-target="search-engine">Search engine</a></li>
-      <li><a href="#scoring" data-target="scoring">Scoring</a></li>
-      <li><a href="#output" data-target="output">Output</a></li>
-      <li><a href="#dev" data-target="dev">Development</a></li>
-      <li><a href="#testing" data-target="testing">Testing</a></li>
-      <li><a href="#changelog" data-target="changelog">Changelog</a></li>
-    </ul>
-  </aside>
-</div>
+      <aside class="toc" aria-label="On this page">
+        <div class="label">On this page</div>
+        <ul>
+          <li><a href="#why" data-target="why">Why mem?</a></li>
+          <li><a href="#install" data-target="install">Install</a></li>
+          <li><a href="#demo" data-target="demo">Demo</a></li>
+          <li><a href="#quickstart" data-target="quickstart">Quick Start</a></li>
+          <li><a href="#features" data-target="features">Features</a></li>
+          <li><a href="#search" data-target="search">Search</a></li>
+          <li><a href="#shells" data-target="shells">Cross-shell</a></li>
+          <li><a href="#secrets" data-target="secrets">Secret masking</a></li>
+          <li><a href="#stats" data-target="stats">Statistics</a></li>
+          <li><a href="#recent" data-target="recent">Recent</a></li>
+          <li><a href="#bench" data-target="bench">Benchmark</a></li>
+          <li><a href="#cli" data-target="cli">CLI reference</a></li>
+          <li><a href="#env" data-target="env">Environment</a></li>
+          <li><a href="#how" data-target="how">How it works</a></li>
+          <li><a href="#parsers" data-target="parsers">Parsers</a></li>
+          <li><a href="#search-engine" data-target="search-engine">Search engine</a></li>
+          <li><a href="#scoring" data-target="scoring">Scoring</a></li>
+          <li><a href="#output" data-target="output">Output</a></li>
+          <li><a href="#dev" data-target="dev">Development</a></li>
+          <li><a href="#testing" data-target="testing">Testing</a></li>
+          <li><a href="#changelog" data-target="changelog">Changelog</a></li>
+        </ul>
+      </aside>
+    </div>
 
-<script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>

@@ -17,43 +17,43 @@
 
 ## 2. Verified project footprint
 
-| Metric | Value | How verified |
-|---|---|---|
-| Version | `2.2.6` | `package.json` |
-| Node engine | `>=18` | `package.json` `engines.node` |
-| Binary | `bin: { "mem": "dist/cli.js" }` | `package.json` |
-| Prod deps | `commander ^13.0.0` | `package.json` |
-| Dev deps | `@types/node`, `typescript ^5.7`, `tsx ^4.19`, `vitest ^3.0` | `package.json` |
-| Source files | 15 `.ts` | `src/` listing (ansi.ts added v2.2.6) |
-| Test files | 13 `.ts` | `tests/` listing |
-| Source LoC | ~1,380 | `wc -l src/*.ts` (ansi.ts added v2.2.6) |
-| Test LoC | 1,961 | `wc -l tests/*.ts` |
-| Total LoC | ~3,341 | `wc -l` |
-| Tests passing | **202 / 202** in ~1.2s | `npx vitest run` |
-| npm pack | 45 files, 103,758 bytes | `npm pack --dry-run --json` |
-| `dist/` size | 124K | `du` |
-| Published files | `dist/`, `README.md`, `LICENSE` | `package.json` `files` + `.npmignore` |
-| Commits on `main` | 54 | `git log` count |
-| ANSI color codes used | `\x1b[0,1,2,31,32,33,35,36m` | grep across `src/` |
+| Metric                | Value                                                        | How verified                            |
+| --------------------- | ------------------------------------------------------------ | --------------------------------------- |
+| Version               | `2.2.6`                                                      | `package.json`                          |
+| Node engine           | `>=18`                                                       | `package.json` `engines.node`           |
+| Binary                | `bin: { "mem": "dist/cli.js" }`                              | `package.json`                          |
+| Prod deps             | `commander ^13.0.0`                                          | `package.json`                          |
+| Dev deps              | `@types/node`, `typescript ^5.7`, `tsx ^4.19`, `vitest ^3.0` | `package.json`                          |
+| Source files          | 15 `.ts`                                                     | `src/` listing (ansi.ts added v2.2.6)   |
+| Test files            | 13 `.ts`                                                     | `tests/` listing                        |
+| Source LoC            | ~1,380                                                       | `wc -l src/*.ts` (ansi.ts added v2.2.6) |
+| Test LoC              | 1,961                                                        | `wc -l tests/*.ts`                      |
+| Total LoC             | ~3,341                                                       | `wc -l`                                 |
+| Tests passing         | **202 / 202** in ~1.2s                                       | `npx vitest run`                        |
+| npm pack              | 45 files, 103,758 bytes                                      | `npm pack --dry-run --json`             |
+| `dist/` size          | 124K                                                         | `du`                                    |
+| Published files       | `dist/`, `README.md`, `LICENSE`                              | `package.json` `files` + `.npmignore`   |
+| Commits on `main`     | 54                                                           | `git log` count                         |
+| ANSI color codes used | `\x1b[0,1,2,31,32,33,35,36m`                                 | grep across `src/`                      |
 
 ### Test count by file (verified)
 
-| File | Tests |
-|---|---|
-| `cli.test.ts` | 33 |
-| `output.test.ts` | 37 |
-| `search.test.ts` | 17 |
-| `secrets.test.ts` | 58 |
-| `history.test.ts` | 12 |
-| `bash-history.test.ts` | 11 |
-| `fish-history.test.ts` | 8 |
-| `zsh-history.test.ts` | 8 |
-| `recent.test.ts` | 6 |
-| `stats.test.ts` | 6 |
-| `welcome.test.ts` | 4 |
-| `utils.test.ts` | 1 |
-| `bench.test.ts` | 1 |
-| **Total** | **202** |
+| File                   | Tests   |
+| ---------------------- | ------- |
+| `cli.test.ts`          | 33      |
+| `output.test.ts`       | 37      |
+| `search.test.ts`       | 17      |
+| `secrets.test.ts`      | 58      |
+| `history.test.ts`      | 12      |
+| `bash-history.test.ts` | 11      |
+| `fish-history.test.ts` | 8       |
+| `zsh-history.test.ts`  | 8       |
+| `recent.test.ts`       | 6       |
+| `stats.test.ts`        | 6       |
+| `welcome.test.ts`      | 4       |
+| `utils.test.ts`        | 1       |
+| `bench.test.ts`        | 1       |
+| **Total**              | **202** |
 
 ---
 
@@ -153,18 +153,18 @@ runSearch() ── cli.ts:44
 
 ### Scoring penalty table (lower = better; verified from `PENALTY` const)
 
-| Match type | Penalty | Example |
-|---|---|---|
-| Exact token match | 0.0 | `compose` in `docker compose` |
-| Fuzzy, Levenshtein dist 1 | 0.05 | `docer` → `docker` |
-| Fuzzy, Levenshtein dist 2 | 0.12 | `docor` → `docker` |
-| Token prefix match | 0.15 | `com` → `compose` |
-| Query prefix match | 0.10 | `doc` → `docker` |
-| Token substring | 0.25 | `ai` in `claim` |
-| Command prefix | 0.35 | `git` in `git push` |
-| Command global substring | 0.50 | `run` in `npm run build` |
-| **Threshold (pass filter)** | **0.4** | — |
-| Sort epsilon | 0.01 | — |
+| Match type                  | Penalty | Example                       |
+| --------------------------- | ------- | ----------------------------- |
+| Exact token match           | 0.0     | `compose` in `docker compose` |
+| Fuzzy, Levenshtein dist 1   | 0.05    | `docer` → `docker`            |
+| Fuzzy, Levenshtein dist 2   | 0.12    | `docor` → `docker`            |
+| Token prefix match          | 0.15    | `com` → `compose`             |
+| Query prefix match          | 0.10    | `doc` → `docker`              |
+| Token substring             | 0.25    | `ai` in `claim`               |
+| Command prefix              | 0.35    | `git` in `git push`           |
+| Command global substring    | 0.50    | `run` in `npm run build`      |
+| **Threshold (pass filter)** | **0.4** | —                             |
+| Sort epsilon                | 0.01    | —                             |
 
 `category` is derived from score: `0` → `"exact"`; `>0 and ≤0.12` → `"fuzzy"`; else `"similar"`.
 
@@ -188,6 +188,7 @@ Every reader is **idempotent, newest-first, limit-capped**, and swallows read er
 ### PowerShell / PSReadLine (`history.ts` + `utils.ts`)
 
 Path priority (`getHistoryFilePath`):
+
 1. `$PSREADLINE_HISTORY_FILE` env var (if set, non-empty)
 2. `%USERPROFILE%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt` (WinPS 5.1)
 3. `%USERPROFILE%\AppData\Roaming\Microsoft\PowerShell\PSReadLine\ConsoleHost_history.txt` (PS 7+ / pwsh)
@@ -230,19 +231,19 @@ Explicit shells bypass PSReadLine intentionally — fixes a Windows + Git Bash u
 
 ### 11 categories covered (verified from comments)
 
-| Category | Examples |
-|---|---|
-| GitHub | `github_pat_****`, `ghp_/gho_/ghs_/ghr_/ghu_****` |
-| Stripe | `whsec_`, `sk_live_`, `sk_test_`, `rk_live_`, `rk_test_` |
-| AI/ML | Anthropic `sk-ant-*`, OpenAI `sk-*`/`sk_*`, HuggingFace `hf_`, Replicate `r8_`, Cohere `coy*` |
-| Git hosting | GitLab `glpat-`, Bitbucket `BB*` (28-char suffix) |
-| Cloud | Databricks `dapi`, Google `AIza`, AWS `AKIA`/`ASIA` (12-char suffix), DigitalOcean `dopx_` |
-| Messaging | Slack `xox[bpoa]-`/`xoxs-`, Slack webhook URLs, Telegram `bot<digits>:`, Discord `<id>.<ts>.<hmac>` |
-| Package registries | npm `npm_` |
-| JWT/JWS | `eyJ*` (base64-url start) |
-| Auth headers | `Bearer <tok>`, `x-api-key:`, `Authorization: <scheme> <tok>` |
-| URL query creds | `?key=`, `?token=`, `?secret=`, `?apikey=`, `?api_key=`, `?password=`, `?ask=`, `?dgai=` |
-| CLI flag creds | `--api-key`, `--token`, `--secret`, `--password`, `--passwd`, `--ask`, `--dgai` |
+| Category           | Examples                                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| GitHub             | `github_pat_****`, `ghp_/gho_/ghs_/ghr_/ghu_****`                                                   |
+| Stripe             | `whsec_`, `sk_live_`, `sk_test_`, `rk_live_`, `rk_test_`                                            |
+| AI/ML              | Anthropic `sk-ant-*`, OpenAI `sk-*`/`sk_*`, HuggingFace `hf_`, Replicate `r8_`, Cohere `coy*`       |
+| Git hosting        | GitLab `glpat-`, Bitbucket `BB*` (28-char suffix)                                                   |
+| Cloud              | Databricks `dapi`, Google `AIza`, AWS `AKIA`/`ASIA` (12-char suffix), DigitalOcean `dopx_`          |
+| Messaging          | Slack `xox[bpoa]-`/`xoxs-`, Slack webhook URLs, Telegram `bot<digits>:`, Discord `<id>.<ts>.<hmac>` |
+| Package registries | npm `npm_`                                                                                          |
+| JWT/JWS            | `eyJ*` (base64-url start)                                                                           |
+| Auth headers       | `Bearer <tok>`, `x-api-key:`, `Authorization: <scheme> <tok>`                                       |
+| URL query creds    | `?key=`, `?token=`, `?secret=`, `?apikey=`, `?api_key=`, `?password=`, `?ask=`, `?dgai=`            |
+| CLI flag creds     | `--api-key`, `--token`, `--secret`, `--password`, `--passwd`, `--ask`, `--dgai`                     |
 
 Applied at **every display path**: `output.ts print()`, `recent.ts`, `stats.ts`. Never stored — only masked on the way out.
 
@@ -270,16 +271,16 @@ Prints `No matching commands.` + `Try: mem "<q[:12]>"`, then picks from hardcode
 
 ### Commands (verified)
 
-| Command | Flags | Behavior |
-|---|---|---|
-| `mem <query>` | `--all` `-n/--max <n>` | Direct search via `runSearch` |
-| `mem search <query>` | `--all` `-n/--max <n>` `--shell <s>` | Same `runSearch`, explicit shell |
-| `mem stats` | `-n/--top <n>` (def 10) `--shell <s>` | Top commands + bar charts |
-| `mem bench` | `-l/--limit <n>` (def 50000) `--shell <s>` | Parse/process/search timing |
-| `mem recent` | `-n/--max <n>` (def 20) `--shell <s>` | Newest N, secret-masked |
-| `mem index` | — | **Stub** → stderr "coming in V2", exit 1 |
-| `mem sync` | — | **Stub** → stderr "coming in V2", exit 1 |
-| (no args) | — | First run → welcome; else help |
+| Command              | Flags                                      | Behavior                                 |
+| -------------------- | ------------------------------------------ | ---------------------------------------- |
+| `mem <query>`        | `--all` `-n/--max <n>`                     | Direct search via `runSearch`            |
+| `mem search <query>` | `--all` `-n/--max <n>` `--shell <s>`       | Same `runSearch`, explicit shell         |
+| `mem stats`          | `-n/--top <n>` (def 10) `--shell <s>`      | Top commands + bar charts                |
+| `mem bench`          | `-l/--limit <n>` (def 50000) `--shell <s>` | Parse/process/search timing              |
+| `mem recent`         | `-n/--max <n>` (def 20) `--shell <s>`      | Newest N, secret-masked                  |
+| `mem index`          | —                                          | **Stub** → stderr "coming in V2", exit 1 |
+| `mem sync`           | —                                          | **Stub** → stderr "coming in V2", exit 1 |
+| (no args)            | —                                          | First run → welcome; else help           |
 
 `--shell` values: `auto` (default) `powershell` `bash` `zsh` `fish`. Lives **only on subcommands**, not bare `mem <query>` (always `auto`).
 
@@ -323,6 +324,7 @@ History note (in source comments): v2.2.3–2.2.4 removed a "Press Enter to cont
 ### `bench.ts` (`runBench(limit=50000, shell)`)
 
 Measures 3 phases via `performance.now()`:
+
 1. **Parse** — `readHistory`
 2. **Process** — `preprocess`
 3. **Search** — 5 queries `["git","docker","npm","ssh","node"]` against the **same cached** set (no re-preprocess)
@@ -351,16 +353,16 @@ Newest `min(n, entries.length)` commands, **secret-masked**, numbered, dim index
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
   },
   "dependencies": { "commander": "^13.0.0" },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0",
     "tsx": "^4.19.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
   },
-  "files": ["dist", "README.md", "LICENSE"]
+  "files": ["dist", "README.md", "LICENSE"],
 }
 ```
 
@@ -387,6 +389,7 @@ Static-site config for the `docs/` landing page — `outputDirectory: docs`, `cl
 ## 13. Vercel static site (`docs/`)
 
 A standalone marketing/docs page (not part of the CLI binary). Single-page app:
+
 - `index.html` (26.7K) — sections: Overview, Install, Quick Start, Search, Cross-shell, Stats, Recent, Bench, How it works, Search engine, Secret masking, Ranking, CLI flags, Commands, Environment, Changelog, Development, Deploy, Testing, Overlay.
 - `styles.css` (11.5K) — theme, sidebar, scroll-spy.
 - `script.js` (8.4K) — sidebar nav, scroll-spy, copy buttons, mobile nav, search.
@@ -423,22 +426,22 @@ node dist/cli.js "docker"
 
 ## 15. Version history (from git log)
 
-| Version | Commit | Highlights |
-|---|---|---|
-| 1.0.0 | — | Initial PowerShell history search + fuzzy matching |
+| Version     | Commit              | Highlights                                                                                                           |
+| ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 1.0.0       | —                   | Initial PowerShell history search + fuzzy matching                                                                   |
 | 1.1.x–1.2.3 | `2645b5b`→`fc1f185` | Zsh + Fish support; **preprocess/searchCached** optimization (bench 172ms→96ms, single query 33ms→14ms); `mem bench` |
-| 1.2.6 | `74a5046` | Benchmark command |
-| 1.2.7 | `a3cd3c0` | `mem stats` |
-| 1.2.8 | `3d27dd1` | `mem recent` + secret masking on display; code-review fixes |
-| 1.2.9 | `29f572e` | Fallback chain, isMain guard, module state, shared colorize |
-| **1.3.0** | `b2126f7` | **Match category labels (Exact / Similar / Did you also mean?)** |
-| 1.3.1 | `c5f9158` | Bug fix round 3 |
-| 2.2.1 | `d5d7daa` | Version bump for npm publish |
-| 2.2.2 | `5b5234d` | Fix silent welcome on non-TTY stdin |
-| 2.2.3 | `d42896f` | Restore welcome pause for keypress on real TTYs |
-| 2.2.4 | `c3f4855` | Drop misleading "Press Enter to continue" prompt |
-| **2.2.5** | `35383a7` | Cleanup: drop redundant await, kill fake async surface |
-| **2.2.6** | `7fd1f83` | **docs site + welcome state-reset fix; ansi.ts extracted; dead `?? 20` removed** (current HEAD) |
+| 1.2.6       | `74a5046`           | Benchmark command                                                                                                    |
+| 1.2.7       | `a3cd3c0`           | `mem stats`                                                                                                          |
+| 1.2.8       | `3d27dd1`           | `mem recent` + secret masking on display; code-review fixes                                                          |
+| 1.2.9       | `29f572e`           | Fallback chain, isMain guard, module state, shared colorize                                                          |
+| **1.3.0**   | `b2126f7`           | **Match category labels (Exact / Similar / Did you also mean?)**                                                     |
+| 1.3.1       | `c5f9158`           | Bug fix round 3                                                                                                      |
+| 2.2.1       | `d5d7daa`           | Version bump for npm publish                                                                                         |
+| 2.2.2       | `5b5234d`           | Fix silent welcome on non-TTY stdin                                                                                  |
+| 2.2.3       | `d42896f`           | Restore welcome pause for keypress on real TTYs                                                                      |
+| 2.2.4       | `c3f4855`           | Drop misleading "Press Enter to continue" prompt                                                                     |
+| **2.2.5**   | `35383a7`           | Cleanup: drop redundant await, kill fake async surface                                                               |
+| **2.2.6**   | `7fd1f83`           | **docs site + welcome state-reset fix; ansi.ts extracted; dead `?? 20` removed** (current HEAD)                      |
 
 **V2 roadmap:** indexed search (faster for >10k histories), cross-machine sync (both `index`/`sync` are stubs).
 
@@ -484,4 +487,4 @@ git log --oneline | wc -l         # expect: 54
 
 ---
 
-*Verified 2026-07-29 against source at commit `7fd1f83` (v2.2.6). File: `docs/PROJECT.md`.*
+_Verified 2026-07-29 against source at commit `7fd1f83` (v2.2.6). File: `docs/PROJECT.md`._

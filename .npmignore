@@ -6,3 +6,14 @@ docs/
 .gitignore
 tsconfig.json
 documentation.md
+CLAUDE_PROJECT_REFERENCE.md
+CHANGELOG.md
+CONTRIBUTING.md
+RELEASING.md
+SECURITY.md
+.github/
+.prettierignore
+.prettierrc.json
+.editorconfig
+vitest.config.ts
+coverage/

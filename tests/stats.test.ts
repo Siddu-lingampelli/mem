@@ -46,16 +46,16 @@ describe("runStats", () => {
 
     spy.mockRestore();
     const output = out.join("\n");
-    expect(output).toContain("4 commands");    // total
-    expect(output).toContain("3 unique");      // after dedup (git status counted once)
+    expect(output).toContain("4 commands"); // total
+    expect(output).toContain("3 unique"); // after dedup (git status counted once)
     expect(output).toContain("mem stats");
   });
 
   it("shows top N commands sorted by frequency", () => {
     mockReadHistory.mockReturnValue([
-      { command: "ls" },           // 1×
-      { command: "git status" },   // 3× (three entries)
-      { command: "docker ps" },    // 2×
+      { command: "ls" }, // 1×
+      { command: "git status" }, // 3× (three entries)
+      { command: "docker ps" }, // 2×
       { command: "git status" },
       { command: "docker ps" },
       { command: "git status" },
@@ -76,9 +76,7 @@ describe("runStats", () => {
   });
 
   it("handles single entry gracefully", () => {
-    mockReadHistory.mockReturnValue([
-      { command: "git status" },
-    ]);
+    mockReadHistory.mockReturnValue([{ command: "git status" }]);
 
     const out: string[] = [];
     const spy = vi.spyOn(console, "log").mockImplementation((msg) => out.push(msg));
@@ -94,7 +92,7 @@ describe("runStats", () => {
 
   it("respects the top parameter", () => {
     mockReadHistory.mockReturnValue(
-      Array.from({ length: 20 }, (_, i) => ({ command: `cmd${i + 1}` }))
+      Array.from({ length: 20 }, (_, i) => ({ command: `cmd${i + 1}` })),
     );
 
     const out: string[] = [];

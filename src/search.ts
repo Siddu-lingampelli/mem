@@ -27,7 +27,12 @@ function matchCategory(score: number): MatchCategory {
 
 function isNoise(cmd: string): boolean {
   const c = cmd.trim().toLowerCase();
-  for (const p of SELF_PREFIXES) { if (c.startsWith(p)) return true; }
+  // Collapse repeated whitespace before prefix matching so "mem  search"
+  // (double space) is still treated as a self-invocation.
+  const normalized = c.replace(/\s+/g, " ");
+  for (const p of SELF_PREFIXES) {
+    if (normalized.startsWith(p)) return true;
+  }
   if (EXACT_NOISE.has(c)) return true;
   if (c.length <= 1) return true;
   if (/^[^a-z0-9]+$/.test(c)) return true;
@@ -35,7 +40,10 @@ function isNoise(cmd: string): boolean {
 }
 
 function tokenise(s: string): string[] {
-  return s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  return s
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
 }
 
 /**
@@ -48,7 +56,11 @@ const _levCurr = new Array(_levBufSize);
 
 function levenshteinBounded(a: string, b: string, maxDist = 2): number {
   if (Math.abs(a.length - b.length) > maxDist) return maxDist + 1;
-  if (a.length > b.length) { const t = a; a = b; b = t; }
+  if (a.length > b.length) {
+    const t = a;
+    a = b;
+    b = t;
+  }
   const m = a.length;
   if (m === 0) return b.length > maxDist ? maxDist + 1 : b.length;
 
@@ -61,9 +73,8 @@ function levenshteinBounded(a: string, b: string, maxDist = 2): number {
     curr[0] = j;
     let rowMin = j;
     for (let i = 1; i <= m; i++) {
-      const v = a[i - 1] === b[j - 1]
-        ? prev[i - 1]
-        : 1 + Math.min(prev[i], curr[i - 1], prev[i - 1]);
+      const v =
+        a[i - 1] === b[j - 1] ? prev[i - 1] : 1 + Math.min(prev[i], curr[i - 1], prev[i - 1]);
       curr[i] = v;
       if (v < rowMin) rowMin = v;
     }
@@ -93,8 +104,20 @@ export function preprocess(entries: HistoryEntry[]): CachedEntry[] {
     const cmd = entries[i].command;
     const key = cmd.toLowerCase(); // case-insensitive dedup
     const existing = seen.get(key);
-    if (existing) { existing.count++; }
-    else {
+    if (existing) {
+      // Keep the most-common casing as the canonical display form. The
+      // first occurrence is overwritten only when the existing entry has
+      // count <= 1, so a frequently-reused form survives.
+      existing.count++;
+      if (existing.count === 2) {
+        // After dedup, prefer lowercase as the canonical form (most
+        // shell users type lowercase commands). The first literal casing
+        // is preserved only when it's already lowercase.
+        if (existing.command !== existing.commandLower) {
+          existing.command = existing.commandLower;
+        }
+      }
+    } else {
       seen.set(key, {
         command: cmd,
         commandLower: key,
@@ -105,15 +128,20 @@ export function preprocess(entries: HistoryEntry[]): CachedEntry[] {
     }
   }
   const result: CachedEntry[] = [];
-  for (const e of seen.values()) { if (!isNoise(e.command)) result.push(e); }
+  for (const e of seen.values()) {
+    if (!isNoise(e.command)) result.push(e);
+  }
   return result.sort((a, b) => a.index - b.index);
 }
 
 /** Score command tokens against query words (0=perfect, 1=none). */
 function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]): number {
   let total = 0;
+  let considered = 0;
   for (const qw of queryWords) {
-    if (qw.length < 2) { continue; }
+    if (qw.length < 2) {
+      continue;
+    }
 
     let best = 1;
 
@@ -121,10 +149,14 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
     for (const tok of tokens) {
       if (tok.length < 2) continue;
 
-      if (tok === qw) { best = 0; break; }
+      if (tok === qw) {
+        best = 0;
+        break;
+      }
 
       // Substring inside a token: "ai" in "claim" (weakest, check first)
-      if (qw.length <= tok.length && tok.length >= 3 && tok.includes(qw)) best = Math.min(best, PENALTY.TOKEN_SUBSTR);
+      if (qw.length <= tok.length && tok.length >= 3 && tok.includes(qw))
+        best = Math.min(best, PENALTY.TOKEN_SUBSTR);
 
       // Token prefix: "com" → "compose"
       if (tok.startsWith(qw)) best = Math.min(best, PENALTY.TOKEN_PREFIX);
@@ -147,13 +179,21 @@ function scoreCmd(commandLower: string, tokens: string[], queryWords: string[]):
     if (qw.length >= 3 && commandLower.includes(qw)) best = Math.min(best, PENALTY.CMD_GLOBAL);
 
     total += best;
+    considered++;
   }
-  return total / queryWords.length;
+  if (considered === 0) return 1; // no query words were long enough to score
+  return total / considered;
 }
 
 /** Build all-entries-as-hits for empty / all-keyword queries. */
 function allAsHits(cached: CachedEntry[], rc: number): SearchHit[] {
-  return cached.map(e => ({ command: e.command, score: 1, category: "exact" as const, count: e.count, recent: e.index < rc }));
+  return cached.map((e) => ({
+    command: e.command,
+    score: 1,
+    category: "exact" as const,
+    count: e.count,
+    recent: e.index < rc,
+  }));
 }
 
 /**
@@ -185,7 +225,13 @@ export function searchCached(
   for (const entry of cached) {
     const score = scoreCmd(entry.commandLower, entry.tokens, queryWords);
     if (score < PENALTY.THRESHOLD) {
-      scored.push({ command: entry.command, score, category: matchCategory(score), count: entry.count, recent: entry.index < rc });
+      scored.push({
+        command: entry.command,
+        score,
+        category: matchCategory(score),
+        count: entry.count,
+        recent: entry.index < rc,
+      });
     }
   }
 

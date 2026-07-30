@@ -83,7 +83,10 @@ export function readFishHistory(limit = 2000): HistoryEntry[] {
 
   try {
     const buffer = readFileSync(path);
-    const raw = buffer.toString("utf-8");
+    let raw = buffer.toString("utf-8");
+    // Strip leading U+FEFF if Node didn't already drop the UTF-8 BOM.
+    // Without this, the first `- cmd:` line silently fails to parse.
+    if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
     return parseFishHistory(raw, limit);
   } catch {
     return [];
