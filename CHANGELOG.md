@@ -4,6 +4,12 @@ All notable changes to `mem-terminal` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.10] - 2026-07-30
+
+### Fixed
+
+- Docs: synced stale version strings (v2.2.6 → v2.2.9) across `docs/index.html`, `docs/PROJECT.md`, `README.md`, `CONTRIBUTING.md`. Updated test counts (202 → 236, 13 → 14 files), added `mem doctor` to the CLI reference table, the hero quick-start, and a dedicated Doctor section. Updated changelog table to include v2.2.7, v2.2.8, v2.2.9.
+
 ## [2.2.9] - 2026-07-30
 
 ### Fixed

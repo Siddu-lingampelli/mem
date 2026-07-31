@@ -29,6 +29,7 @@ mem search "npm run build"  # explicit search subcommand
 mem stats                   # show command usage statistics
 mem bench                   # benchmark history parsing & search
 mem recent                  # show the 20 most recent commands
+mem doctor                  # diagnose environment + mask self-test
 mem --help                  # show help
 mem --version               # show version
 ```
@@ -133,7 +134,7 @@ Respects `NO_COLOR` env var (per [no-color.org](https://no-color.org/)).
 
 ## Roadmap
 
-- **V2.2.5 (current)** ✅ — Cross-shell history search (PowerShell, Bash, Zsh, Fish), fuzzy matching with Levenshtein, relevance ranking, deduplication, **match category labels** (Exact / Similar / Did you also mean?), secret masking (40+ patterns), `stats` (usage frequency + bar charts), `bench` (performance metrics), `recent` (last N commands), welcome screen, `--all`/`-n` flags, `NO_COLOR` compliance, BOM detection
+- **V2.2.10 (current)** ✅ — Cross-shell history search (PowerShell, Bash, Zsh, Fish), fuzzy matching with Levenshtein, relevance ranking, deduplication, **match category labels** (Exact / Similar / Did you also mean?), secret masking (40+ patterns), `doctor` (diagnose environment + mask self-test), `stats` (usage frequency + bar charts), `bench` (performance metrics), `recent` (last N commands), welcome screen, `--all`/`-n` flags, `NO_COLOR` compliance, BOM detection
 - **V2 (planned)** — Indexed search, cross-machine sync
 
 ## Development
@@ -141,7 +142,7 @@ Respects `NO_COLOR` env var (per [no-color.org](https://no-color.org/)).
 ```bash
 npm install
 npm run build     # tsc
-npm test          # vitest run (13 test files, 204 tests)
+npm test          # vitest run (14 test files, 236 tests
 npm run dev       # tsx src/cli.ts
 ```
 

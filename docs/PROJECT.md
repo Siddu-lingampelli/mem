@@ -1,12 +1,12 @@
 # mem-terminal — Complete Project Reference
 
-> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.6 (commit `7fd1f83`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
+> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.10 (commit `7fd1f83`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
 
 ---
 
 ## 1. What `mem` is
 
-`mem` (npm package **`mem-terminal`**, v2.2.6) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
+`mem` (npm package **`mem-terminal`**, v2.2.10) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
 
 - **One production dependency** (`commander`). Everything else (search engine, secret masking, parsers, ANSI output) is hand-rolled.
 - **Zero cloud, zero setup.** Reads local history files; writes one tiny flag file.
@@ -17,24 +17,24 @@
 
 ## 2. Verified project footprint
 
-| Metric                | Value                                                        | How verified                            |
-| --------------------- | ------------------------------------------------------------ | --------------------------------------- |
-| Version               | `2.2.6`                                                      | `package.json`                          |
-| Node engine           | `>=18`                                                       | `package.json` `engines.node`           |
-| Binary                | `bin: { "mem": "dist/cli.js" }`                              | `package.json`                          |
-| Prod deps             | `commander ^13.0.0`                                          | `package.json`                          |
-| Dev deps              | `@types/node`, `typescript ^5.7`, `tsx ^4.19`, `vitest ^3.0` | `package.json`                          |
-| Source files          | 15 `.ts`                                                     | `src/` listing (ansi.ts added v2.2.6)   |
-| Test files            | 13 `.ts`                                                     | `tests/` listing                        |
-| Source LoC            | ~1,380                                                       | `wc -l src/*.ts` (ansi.ts added v2.2.6) |
-| Test LoC              | 1,961                                                        | `wc -l tests/*.ts`                      |
-| Total LoC             | ~3,341                                                       | `wc -l`                                 |
-| Tests passing         | **202 / 202** in ~1.2s                                       | `npx vitest run`                        |
-| npm pack              | 45 files, 103,758 bytes                                      | `npm pack --dry-run --json`             |
-| `dist/` size          | 124K                                                         | `du`                                    |
-| Published files       | `dist/`, `README.md`, `LICENSE`                              | `package.json` `files` + `.npmignore`   |
-| Commits on `main`     | 54                                                           | `git log` count                         |
-| ANSI color codes used | `\x1b[0,1,2,31,32,33,35,36m`                                 | grep across `src/`                      |
+| Metric                | Value                                                        | How verified                                   |
+| --------------------- | ------------------------------------------------------------ | ---------------------------------------------- |
+| Version               | `2.2.6`                                                      | `package.json`                                 |
+| Node engine           | `>=18`                                                       | `package.json` `engines.node`                  |
+| Binary                | `bin: { "mem": "dist/cli.js" }`                              | `package.json`                                 |
+| Prod deps             | `commander ^13.0.0`                                          | `package.json`                                 |
+| Dev deps              | `@types/node`, `typescript ^5.7`, `tsx ^4.19`, `vitest ^3.0` | `package.json`                                 |
+| Source files          | 16 `.ts`                                                     | `src/` listing (doctor.ts added v2.2.8)        |
+| Test files            | 14 `.ts`                                                     | `tests/` listing (doctor.test.ts added v2.2.8) |     | `tests/` listing |
+| Source LoC            | ~1,380                                                       | `wc -l src/*.ts` (ansi.ts added v2.2.6)        |
+| Test LoC              | 1,961                                                        | `wc -l tests/*.ts`                             |
+| Total LoC             | ~3,341                                                       | `wc -l`                                        |
+| Tests passing         | **236 / 237** in ~1.2s                                       | `npx vitest run`                               |
+| npm pack              | 45 files, 103,758 bytes                                      | `npm pack --dry-run --json`                    |
+| `dist/` size          | 124K                                                         | `du`                                           |
+| Published files       | `dist/`, `README.md`, `LICENSE`                              | `package.json` `files` + `.npmignore`          |
+| Commits on `main`     | 54                                                           | `git log` count                                |
+| ANSI color codes used | `\x1b[0,1,2,31,32,33,35,36m`                                 | grep across `src/`                             |
 
 ### Test count by file (verified)
 
@@ -53,7 +53,7 @@
 | `welcome.test.ts`      | 4       |
 | `utils.test.ts`        | 1       |
 | `bench.test.ts`        | 1       |
-| **Total**              | **202** |
+| **Total**              | **236** |
 
 ---
 
@@ -77,7 +77,7 @@ mem-pro/
 │   ├── recent.ts        (28) # Newest N, secret-masked
 │   ├── ansi.ts           (8) # Shared ANSI escape constants (new v2.2.6)
 │   └── types.ts         (21) # HistoryEntry, SearchHit, MatchCategory
-├── tests/                    # 13 test files (1,961 LoC, 202 tests)
+├── tests/                    # 14 test files (2,253 LoC, 236 tests)
 ├── dist/                     # Compiled output (gitignored, 124K)
 ├── docs/                     # Vercel static landing site (untracked)
 │   ├── index.html     (26.7K)
@@ -407,7 +407,7 @@ npm install              # deps
 npm run build            # tsc → dist/
 npm start                # node dist/cli.js
 npm run dev              # tsx src/cli.ts (no build)
-npm test                 # vitest run — 202 tests
+npm test                 # vitest run — 236 tests (14 files
 npm run test:watch       # vitest watch
 npm pack --dry-run       # inspect the 45-file bundle
 npm install -g .         # install locally
@@ -451,7 +451,7 @@ node dist/cli.js "docker"
 
 1. **Minimal surface** — one prod dep, 1.3K LoC of source, ~100KB packed.
 2. **Strict TS** — `noUnusedLocals`/`Parameters`/`noImplicitAny` prevent dead code and implicit any.
-3. **Tested** — 202 tests across all 4 shells, 25 secret patterns, category grouping, CLI parsing.
+3. **Tested** — 236 tests across all 4 shells, 25 secret patterns, category grouping, CLI parsing.
 4. **Correct encoding handling** — UTF-8/UTF-16 LE BOM auto-detect.
 5. **Fast search** — bounded Levenshtein with pre-allocated buffers, module-level, zero per-call alloc for ≤64-char tokens.
 6. **Security-by-default** — secrets masked on every display path, never stored.
@@ -474,9 +474,9 @@ node dist/cli.js "docker"
 ## 18. Single-command verification cheatsheet
 
 ```bash
-npm test                          # expect: 13 files, 202 tests, 0 failures, ~1.2s
+npm test                          # expect: 14 files, 236 tests, 0 failures, ~1.2s
 npm pack --dry-run --json | grep  # expect: 45 entries
-node dist/cli.js --version        # mem v2.2.6
+node dist/cli.js --version        # mem v2.2.10
 node dist/cli.js --help           # custom ANSI help
 node dist/cli.js "git"            # search your live history
 node dist/cli.js stats -n 10      # top 10 + bar charts
@@ -487,4 +487,4 @@ git log --oneline | wc -l         # expect: 54
 
 ---
 
-_Verified 2026-07-29 against source at commit `7fd1f83` (v2.2.6). File: `docs/PROJECT.md`._
+_Verified 2026-07-30 against source at commit `43a6d60` (v2.2.10). File: `docs/PROJECT.md`._

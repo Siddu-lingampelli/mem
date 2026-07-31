@@ -12,7 +12,7 @@ git clone https://github.com/Siddu-lingampelli/mem-pro.git
 cd mem-pro
 npm install
 npm run dev -- "docker"      # runs src/cli.ts via tsx
-npm test                     # 204 tests across 13 files
+npm test                     # 236 tests across 14 files
 npm run lint                 # prettier check
 npm run typecheck            # tsc --noEmit
 npm run coverage             # vitest --coverage (text + html + lcov)

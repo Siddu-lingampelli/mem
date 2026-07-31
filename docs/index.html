@@ -28,7 +28,7 @@
       <a href="#top" class="brand" aria-label="mem home">
         <span class="logo" aria-hidden="true">m</span>
         <span class="brand-text">mem</span>
-        <span class="badge">v2.2.6</span>
+        <span class="badge">v2.2.10</span>
       </a>
       <span class="spacer"></span>
       <div class="search" id="search-btn" role="button" tabindex="0" aria-label="Open search">
@@ -184,7 +184,7 @@
           <p>Verify:</p>
           <div class="codeblock" data-lang="bash">
             <pre><code>mem --version
-# mem v2.2.6</code></pre>
+# mem v2.2.10</code></pre>
             <button class="copy" type="button">copy</button>
           </div>
         </section>
@@ -198,6 +198,7 @@ mem search "npm run build"    # explicit subcommand
 mem stats                     # command usage statistics
 mem bench                     # benchmark parse &amp; search
 mem recent                    # last 20 commands
+mem doctor                    # diagnose environment + mask self-test
 mem --help                    # full help</code></pre>
             <button class="copy" type="button">copy</button>
           </div>
@@ -422,6 +423,26 @@ mem bench -l 100000            # custom history limit</code></pre>
             </table>
           </div>
         </section>
+        <section id="doctor">
+          <h2>Doctor</h2>
+          <p>
+            Diagnose your environment: Node version, every history file path mem knows about (with
+            size, encoding, and mtime), a 5-fixture secret-mask self-test, a search-engine smoke
+            test, and the welcome-flag state. Use <code>--json</code> for machine-readable output,
+            ideal for scripted bug reports.
+          </p>
+          <div class="codeblock" data-lang="bash">
+            <pre><code>mem doctor                     # human-readable table
+mem doctor --json               # machine-readable report
+# Exit codes: 0 = all ok, 1 = at least one fail, 2 = only warns</code></pre>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <p>
+            When you file a GitHub issue, paste the output of <code>mem doctor</code>
+            so the maintainer can immediately see your platform, history-file state, and whether the
+            mask self-test passes.
+          </p>
+        </section>
 
         <!-- ── CLI REFERENCE ────────────────────────────────────── -->
         <section id="cli">
@@ -460,6 +481,11 @@ mem bench -l 100000            # custom history limit</code></pre>
                 <tr>
                   <td><code>mem recent</code></td>
                   <td>Show newest N commands (default 20)</td>
+                  <td>✅</td>
+                </tr>
+                <tr>
+                  <td><code>mem doctor</code></td>
+                  <td>Diagnose environment, paths, and mask self-test</td>
                   <td>✅</td>
                 </tr>
                 <tr>
@@ -889,7 +915,7 @@ runSearch()
 npm run build     # tsc → dist/
 npm run dev       # tsx src/cli.ts (hot reload)
 npm start         # node dist/cli.js
-npm test          # vitest run — 202 tests</code></pre>
+npm test          # vitest run — 236 tests (14 files)</code></pre>
             <button class="copy" type="button">copy</button>
           </div>
           <p>Override history file for local testing:</p>
@@ -905,7 +931,7 @@ node dist/cli.js "ssh"</code></pre>
 
         <section id="testing">
           <h2>Testing</h2>
-          <p>202 tests across 13 files, ~1.2s.</p>
+          <p>236 tests across 14 files, ~1.3s.</p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -917,7 +943,7 @@ node dist/cli.js "ssh"</code></pre>
               <tbody>
                 <tr>
                   <td><code>cli.test.ts</code></td>
-                  <td>33</td>
+                  <td>39</td>
                 </tr>
                 <tr>
                   <td><code>output.test.ts</code></td>
@@ -929,7 +955,7 @@ node dist/cli.js "ssh"</code></pre>
                 </tr>
                 <tr>
                   <td><code>secrets.test.ts</code></td>
-                  <td>58</td>
+                  <td>61</td>
                 </tr>
                 <tr>
                   <td><code>history.test.ts</code></td>
@@ -957,7 +983,7 @@ node dist/cli.js "ssh"</code></pre>
                 </tr>
                 <tr>
                   <td><code>welcome.test.ts</code></td>
-                  <td>4</td>
+                  <td>5</td>
                 </tr>
                 <tr>
                   <td><code>utils.test.ts</code></td>
@@ -968,8 +994,12 @@ node dist/cli.js "ssh"</code></pre>
                   <td>1</td>
                 </tr>
                 <tr>
+                  <td><code>doctor.test.ts</code></td>
+                  <td>25</td>
+                </tr>
+                <tr>
                   <td><strong>Total</strong></td>
-                  <td><strong>202</strong></td>
+                  <td><strong>237</strong> <small>(1 platform-skipped)</small></td>
                 </tr>
               </tbody>
             </table>
@@ -995,8 +1025,29 @@ node dist/cli.js "ssh"</code></pre>
                   </td>
                 </tr>
                 <tr>
+                  <td><strong>2.2.9</strong></td>
+                  <td>
+                    Fix Windows CI: Prettier endOfLine now "auto", add .gitattributes forcing LF on
+                    commit
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>2.2.8</strong></td>
+                  <td>
+                    <code>mem doctor [--json]</code> — runtime + paths + mask self-test; RED ANSI
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>2.2.7</strong></td>
+                  <td>
+                    Audit hardening: tighter secret patterns, Discord regex fix, welcome symlink
+                    guard, CI matrix, Dependabot, prettier + EditorConfig, vitest with coverage
+                    thresholds
+                  </td>
+                </tr>
+                <tr>
                   <td><strong>2.2.5</strong></td>
-                  <td>Stable cross-shell CLI; welcome flag-persistence fix; 202 tests</td>
+                  <td>Stable cross-shell CLI; welcome flag-persistence fix</td>
                 </tr>
                 <tr>
                   <td>2.2.4</td>
@@ -1050,7 +1101,7 @@ node dist/cli.js "ssh"</code></pre>
 
         <footer>
           <p>
-            <a href="#top">mem</a> · v2.2.6 · MIT ·
+            <a href="#top">mem</a> · v2.2.10 · MIT ·
             <a href="https://github.com/Siddu-lingampelli" target="_blank" rel="noopener"
               >Siddhartha Lingampalli</a
             >
