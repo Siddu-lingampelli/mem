@@ -4,6 +4,16 @@ All notable changes to `mem-terminal` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.11] - 2026-07-30
+
+### Added
+
+- `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1) — referenced by README.
+
+### Fixed
+
+- README: badge URLs pointed to non-existent `mem-pro` repo; corrected to actual `Siddu-lingampelli/mem` repo. Added node version badge. Added table of contents, full `mem doctor` section with all checks listed, exit-code table, environment table, expanded secret-pattern list, expanded development section, contributing pointer. Fixed malformed test-count comment.
+
 ## [2.2.10] - 2026-07-30
 
 ### Fixed

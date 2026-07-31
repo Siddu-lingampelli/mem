@@ -1,6 +1,6 @@
 {
   "name": "mem-terminal",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": "Search your terminal history instantly. Fuzzy search for PowerShell, Bash, Zsh, and Fish history with secret masking.",
   "type": "module",
   "bin": {
