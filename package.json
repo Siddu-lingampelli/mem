@@ -49,7 +49,7 @@
     "email": "siddhartha.lingampalli@gmail.com"
   },
   "dependencies": {
-    "commander": "^13.0.0"
+    "commander": "^15.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
