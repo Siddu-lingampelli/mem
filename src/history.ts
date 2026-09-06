@@ -58,7 +58,10 @@ export function readPsReadLineHistory(limit = 2000): HistoryEntry[] {
       }
     }
     return entries;
-  } catch {
+  } catch (err) {
+    if (process.env.DEBUG_MEM) {
+      console.error(`[mem] PSReadLine history read error: ${(err as Error).message}`);
+    }
     return [];
   }
 }

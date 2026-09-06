@@ -48,11 +48,8 @@ function tokenise(s: string): string[] {
 
 /**
  * Bounded Levenshtein: length-gap exit + two-row DP + row-min exit.
- * Uses pre-allocated buffers sized for any reasonable command token (≤64 chars).
+ * Allocates row buffers per call; small overhead for typical token lengths.
  */
-const _levBufSize = 64;
-const _levPrev = new Array(_levBufSize);
-const _levCurr = new Array(_levBufSize);
 
 function levenshteinBounded(a: string, b: string, maxDist = 2): number {
   if (Math.abs(a.length - b.length) > maxDist) return maxDist + 1;
@@ -64,9 +61,8 @@ function levenshteinBounded(a: string, b: string, maxDist = 2): number {
   const m = a.length;
   if (m === 0) return b.length > maxDist ? maxDist + 1 : b.length;
 
-  const usingPool = m < _levBufSize;
-  const prev = usingPool ? _levPrev : new Array(m + 1);
-  const curr = usingPool ? _levCurr : new Array(m + 1);
+  const prev = new Array(m + 1);
+  const curr = new Array(m + 1);
   for (let i = 0; i <= m; i++) prev[i] = i;
 
   for (let j = 1; j <= b.length; j++) {

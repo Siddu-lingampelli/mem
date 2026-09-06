@@ -48,7 +48,7 @@ Verify:
 
 ```bash
 mem --version
-# mem v2.2.10
+# mem v2.2.11
 ```
 
 A welcome banner prints on the first bare `mem` run; a flag file

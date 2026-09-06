@@ -70,8 +70,11 @@ export function showWelcome(version: string): Promise<void> {
     if (!existsSync(path) || !lstatSync(path).isSymbolicLink()) {
       writeFileSync(path, "", "utf-8");
     }
-  } catch {
-    // No diagnostic; the welcome already printed and won't repeat this run.
+  } catch (err) {
+    if (process.env.DEBUG_MEM) {
+      console.error(`[mem] welcome flag write error: ${(err as Error).message}`);
+    }
+    // No further diagnostic; the welcome already printed and won't repeat this run.
   }
 
   // Async-typed so a future "Press any key" gate can layer on without

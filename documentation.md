@@ -1,6 +1,6 @@
 # MEM CLI — Terminal History Search Tool
 
-**Version:** 2.2.5 · **v2.2.x (current)**  
+**Version:** 2.2.11 · **v2.2.x (current)**  
 **Binary:** `mem` · **Package:** `mem-terminal`  
 **License:** MIT
 
@@ -453,7 +453,8 @@ mem                         # First run: welcome screen
 | 1.2.8     | —           | Recent command, secret masking on display                                                                     |
 | 1.3.0     | —           | Match category labels (Exact/Similar/Did you also mean?)                                                      |
 | 2.x       | —           | Cross-shell readers (Bash / Zsh / Fish) with explicit `--shell`, refined ranking, custom help/version surface |
-| **2.2.5** | **Current** | **Stable cross-shell CLI; 201 tests passing**                                                                 |
+| 2.2.5       | —           | Stable cross-shell CLI; 201 tests passing                                                                     |
+| **2.2.11**  | **Current** | **DEBUG_MEM diagnostics, version sync, audit hardening**                                                      |
 
 ### V2 Roadmap
 

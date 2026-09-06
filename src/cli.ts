@@ -17,18 +17,21 @@ import { RESET, BOLD, DIM, CYAN } from "./ansi.js";
 // are wrapped so that a missing or malformed package.json falls back
 // cleanly instead of throwing at module load time (which would break
 // every test that imports this file).
-function readVersion(): string {
-  try {
-    const requirePkg = createRequire(import.meta.url);
-    const pkg = requirePkg("../package.json") as { version?: string };
-    const v = pkg.version;
-    // Treat empty string the same as missing — `??` only catches null/undefined.
-    return v && v.length > 0 ? v : "0.0.0";
-  } catch {
-    return "0.0.0";
+let _version: string | undefined;
+
+function getVersion(): string {
+  if (_version === undefined) {
+    try {
+      const requirePkg = createRequire(import.meta.url);
+      const pkg = requirePkg("../package.json") as { version?: string };
+      const v = pkg.version;
+      _version = v && v.length > 0 ? v : "0.0.0";
+    } catch {
+      _version = "0.0.0";
+    }
   }
+  return _version;
 }
-const VERSION = readVersion();
 
 export function stripAnsi(text: string): string {
   // Handles simple SGR (\x1b[31m), multi-param (\x1b[1;31m),
@@ -102,7 +105,7 @@ export function runSearch(
 // Custom help formatter
 function customHelp(): string {
   const header = paint(
-    [`${BOLD}${CYAN}mem${RESET} v${VERSION}`, "", "Search your terminal history instantly."].join(
+    [`${BOLD}${CYAN}mem${RESET} v${getVersion()}`, "", "Search your terminal history instantly."].join(
       "\n",
     ),
   );
@@ -243,7 +246,7 @@ program
   .action(async (query: string | undefined, opts: { all?: boolean; max?: string }) => {
     if (query === undefined) {
       if (!hasSeenWelcome()) {
-        await showWelcome(VERSION);
+        await showWelcome(getVersion());
         return;
       }
       program.outputHelp();
@@ -263,19 +266,25 @@ if (isMain) {
   program.helpInformation = () => paint(customHelp());
 
   // Handle --version and -V with custom formatting via pre-parse scan.
+  // Only shortcut when no other trailing flags are present, so unknown
+  // flags still surface as errors.
   program.exitOverride();
   const idx = process.argv.indexOf("--version");
   const idxShort = process.argv.indexOf("-V");
-  if (idx > 0 || idxShort > 0) {
-    console.log(
-      paint(
-        [
-          `${CYAN}${BOLD}mem${RESET} ${DIM}v${VERSION}${RESET}`,
-          `${DIM}Search your terminal history instantly.${RESET}`,
-        ].join("\n"),
-      ),
-    );
-    process.exit(0);
+  const versionPos = Math.max(idx, idxShort);
+  if (versionPos > 0) {
+    const trailingFlags = process.argv.slice(versionPos + 1).filter((a) => a.startsWith("-"));
+    if (trailingFlags.length === 0) {
+      console.log(
+        paint(
+          [
+            `${CYAN}${BOLD}mem${RESET} ${DIM}v${getVersion()}${RESET}`,
+            `${DIM}Search your terminal history instantly.${RESET}`,
+          ].join("\n"),
+        ),
+      );
+      process.exit(0);
+    }
   }
 
   // Suppress Commander's help-throws-after-display noise
