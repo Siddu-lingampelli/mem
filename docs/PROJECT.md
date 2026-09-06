@@ -1,12 +1,12 @@
 # mem-terminal — Complete Project Reference
 
-> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.11 (commit `7fd1f83`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
+> **Single source of truth for the `mem` CLI.** Verified against source as of v2.2.12 (commit `7fd1f83`). Every number, path, and signature below was read from the code or `npm pack --dry-run`, not assumed.
 
 ---
 
 ## 1. What `mem` is
 
-`mem` (npm package **`mem-terminal`**, v2.2.11) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
+`mem` (npm package **`mem-terminal`**, v2.2.12) is a fast, zero-config Node.js CLI that searches your shell history across **PowerShell (PSReadLine), Bash, Zsh, and Fish**. Type a keyword → get every command you ever ran that matches, fuzzy-tolerant, ranked by relevance. Secrets in the output are masked automatically.
 
 - **One production dependency** (`commander`). Everything else (search engine, secret masking, parsers, ANSI output) is hand-rolled.
 - **Zero cloud, zero setup.** Reads local history files; writes one tiny flag file.
@@ -343,7 +343,7 @@ Newest `min(n, entries.length)` commands, **secret-masked**, numbered, dim index
 ```jsonc
 {
   "name": "mem-terminal",
-  "version": "2.2.11",
+  "version": "2.2.12",
   "type": "module",
   "bin": { "mem": "dist/cli.js" },
   "engines": { "node": ">=18" },
@@ -476,7 +476,7 @@ node dist/cli.js "docker"
 ```bash
 npm test                          # expect: 14 files, 236 tests, 0 failures, ~1.2s
 npm pack --dry-run --json | grep  # expect: 45 entries
-node dist/cli.js --version        # mem v2.2.11
+node dist/cli.js --version        # mem v2.2.12
 node dist/cli.js --help           # custom ANSI help
 node dist/cli.js "git"            # search your live history
 node dist/cli.js stats -n 10      # top 10 + bar charts
@@ -487,4 +487,4 @@ git log --oneline | wc -l         # expect: 54
 
 ---
 
-_Verified 2026-07-30 against source at commit `43a6d60` (v2.2.11). File: `docs/PROJECT.md`._
+_Verified 2026-07-30 against source at commit `43a6d60` (v2.2.12). File: `docs/PROJECT.md`._
